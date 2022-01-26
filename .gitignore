@@ -1,0 +1,9 @@
+run.bat
+compile.bat
+docs
+lib
+tests
+tools
+bin/*.dll
+bin/*.exe
+.vscode

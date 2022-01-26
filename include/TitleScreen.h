@@ -19,6 +19,7 @@ class TitleScreen {
     public:
         TitleScreen(Screen& scr) : scr(scr), cam(scr)  {
             scr.loadTextureFromFile("content/textures/texTitle.png", 254, framesTitleSonic, 8);
+            scr.loadTextureFromFile("content/textures/texTitleBg.png", 253);
 
             cam.create(Vector2f(0, 0), scr.getSize());
 
@@ -52,6 +53,8 @@ class TitleScreen {
         void setCursorPos(uint16_t pos) { menuCursor = (pos < menuItemsCount) ? pos : 0; }
 
         void draw() {
+            scr.drawTextureRect(253, IntRect(0, 0, 427, 240));
+
             yAnimShift -= 6;
             if (yAnimShift < -48) {
                 yAnimShift = -48;

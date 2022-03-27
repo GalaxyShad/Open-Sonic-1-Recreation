@@ -17,38 +17,38 @@ Open source recreation of original Sonic The Hedgehog 1991 game build from groun
   * __E__ - Go to next level
 
 # Check list
-* Player [x]
-  * Basic Movement [x]
-  * 360 Movement [x]
-  * Collisions [x]
-  * Basic Actions [x] 
-* Sounds [x]
-* Music [x]
-* Background parallax [x]
-* HUD [x]
-* Spikes [x]
-* Springs [x]
-* Bosses [ ]
-* Enemies [ ]
-  * Moto Bug [x]
-  * Chopper [x]
-  * Crabmeat [x]
-  * Buzz Bomber [x]
-  * Newtron [ ]
-  * Ball Hog [ ]
-  * Batbrain [ ]
-  * Bomb [ ]
-  * Burrobot [ ]
-  * Roller [ ]
-  * Spikes [ ]
-  * Unidasu [ ]
-* Levels <Collisions> <Gimmicks>
-  * Green Hill [x][x]
-  * Marble [x][ ]
-  * Spring Yard [x][ ]
-  * Labyrinth [x][ ]
-  * Starlight [x][ ]
-  * Scrap Brain [x][ ]
+* Player ✔️
+  * Basic Movement ✔️
+  * 360 Movement ✔️
+  * Collisions ✔️
+  * Basic Actions ✔️
+* Sounds ✔️
+* Music ✔️
+* Background parallax ✔️
+* HUD ✔️
+* Spikes ✔️
+* Springs ✔️
+* Bosses ❌
+* Enemies 
+  * Moto Bug ✔️
+  * Chopper ✔️
+  * Crabmeat ✔️
+  * Buzz Bomber ✔️
+  * Newtron ❌
+  * Ball Hog ❌
+  * Batbrain ❌
+  * Bomb ❌
+  * Burrobot ❌
+  * Roller ❌
+  * Spikes ❌
+  * Unidasu ❌
+* Levels \<Collisions\> \<Gimmicks\>
+  * Green Hill ✔️✔️
+  * Marble ✔️❌
+  * Spring Yard ✔️❌
+  * Labyrinth ✔️❌
+  * Starlight ✔️❌
+  * Scrap Brain ✔️❌
 
 # Sources used
 * [Sonic 1 Disassembly](https://github.com/sonicretro/s1disasm)

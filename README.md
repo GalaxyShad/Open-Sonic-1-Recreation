@@ -59,9 +59,9 @@ Open source recreation of original Sonic The Hedgehog 1991 game build from groun
 
 # Build information
 ## Common
-You need SFML2 library to build it: https://www.sfml-dev.org/download.php
-link following libraries: -lsfml-window -lsfml-graphics -lsfml-system -lsfml-audio
-Put output file and sfml dlls to bin folder
+- You need SFML2 library to build it: https://www.sfml-dev.org/download.php
+- link following libraries: -lsfml-window -lsfml-graphics -lsfml-system -lsfml-audio
+- Put output file and SFML dlls to bin folder
 ## Compiling args
 ```
 <your compiller> src\*.cpp -I include\ -I <path to SFML2 include folder> -L <path to SFML2 lib folder> -o bin\sonic.exe -lsfml-window -lsfml-graphics -lsfml-system -lsfml-audio

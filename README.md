@@ -52,8 +52,8 @@ Open source recreation of original Sonic The Hedgehog 1991 game build from groun
 
 # Sources used
 * [Sonic 1 Disassembly](https://github.com/sonicretro/s1disasm)
-* [Sonic Physics Guide](http://info.sonicretro.org/Sonic_Physics_Guide/)
-* [Sonic Hacking Guide](http://info.sonicretro.org/SCHG:Sonic_Community_Hacking_Guide/)
+* [Sonic Physics Guide](http://info.sonicretro.org/Sonic_Physics_Guide)
+* [Sonic Hacking Guide](http://info.sonicretro.org/SCHG:Sonic_Community_Hacking_Guide)
 * [Spirtes Resource](https://www.spriters-resource.com/)
 * [Sound Resource](https://www.sounds-resource.com/)
 
@@ -64,7 +64,7 @@ Open source recreation of original Sonic The Hedgehog 1991 game build from groun
 - Put output file and SFML dlls to bin folder
 ## Compiling args
 ```
-<your compiller> src\*.cpp -I include\ -I <path to SFML2 include folder> -L <path to SFML2 lib folder> -o bin\sonic.exe -lsfml-window -lsfml-graphics -lsfml-system -lsfml-audio
+<your compiler> src\*.cpp -I include\ -I <path to SFML2 include folder> -L <path to SFML2 lib folder> -o bin\sonic.exe -lsfml-window -lsfml-graphics -lsfml-system -lsfml-audio
 ```
 Example for MinGW / GCC
 ```

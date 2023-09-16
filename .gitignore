@@ -1,5 +1,6 @@
 run.bat
 compile.bat
+compiler.list
 docs
 lib
 tests

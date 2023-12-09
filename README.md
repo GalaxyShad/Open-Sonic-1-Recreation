@@ -1,8 +1,16 @@
-# Open Sonic 1 Recreation
-Open source recreation of original Sonic The Hedgehog 1991 game build from ground on C++ programming language.
+<div align="center">
+  <p align="center">
+   <h1 align="center" style="color:red;">Open Sonic 1 Recreation</h1>
+    <img src="https://github.com/GalaxyShad/Open-Sonic-1-Recreation/assets/52833080/e7c05f44-4519-49ae-abcb-ec7aece90ead" /><br/>
+   Open source recreation of original Sonic The Hedgehog 1991 game on C++ programming language.
+  </p>
+</div>
 
-![Tittle screen](scr1.png)
-![GamePlay](scr2.png)
+# Media
+![OSIR-GHZ1_SM22](https://github.com/GalaxyShad/Open-Sonic-1-Recreation/assets/52833080/1200f042-2c40-4f74-ae94-83cbd1f56eb3)
+![OSIR-SYZ](https://github.com/GalaxyShad/Open-Sonic-1-Recreation/assets/52833080/741d4091-513d-4138-bd67-fc97b7beb0c0)
+
+[Watch full gameplay on YouTube](https://www.youtube.com/watch?v=gWmc5dHh4Es&t=118s&ab_channel=GalaxyShad)
 
 # Controls
 * Gameplay

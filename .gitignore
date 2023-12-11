@@ -12,3 +12,4 @@ build
 CMakeFiles
 .vscode
 CMakeCache.txt
+ninja.exe

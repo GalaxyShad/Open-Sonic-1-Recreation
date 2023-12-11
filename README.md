@@ -66,6 +66,12 @@
 * [Sound Resource](https://www.sounds-resource.com/)
 
 # Build information
+## CMake
+```cmake
+cmake -S . -B build
+cmake --build build --config Release
+```
+
 ## Common
 - You need SFML2 library to build it: https://www.sfml-dev.org/download.php
 - link following libraries: -lsfml-window -lsfml-graphics -lsfml-system -lsfml-audio

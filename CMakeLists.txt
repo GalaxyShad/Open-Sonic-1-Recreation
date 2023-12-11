@@ -13,18 +13,29 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 # Include the source directory recursively
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "src/*.h")
 
-add_executable(os1r src/main.cpp)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(os1r PRIVATE sfml-graphics)
-target_compile_features(os1r PRIVATE cxx_std_17)
+add_executable(os1r ${SOURCES})
+
+target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(os1r PRIVATE sfml-main sfml-graphics sfml-system sfml-audio)
+target_compile_features(os1r PRIVATE cxx_std_11)
+
+add_custom_command(
+    TARGET os1r
+    COMMENT "Copy content folder"
+    PRE_BUILD COMMAND ${CMAKE_COMMAND} -E 
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/content $<TARGET_FILE_DIR:os1r>/content
+    VERBATIM)
 
 if(WIN32)
     add_custom_command(
         TARGET os1r
         COMMENT "Copy OpenAL DLL"
-        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:os1r>
+        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E 
+            copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:os1r>
         VERBATIM)
 endif()
 

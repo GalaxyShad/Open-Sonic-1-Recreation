@@ -6,4 +6,10 @@ tests
 tools
 bin/*.dll
 bin/*.exe
+bin_x86
+deps
+build
+CMakeFiles
 .vscode
+CMakeCache.txt
+ninja.exe

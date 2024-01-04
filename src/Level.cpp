@@ -1,5 +1,6 @@
 #include "Level.h"
 
+#include "entity-creator.hpp"
 #include <cstdio>
 
 
@@ -297,6 +298,7 @@ void Level::drawHud() {
 	scr.drawText(3, sRings, Vector2f(64, 40));
 }
 
+#include <algorithm>
 void Level::loadObjects(const char* filename) {
 	FILE* f = fopen(filename, "rb");
 	if (!f) {
@@ -304,105 +306,11 @@ void Level::loadObjects(const char* filename) {
 		return;
 	}
 
+	EntityCreator entCreator(entities);
+
 	uint8_t buff[6];
 	while (fread(buff, 1, 6, f)) {
-		uint16_t x = ((uint16_t)buff[0] << 8) | ((uint16_t)buff[1]);
-		uint16_t y = (((uint16_t)buff[2] << 8) & 0x0FFF) | ((uint16_t)buff[3]);
-
-		uint8_t vf = buff[2] >> 7;
-		uint8_t hf = (buff[2] & 0b01000000) >> 6 ;
-
-		uint8_t type 	= buff[4] & 0b01111111;
-		uint8_t respawn = buff[4] >> 7;
-
-		uint8_t args = buff[5];
-
-		Vector2f oPos = Vector2f((float)x, (float)y);
-		Entity* ent = nullptr;
-		switch(type) {
-			case 0x0D:
-				ent = new SignPost(oPos);
-				break;
-			case 0x11: 
-				ent = new GimGHZ_BridgeController(oPos, args, entities);
-				break;
-			case 0x18:
-				switch (args & 0x0F) {
-					case 0x00: ent = new GimGHZ_Platform(oPos, false, 0); break;
-					case 0x01: ent = new GimGHZ_Platform(oPos, GimGHZ_Platform::DIR_LEFT, true); break;
-					case 0x02: ent = new GimGHZ_Platform(oPos, GimGHZ_Platform::DIR_UP, true); break;
-					case 0x03: ent = new GimGHZ_Platform(oPos, false, 0, true); break; // Falls when stood on
-					//case 0x04: break; // Falls immediately
-					case 0x05: ent = new GimGHZ_Platform(oPos, GimGHZ_Platform::DIR_RIGHT, true); break;
-					case 0x06: ent = new GimGHZ_Platform(oPos, GimGHZ_Platform::DIR_DOWN, true); break;
-					//case 0x07: break; // x7: Rises when switch in high nybble is pressed
-					//case 0x08: break; // x8: Rises immediately
-					case 0x09: ent = new GimGHZ_Platform(oPos, false, false); break; // x9: Doesn't move
-					//case 0x0A: break; // xA: Large - moves up and down
-					//case 0x0B: break; // xB: Moves up and down slowly
-					//case 0x0C: break; // xC: Moves up and down slowly
-					default: ent = new GimGHZ_Platform(oPos, false, false); break;
-				}
-				break;
-			case 0x1A:
-				ent = new GimGHZ_SlpPlatform(oPos, entities, (bool)args);
-				break;
-			case 0x1C:
-				ent = new GimGhz_BridgeColumn(oPos, (bool)hf);
-				break;
-			case 0x1F:
-				ent = new EnCrab(oPos, entities);
-				break;
-			case 0x22:
-				ent = new EnBuzz(oPos);
-				break;
-			case 0x25:
-				ent = new Ring(oPos, (args & 0x0F) + 1, ((args & 0xF0) >> 4) - 1, entities);
-				break;
-			case 0x26:
-				switch (args) {
-					case 0x02: ent = new Monitor(oPos, Monitor::M_LIVE); break;
-					case 0x03: ent = new Monitor(oPos, Monitor::M_SPEED); break;
-					case 0x04: ent = new Monitor(oPos, Monitor::M_SHIELD); break;
-					case 0x05: ent = new Monitor(oPos, Monitor::M_INVINCIBILITY); break;
-					case 0x06: ent = new Monitor(oPos, Monitor::M_RINGS); break;
-					default:   ent = new Monitor(oPos, Monitor::M_RINGS); break;
-				}
-				break;
-			case 0x2B:
-				ent = new EnChopper(oPos);
-				break;
-			case 0x36:
-				if ((args & 0b00010000) == 0)
-					ent = new Spikes(oPos, args, entities);
-				break;
-			case 0x3B:
-				ent = new GimGHZ_Stone(oPos);
-				break;
-			case 0x3E:
-				if (!args) ent = new SignPost(oPos);
-				break;
-			case 0x40:
-				ent = new EnMotobug(oPos);
-				break;
-			case 0x41: 
-				if (((args & 0xF0) >> 4) == 0x01) 
-					ent = new Spring(oPos, !(args & 0x0F), 
-									 hf ? Spring::R_LEFT : Spring::R_RIGHT);
-				else 
-					ent = new Spring(oPos, !(args & 0x0F), 
-									 vf ? Spring::R_DOWN : Spring::R_UP);
-				break;
-			case 0x44:
-				ent = new GimGHZ_Wall(oPos, args & 0x0F, args & 0xF0);
-				break;
-			default:
-				ent = new Ring(oPos);
-				break;
-		}
-
-		if (ent)
-			entities.push_back(ent);
+		entities.push_back(entCreator.create(EntityPlacement::from6ByteBuffer(buff)));
 	}
 
 	fclose(f);

@@ -13,9 +13,9 @@
 Entity* EntityCreator::create(EntityPlacement entPlacement) {
     Entity* res = nullptr;
 
-    if (res = createGeneral(entPlacement)) return res;
-    if (res = createEnemies(entPlacement)) return res;
-    if (res = createOther(entPlacement))   return res;
+    if ((res = createGeneral(entPlacement))) return res;
+    if ((res = createEnemies(entPlacement))) return res;
+    if ((res = createOther(entPlacement)))   return res;
 
     // Placeholder
     return new Ring(Vector2f(entPlacement.x, entPlacement.y));

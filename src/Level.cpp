@@ -5,17 +5,17 @@
 
 
 void Level::create(std::string fZone, std::string fAct, int act) {
-	sZone = fZone;
-	sAct  = fAct;
-	this->act = act;
+	sZone 		= fZone;
+	sAct  		= fAct;
+	this->act 	= act;
 
-	verHeights = nullptr;
-	horHeights = nullptr;
-	angles = nullptr;
+	verHeights 	= nullptr;
+	horHeights 	= nullptr;
+	angles 		= nullptr;
 
 	tilesLayout = nullptr;
-	tiles16 = nullptr;
-	tilesBig = nullptr;
+	tiles16 	= nullptr;
+	tilesBig 	= nullptr;
 
 	loadTerrainTiles("content/levels/collide/Collision Array (Normal).bin",
 					 "content/levels/collide/Collision Array (Rotated).bin",

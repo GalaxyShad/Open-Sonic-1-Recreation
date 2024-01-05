@@ -45,6 +45,18 @@ struct Tile {
 
 };
 
+struct TileAngle {
+    uint8_t hex;
+
+    inline float degrees() { 
+        return ((256.0f - hex) / 256.0f) * 360.0f; 
+    }
+
+    static TileAngle fromDegrees(float degAng) { 
+        return TileAngle { (uint8_t)(((360 - degAng) / 360) * 256) };
+    }
+};
+
 class Terrain {
     public:
         void create(const uint8_t* verHeights, const uint8_t* horHeights, const uint8_t* angles,

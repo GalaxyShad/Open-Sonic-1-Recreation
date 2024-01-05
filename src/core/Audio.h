@@ -2,8 +2,12 @@
 
 #include <SFML/Audio.hpp>
 
-#include <cstdint>
+#include <string>
 #include <map>
+#include <list>
+#include <iterator>
+
+#include <cstdint>
 #include <cstring>
 
 #include "AudioMappings.h"
@@ -35,7 +39,7 @@ class Audio {
             return 1;
         }
 
-        int addMusic(uint8_t key, string file) {
+        int addMusic(uint8_t key, std::string file) {
              if (musics.count(key))
                 return 0;
 

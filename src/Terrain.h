@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cmath>
  
-#include "Geometry.h"
+#include "core/Geometry.h"
 #include "entities/Entity.h"
 #include "Camera.h"
 

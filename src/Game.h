@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Screen.h"
-#include "InputMgr.h"
+#include "core/_index.hpp"
+
 #include "Level.h"
-#include "Audio.h"
 #include "TitleScreen.h"
 
 class IGame {

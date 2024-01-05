@@ -2,7 +2,8 @@
 
 #include "../../Entity.h"
 #include "Terrain.h"
-#include "GameMath.h"
+
+#include "core/Geometry.h"
 
 #define TEX_OBJECTS 0
 #define TEX_GHZ_GIMM 1

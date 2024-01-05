@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Geometry.h"
+#include "core/_index.hpp"
+
 #include "AnimMgr.h"
-#include "Screen.h"
 
 class Camera {
     public:

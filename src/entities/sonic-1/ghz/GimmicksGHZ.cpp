@@ -1,5 +1,4 @@
 #include "GimmicksGHZ.h"
-#include "Geometry.h"
 
 void GimGHZ_Stone::create() 
 {

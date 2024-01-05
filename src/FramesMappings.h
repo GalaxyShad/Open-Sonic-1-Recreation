@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Screen.h"
+#include "core/Screen.h"
 
 const Frame framesGhzGim[] = {
     Frame(IntRect(0,0,48,32)),  //Stone

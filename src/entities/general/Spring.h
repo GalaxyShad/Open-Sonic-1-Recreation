@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity.h"
+#include "../Entity.h"
 
 #define SPRING_ANIM_TIMER 15
 

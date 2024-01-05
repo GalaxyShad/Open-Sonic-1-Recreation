@@ -1,6 +1,6 @@
 #include "Terrain.h"
 
-#include "entities/LayerSwitcher.h"
+#include "entities/general/LayerSwitcher.h"
 
 #include <iostream>
 

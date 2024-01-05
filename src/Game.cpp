@@ -1,6 +1,6 @@
 #include "Game.h"
 
-#include "Geometry.h"
+#include "core/Geometry.h"
 
 #include <SFML\Graphics.hpp>
 #include <iostream>

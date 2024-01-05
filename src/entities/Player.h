@@ -1,13 +1,10 @@
 #pragma once
 
-#include "GameMath.h"
-#include "Geometry.h"
+#include "../core/_index.hpp"
+
 #include "Terrain.h"
-#include "InputMgr.h"
 #include "AnimMgr.h"
 #include "Camera.h"
-
-#include "Audio.h"
 
 #include "Entity.h"
 

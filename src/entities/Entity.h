@@ -8,8 +8,8 @@
 
 #include "FramesMappings.h"
 #include "Camera.h"
-#include "GameMath.h"
-#include "Geometry.h"
+
+#include "../core/_index.hpp"
 
 enum Types {
     TYPE_UNKNOWN,

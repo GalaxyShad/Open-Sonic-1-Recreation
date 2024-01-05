@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Geometry.h"
-#include "Screen.h"
+#include "core/_index.hpp"
 
 class AnimMgr {
     public:

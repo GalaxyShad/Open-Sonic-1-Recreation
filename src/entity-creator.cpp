@@ -1,13 +1,6 @@
 #include "entity-creator.hpp"
-#include "entities/object-ids-s1.hpp"
 
-#include "entities/GimmicksGHZ.h"
-#include "entities/EnemiesGHZ.h"
-
-#include "entities/Monitor.h"
-#include "entities/Ring.h"
-#include "entities/Spikes.h"
-#include "entities/Spring.h"
+#include "entities/_index.hpp"
 
 
 Entity* EntityCreator::create(EntityPlacement entPlacement) {

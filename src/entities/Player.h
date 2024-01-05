@@ -6,16 +6,14 @@
 #include "InputMgr.h"
 #include "AnimMgr.h"
 #include "Camera.h"
-#include "Entity.h"
-#include "Sfx.h"
+
 #include "Audio.h"
 
-#include "Monitor.h"
-#include "Spring.h"
-#include "Ring.h"
-#include "Enemy.h"
-#include "LayerSwitcher.h"
-#include "GimmicksGHZ.h"
+#include "Entity.h"
+
+#include "general/_index.hpp"
+#include "sonic-1/_index.hpp"
+
 
 // === Constants === //
 

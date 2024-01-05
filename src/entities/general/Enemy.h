@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include "../Entity.h"
 #include "Terrain.h"
 
 class Enemy : public Entity

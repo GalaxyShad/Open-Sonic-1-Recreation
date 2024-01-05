@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Enemy.h"
+#include "../../general/Enemy.h"
 
 #include <list>
 

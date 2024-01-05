@@ -4,7 +4,7 @@
 #include <cmath>
  
 #include "Geometry.h"
-#include "Entity.h"
+#include "entities/Entity.h"
 #include "Camera.h"
 
 enum TileType { TILE_EMPTY, TILE_TOP, TILE_LBR, TILE_FULL };

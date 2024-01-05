@@ -2,19 +2,19 @@
 
 #include <list>
 
-#include "Player.h"
+#include "entities/Player.h"
 #include "Camera.h"
 #include "Terrain.h"
 #include "Bg.h"
 
 #include "LevelInformer.h"
-#include "Monitor.h"
-#include "Spring.h"
-#include "Ring.h"
-#include "Spikes.h"
-#include "LayerSwitcher.h"
-#include "EnemiesGHZ.h"
-#include "GimmicksGHZ.h"
+#include "entities/Monitor.h"
+#include "entities/Spring.h"
+#include "entities/Ring.h"
+#include "entities/Spikes.h"
+#include "entities/LayerSwitcher.h"
+#include "entities/EnemiesGHZ.h"
+#include "entities/GimmicksGHZ.h"
 
 #define TILE_HEIGHTS_BUFF_SIZE 4096
 #define TILE_ANGLES_BUFF_SIZE  256

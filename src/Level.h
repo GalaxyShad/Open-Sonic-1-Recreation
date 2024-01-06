@@ -15,7 +15,11 @@
 class Level {
     public:
         Level(Screen& scr, IInputMgr& input, Audio& audio) : 
-            cam(scr), scr(scr), input(input), audio(audio) {}
+            cam(scr), scr(scr), input(input), audio(audio), 
+            tileStore(loadTerrainTiles("content/levels/collide/Collision Array (Normal).bin",
+					                   "content/levels/collide/Collision Array (Rotated).bin",
+					                   "content/levels/collide/Angle Map.bin")),
+            trn(tileStore) {}
         void create(std::string fZone, std::string fAct, int act);
         void free();
         void restart() { free(); create(sZone, sAct, act); };
@@ -25,6 +29,7 @@ class Level {
         void update();
         void draw();
     private:
+        TileStore tileStore;
         Terrain trn;
         Camera cam;
 
@@ -66,7 +71,7 @@ class Level {
 
         void drawHud();
 
-        bool loadTerrainTiles(const char* fnVer, const char* fnHor, const char* fnAngles);
+        TileStore loadTerrainTiles(const char* fnVer, const char* fnHor, const char* fnAngles);
         bool loadTerrainZone(const char* fn16, const char* fnBig);
         bool loadTerrainAct(const char* fnLayout, const char* fnStartPos);
 

@@ -4,12 +4,9 @@
 
 #include <iostream>
 
-void Terrain::create(const uint8_t* verHeights, const uint8_t* horHeights, const uint8_t* angles,
+void Terrain::create(
                      const uint8_t* blocks, const uint16_t* blockMapping, 
                      const uint8_t* lvLayout, uint8_t _lvTexture) {
-    this->verHeights = verHeights;
-    this->horHeights = horHeights;
-    this->angles     = angles;
     
     blocksPtr       = blocks;
     blockMappingPtr = blockMapping;
@@ -78,34 +75,37 @@ Tile Terrain::getTile(Vector2i pos) {
     tile.type = TileType(type);
     tile.pos  = Vector2i((pos.x / 16) * 16, (pos.y / 16) * 16);
 
+    TerrainTile trTile = m_tileStore.getTile(blocksPtr[int(blockID)]);
+
     // Set Heights
     for (int i = 0; i < 16; i++) {
-        if (xFlip == 0)
-            tile.verHeight[i] = verHeights[blocksPtr[int(blockID)] * 16 + i];
-        else 
-            tile.verHeight[i] = verHeights[blocksPtr[int(blockID)] * 16 + (15 - i)];
-
-        if (yFlip == 0)
-            tile.horHeight[i] = horHeights[blocksPtr[int(blockID)] * 16 + i];
-        else 
-            tile.horHeight[i] = horHeights[blocksPtr[int(blockID)] * 16 + (15 - i)];
+        tile.verHeight[i] = trTile.heightsVertical[   (xFlip == 0) ? i : (15 - i) ];
+        tile.horHeight[i] = trTile.heightsHorizontal[ (yFlip == 0) ? i : (15 - i) ];
     }
+
+    if (xFlip) trTile = trTile.flipHorizontal();
+    if (yFlip) trTile = trTile.flipVertical();
 
     // Set Angle
-    uint8_t hexAngle = angles[blocksPtr[int(blockID)]];
+    uint8_t hexAngle = trTile.angle.hex;
 
-    if (hexAngle == 0xFF || hexAngle == 0 || tile.type == TileType::TILE_EMPTY) {
-        tile.angle = 0.0;
-    } else {
-        if (xFlip == 1 && yFlip == 0)
-            hexAngle = 255 - hexAngle;
-        else if (xFlip == 0 && yFlip == 1)
-            hexAngle = 128 - hexAngle;
-        else if (xFlip == 1 && yFlip == 1)
-            hexAngle = 128 + hexAngle;
+    if (tile.type == TileType::TILE_EMPTY)
+        hexAngle = 0;
 
-        tile.angle = float(256.0 - int(hexAngle)) * 1.40625f;
-    }
+    // if (hexAngle == 0xFF || hexAngle == 0 || tile.type == TileType::TILE_EMPTY) {
+    //     tile.angle = 0.0;
+    // } else {
+    //     if (xFlip == 1 && yFlip == 0)
+    //         hexAngle = 255 - hexAngle;
+    //     else if (xFlip == 0 && yFlip == 1)
+    //         hexAngle = 128 - hexAngle;
+    //     else if (xFlip == 1 && yFlip == 1)
+    //         hexAngle = 128 + hexAngle;
+
+    //     tile.angle = float(256.0 - int(hexAngle)) * 1.40625f;
+    // }
+
+    tile.angle = float(256.0 - int(hexAngle)) * 1.40625f;
 
     return tile;
 }
@@ -124,7 +124,9 @@ int Terrain::getTileVerHeight(Vector2i pos) {
     else
         xx = int(pos.x - ((pos.x / 16) * 16));
 
-    height = int(verHeights[ blocksPtr[int(blockID)] * 16 + xx]);
+    TerrainTile trTile = m_tileStore.getTile(blocksPtr[int(blockID)]);
+
+    height = int(trTile.heightsVertical[xx]);
 
     if (height <= 16)
         return height;
@@ -148,7 +150,9 @@ int Terrain::getTileHorHeight(Vector2i pos) {
     else
         yy = int(pos.y - ((pos.y / 16) * 16));
 
-    height = int(horHeights[ blocksPtr[int(blockID)] * 16 + yy]);
+    TerrainTile trTile = m_tileStore.getTile(blocksPtr[int(blockID)]);
+
+    height = int(trTile.heightsHorizontal[yy]);
 
     if (height <= 16)
         return height;
@@ -174,17 +178,22 @@ float Terrain::getTileAngle(Vector2i pos) {
 
 	uint16_t blockID = (block & 0x7FF);
 
-    hexAngle = angles[blocksPtr[int(blockID)]];
+    TerrainTile trTile = m_tileStore.getTile(blocksPtr[int(blockID)]);
 
-    if (hexAngle == 0xFF)
-        return 0;
+    if (xFlip) trTile = trTile.flipHorizontal();
+    if (yFlip) trTile = trTile.flipVertical();
 
-    if (xFlip == 1 && yFlip == 0)
-        hexAngle = 256 - hexAngle;
-    else if (xFlip == 0 && yFlip == 1)
-        hexAngle = 128 - hexAngle;
-    else if (xFlip == 1 && yFlip == 1)
-        hexAngle = 128 + hexAngle;
+    hexAngle = trTile.angle.hex;
+
+    // if (hexAngle == 0xFF)
+    //     return 0;
+
+    // if (xFlip == 1 && yFlip == 0)
+    //     hexAngle = 256 - hexAngle;
+    // else if (xFlip == 0 && yFlip == 1)
+    //     hexAngle = 128 - hexAngle;
+    // else if (xFlip == 1 && yFlip == 1)
+    //     hexAngle = 128 + hexAngle;
 
     return float(256.0 - hexAngle) * 1.40625f;
 }

@@ -17,9 +17,9 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	tiles16 	= nullptr;
 	tilesBig 	= nullptr;
 
-	loadTerrainTiles("content/levels/collide/Collision Array (Normal).bin",
-					 "content/levels/collide/Collision Array (Rotated).bin",
-					 "content/levels/collide/Angle Map.bin");
+	// loadTerrainTiles("content/levels/collide/Collision Array (Normal).bin",
+	// 				 "content/levels/collide/Collision Array (Rotated).bin",
+	// 				 "content/levels/collide/Angle Map.bin");
 
 	std::string sTex       = "content/levels/textures/"  + sZone + ".png";
 	std::string sCollide   = "content/levels/collide/"   + sZone + ".bin";
@@ -34,8 +34,7 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	loadTerrainAct(sLayout.c_str(), sStartPos.c_str());
 	loadObjects(sObjPos.c_str());
 
-	trn.create(verHeights, horHeights, angles,
-			   tiles16, tilesBig, tilesLayout, 255);
+	trn.create(tiles16, tilesBig, tilesLayout, 255);
 	trn.createLayeringObjs(entities);
 
 	// Bg
@@ -316,7 +315,7 @@ void Level::loadObjects(const char* filename) {
 	fclose(f);
 }
 
-bool Level::loadTerrainTiles(const char* fnVer, const char* fnHor, const char* fnAngles) {
+TileStore Level::loadTerrainTiles(const char* fnVer, const char* fnHor, const char* fnAngles) {
 	FILE* fVerHeights = fopen(fnVer, "rb");
 	FILE* fHorHeights = fopen(fnHor, "rb");
 	FILE* fAngles	  = fopen(fnAngles, "rb");
@@ -329,28 +328,39 @@ bool Level::loadTerrainTiles(const char* fnVer, const char* fnHor, const char* f
 			   fnVer,    fVerHeights ? "OK" : "FAIL",
 			   fnHor,    fHorHeights ? "OK" : "FAIL",
 			   fnAngles, fAngles     ? "OK" : "FAIL");
-		return false;
+		// return false;
 	}
 
-	verHeights = new uint8_t[TILE_HEIGHTS_BUFF_SIZE];
+
+	uint8_t* verHeights = new uint8_t[TILE_HEIGHTS_BUFF_SIZE];
 	if (!fread(verHeights, 1, TILE_HEIGHTS_BUFF_SIZE, fVerHeights), fclose(fVerHeights)) {
 		printf("Error. Ver heights file corrupted\n");
-		return false;
+		// return false;
 	}
 
-	horHeights = new uint8_t[TILE_HEIGHTS_BUFF_SIZE];
+	uint8_t* horHeights = new uint8_t[TILE_HEIGHTS_BUFF_SIZE];
 	if (!fread(horHeights, 1, TILE_HEIGHTS_BUFF_SIZE, fHorHeights), fclose(fHorHeights)) {
 		printf("Error. Hor heights file corrupted\n");
-		return false;
+		// return false;
 	}
 
-	angles = new uint8_t[TILE_ANGLES_BUFF_SIZE];
+	uint8_t* angles = new uint8_t[TILE_ANGLES_BUFF_SIZE];
 	if (!fread(angles, 1, TILE_ANGLES_BUFF_SIZE, fAngles), fclose(fAngles)) {
 		printf("Error. Angles file corrupted\n");
-		return false;
 	}
 
-	return true;
+	TerrainTile* tiles = new TerrainTile[256];
+	for (int i = 0; i < 256; i++) {
+		tiles[i].angle = { angles[i] };	
+		
+		for (int j = 0; j < 16; j++) {
+			tiles[i].heightsHorizontal[j] = horHeights[i * 16 + j]; 
+			tiles[i].heightsVertical[j] = verHeights[i * 16 + j];
+		}
+	}
+
+
+	return TileStore(tiles, 256);
 }	
 
 bool Level::loadTerrainZone(const char* fn16, const char* fnBig) {

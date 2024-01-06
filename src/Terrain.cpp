@@ -97,7 +97,7 @@ int Terrain::getTileVerHeight(Vector2i pos) {
 
     int height = (int)getTile(pos).verHeight[xx];
 
-    return (height <= 16) ? height : 256 - height;
+    return height;
 }
 
 int Terrain::getTileHorHeight(Vector2i pos) {
@@ -105,7 +105,7 @@ int Terrain::getTileHorHeight(Vector2i pos) {
 
     int height = (int)getTile(pos).horHeight[yy];
 
-    return (height <= 16) ? height : 256 - height;
+    return height;
 }
 
 TileType Terrain::getTileType(Vector2i pos) {

@@ -45,22 +45,69 @@ struct Tile {
 
 };
 
-struct TileAngle {
+struct HexAngle {
     uint8_t hex;
 
     inline float degrees() { 
         return ((256.0f - hex) / 256.0f) * 360.0f; 
     }
 
-    static TileAngle fromDegrees(float degAng) { 
-        return TileAngle { (uint8_t)(((360 - degAng) / 360) * 256) };
+    static HexAngle fromDegrees(float degAng) { 
+        return HexAngle { (uint8_t)(((360 - degAng) / 360) * 256) };
     }
+};
+
+struct TerrainTile {
+    HexAngle angle;
+    uint8_t heightsVertical[16];
+    uint8_t heightsHorizontal[16];
+
+    TerrainTile flipVertical() {
+        TerrainTile flipped = { 0 };
+
+        for (int i = 0; i < 16; i++) {
+            flipped.heightsHorizontal[i] = heightsHorizontal[15 - i];
+            flipped.heightsVertical[i] = heightsVertical[i]; 
+        }
+        flipped.angle.hex = 0x7F - angle.hex;
+
+        return flipped;
+    } 
+
+    TerrainTile flipHorizontal() {
+        TerrainTile flipped = { 0 };
+
+        for (int i = 0; i < 16; i++) {
+            flipped.heightsHorizontal[i] = heightsHorizontal[i];
+            flipped.heightsVertical[i] = heightsVertical[15 - i]; 
+        }
+        flipped.angle.hex = 0xFF - angle.hex;
+
+        return flipped;
+    }
+};
+
+class TileStore {
+public:
+    TileStore(const TerrainTile* buffer, size_t size) 
+        : m_store(buffer), m_size(size) {}
+
+    inline size_t count() { return m_size; }
+    
+    inline TerrainTile getTile(int index) { return m_store[index]; }
+
+private:
+    const TerrainTile* m_store;
+    size_t m_size;
 };
 
 class Terrain {
     public:
-        void create(const uint8_t* verHeights, const uint8_t* horHeights, const uint8_t* angles,
-                    const uint8_t* blocks, const uint16_t* blockMapping, const uint8_t* lvLayout, uint8_t _lvTexture);
+        Terrain(TileStore& tileStore) : m_tileStore(tileStore) {}
+
+        void create(
+            const uint8_t* blocks, const uint16_t* blockMapping, 
+            const uint8_t* lvLayout, uint8_t _lvTexture);
 
         void createLayeringObjs(std::list<Entity*>& entList);
 
@@ -80,9 +127,7 @@ class Terrain {
         void drawChunk(Camera& cam, uint16_t chunkId, Vector2f pos);
         void drawChunkPart(Camera& cam, uint16_t chunkId, Vector2f pos, IntRect rect);
     private:
-        const uint8_t* verHeights = nullptr;
-        const uint8_t* horHeights = nullptr;
-        const uint8_t* angles = nullptr;
+        TileStore& m_tileStore;
 
         const uint8_t* blocksPtr = nullptr;
         const uint8_t* lvLayoutPtr = nullptr ;

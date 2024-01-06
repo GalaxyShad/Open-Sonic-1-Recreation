@@ -48,6 +48,10 @@ struct Tile {
 struct HexAngle {
     uint8_t hex;
 
+    inline bool isRotatable() {
+        return (hex != 0xFF);
+    }
+
     inline float degrees() { 
         return ((256.0f - hex) / 256.0f) * 360.0f; 
     }
@@ -69,7 +73,10 @@ struct TerrainTile {
             flipped.heightsHorizontal[i] = heightsHorizontal[15 - i];
             flipped.heightsVertical[i] = heightsVertical[i]; 
         }
-        flipped.angle.hex = 0x7F - angle.hex;
+
+        flipped.angle.hex = angle.isRotatable() 
+            ? 128 - angle.hex
+            : angle.hex;
 
         return flipped;
     } 
@@ -81,7 +88,10 @@ struct TerrainTile {
             flipped.heightsHorizontal[i] = heightsHorizontal[i];
             flipped.heightsVertical[i] = heightsVertical[15 - i]; 
         }
-        flipped.angle.hex = 0xFF - angle.hex;
+
+        flipped.angle.hex = angle.isRotatable() 
+            ? 256 - angle.hex
+            : angle.hex;
 
         return flipped;
     }

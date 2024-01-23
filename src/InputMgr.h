@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML\Window.hpp>
+#include <SFML/Window.hpp>
 
 class IInputMgr {
     public:

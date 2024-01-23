@@ -5,7 +5,7 @@
 #include <cstring>
 
 #include "Geometry.h"
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 struct Frame {
     Frame() {}

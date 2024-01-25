@@ -2,6 +2,7 @@
 
 // https://info.sonicretro.org/SCHG:Sonic_the_Hedgehog_(16-bit)/Object_Editing
 enum class ObjectID_S1 {
+    NONE = 0,
     S1_SONIC = 1,
     S1_UNK_ID02,
     S1_UNK_ID03,

@@ -20,7 +20,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(os1r ${SOURCES})
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(os1r PRIVATE sfml-main sfml-graphics sfml-system sfml-audio)
+target_link_libraries(os1r PRIVATE sfml-graphics sfml-system sfml-audio)
 target_compile_features(os1r PRIVATE cxx_std_11)
 
 add_custom_command(

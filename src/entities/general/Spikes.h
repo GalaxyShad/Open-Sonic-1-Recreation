@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include "entities/Entity.h"
 #include "Terrain.h"
 
 #include <iostream>

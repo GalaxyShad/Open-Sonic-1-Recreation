@@ -2,7 +2,7 @@
 
 #include "core/Geometry.h"
 
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <iostream>
 
 #define TEX_OBJECTS 0

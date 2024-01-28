@@ -15,11 +15,8 @@
 class Level {
     public:
         Level(Screen& scr, IInputMgr& input, Audio& audio) : 
-            cam(scr), scr(scr), input(input), audio(audio), 
-            tileStore(loadTerrainTiles("content/levels/collide/Collision Array (Normal).bin",
-					                   "content/levels/collide/Collision Array (Rotated).bin",
-					                   "content/levels/collide/Angle Map.bin")),
-            trn(tileStore) {}
+            cam(scr), scr(scr), input(input), audio(audio),
+            trn(*loadTerrainTest()) {}
         void create(std::string fZone, std::string fAct, int act);
         void free();
         void restart() { free(); create(sZone, sAct, act); };
@@ -29,7 +26,14 @@ class Level {
         void update();
         void draw();
     private:
-        TileStore tileStore;
+        terrain::Terrain* m_terrain;
+
+        std::unique_ptr<terrain::Store<terrain::Tile>> m_storeTiles;
+        std::unique_ptr<terrain::Store<terrain::Block>> m_storeBlocks;
+        std::unique_ptr<terrain::Store<terrain::Chunk>> m_storeChunks;
+        
+        std::unique_ptr<terrain::Layout> m_layout;
+
         Terrain trn;
         Camera cam;
 
@@ -71,10 +75,34 @@ class Level {
 
         void drawHud();
 
-        TileStore loadTerrainTiles(const char* fnVer, const char* fnHor, const char* fnAngles);
         bool loadTerrainZone(const char* fn16, const char* fnBig);
         bool loadTerrainAct(const char* fnLayout, const char* fnStartPos);
 
         void loadObjects(const char* filename);
+
+        terrain::Terrain* loadTerrainTest() {
+            std::string sCollide   = "content/levels/collide/ghz.bin";
+	        std::string sMap256    = "content/levels/map256/GHZ.bin";
+	        std::string sLayout    = "content/levels/layout/ghz1.bin";
+
+            terrain::TerrainLoaderSonic1 loader(terrain::TerrainLoaderSonic1FilePaths {
+                .angles = "content/levels/collide/Angle Map.bin",
+                .verticalHeights = "content/levels/collide/Collision Array (Normal).bin",
+                .horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin",
+
+                .blocks = sCollide.c_str(),
+                .chunks = sMap256.c_str(),
+
+                .layout = sLayout.c_str()
+            });
+
+            m_storeTiles = loader.loadTiles();
+            m_storeBlocks = loader.loadBlocks(*m_storeTiles.get());
+            m_storeChunks = loader.loadChunks(*m_storeBlocks.get());
+            
+            m_layout = loader.loadLayout(*m_storeChunks.get());
+
+            return new terrain::Terrain(*m_layout.get());
+        }
 
 };

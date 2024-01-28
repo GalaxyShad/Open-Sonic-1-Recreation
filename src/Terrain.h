@@ -5,7 +5,9 @@
  
 #include "core/Geometry.h"
 #include "entities/Entity.h"
-#include "Camera.h"
+#include "camera.h"
+
+#include "new-terrain.hpp"
 
 enum TileType { TILE_EMPTY, TILE_TOP, TILE_LBR, TILE_FULL };
 
@@ -45,75 +47,11 @@ struct Tile {
 
 };
 
-struct HexAngle {
-    uint8_t hex;
-
-    inline bool isRotatable() {
-        return (hex != 0xFF);
-    }
-
-    inline float degrees() { 
-        return ((256.0f - hex) / 256.0f) * 360.0f; 
-    }
-
-    static HexAngle fromDegrees(float degAng) { 
-        return HexAngle { (uint8_t)(((360 - degAng) / 360) * 256) };
-    }
-};
-
-struct TerrainTile {
-    HexAngle angle;
-    uint8_t heightsVertical[16];
-    uint8_t heightsHorizontal[16];
-
-    TerrainTile flipVertical() {
-        TerrainTile flipped = { 0 };
-
-        for (int i = 0; i < 16; i++) {
-            flipped.heightsHorizontal[i] = heightsHorizontal[15 - i];
-            flipped.heightsVertical[i] = heightsVertical[i]; 
-        }
-
-        flipped.angle.hex = angle.isRotatable() 
-            ? 128 - angle.hex
-            : angle.hex;
-
-        return flipped;
-    } 
-
-    TerrainTile flipHorizontal() {
-        TerrainTile flipped = { 0 };
-
-        for (int i = 0; i < 16; i++) {
-            flipped.heightsHorizontal[i] = heightsHorizontal[i];
-            flipped.heightsVertical[i] = heightsVertical[15 - i]; 
-        }
-
-        flipped.angle.hex = angle.isRotatable() 
-            ? 256 - angle.hex
-            : angle.hex;
-
-        return flipped;
-    }
-};
-
-class TileStore {
-public:
-    TileStore(const TerrainTile* buffer, size_t size) 
-        : m_store(buffer), m_size(size) {}
-
-    inline size_t count() { return m_size; }
-    
-    inline TerrainTile getTile(int index) { return m_store[index]; }
-
-private:
-    const TerrainTile* m_store;
-    size_t m_size;
-};
-
 class Terrain {
     public:
-        Terrain(TileStore& tileStore) : m_tileStore(tileStore) {}
+        Terrain(terrain::Terrain& terrain) 
+            : m_terrain(terrain) 
+        {}
 
         void create(
             const uint8_t* blocks, const uint16_t* blockMapping, 
@@ -137,7 +75,7 @@ class Terrain {
         void drawChunk(Camera& cam, uint16_t chunkId, Vector2f pos);
         void drawChunkPart(Camera& cam, uint16_t chunkId, Vector2f pos, IntRect rect);
     private:
-        TileStore& m_tileStore;
+        terrain::Terrain& m_terrain;
 
         const uint8_t* blocksPtr = nullptr;
         const uint8_t* lvLayoutPtr = nullptr ;

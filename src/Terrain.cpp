@@ -62,22 +62,13 @@ uint16_t Terrain::getBlock(Vector2i pos) {
 }
 
 Tile Terrain::getTile(Vector2i pos) {
-    uint16_t block = getBlock(pos);
-
-    uint8_t  xFlip    = ((block & 0x800)  >> 11);
-    uint8_t  yFlip    = ((block & 0x1000) >> 12);
-    uint8_t  type     = block >> 13;
-	uint16_t blockID  = block & 0b011111111111;
+    terrain::ChunkBlock trBlock = m_terrain.getBlock(pos.x, pos.y);
+    terrain::Tile  trTile = trBlock.tile;
 
     Tile tile;
 
-    tile.type = TileType(type);
+    tile.type = (TileType)trBlock.solidityNormalLayer;
     tile.pos  = Vector2i((pos.x / 16) * 16, (pos.y / 16) * 16);
-
-    TerrainTile trTile = m_tileStore.getTile(blocksPtr[int(blockID)]);
-
-    if (xFlip) trTile = trTile.flipHorizontal();
-    if (yFlip) trTile = trTile.flipVertical();
 
     // Set Heights
     for (int i = 0; i < 16; i++) {
@@ -150,22 +141,35 @@ void Terrain::drawChunk(Camera& cam, uint16_t chunkId, Vector2f pos) {
 
     for (int i = 0; i < 16; i++) {
         for (int j = 0; j < 16; j++) {
-            uint16_t block = blockMappingPtr[(chunkId*16+i)*16 + j];
+            auto block = m_terrain.getChunkStore().get(chunkId+1).getBlock(j, i);
 
-            uint16_t yFlip    = ((block << 3) >> 15) & 1;
-            uint16_t xFlip    = ((block << 4) >> 15) & 1;
-            uint16_t blockID  = (block << 5);
-
-            blockID = blockID >> 5;
             cam.draw(
                 lvTexture, 
-                IntRect(0, blockID * 16, 16, 16), 
+                IntRect(0, block.blockId * 16, 16, 16), 
                 Vector2f(pos.x + j * 16.0, pos.y + i * 16.0), 
                 Vector2i(0, 0), 
                 0.0, 
-                xFlip, 
-                yFlip
+                block.xFlip, 
+                block.yFlip
             );
+
+            // uint16_t block = blockMappingPtr[(chunkId*16+i)*16 + j];
+
+            // uint16_t yFlip    = ((block << 3) >> 15) & 1;
+            // uint16_t xFlip    = ((block << 4) >> 15) & 1;
+            // uint16_t blockID  = (block << 5);
+
+            // blockID = blockID >> 5;
+
+            // cam.draw(
+            //     lvTexture, 
+            //     IntRect(0, blockID * 16, 16, 16), 
+            //     Vector2f(pos.x + j * 16.0, pos.y + i * 16.0), 
+            //     Vector2i(0, 0), 
+            //     0.0, 
+            //     xFlip, 
+            //     yFlip
+            // );
         }
     }
 }

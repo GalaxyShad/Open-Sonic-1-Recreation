@@ -3,11 +3,11 @@
 struct HexAngle {
     uint8_t hex;
 
-    inline bool isRotatable() {
+    inline bool isRotatable() const {
         return (hex != 0xFF);
     }
 
-    inline float degrees() { 
+    inline float degrees() const { 
         return ((256.0f - hex) / 256.0f) * 360.0f; 
     }
 

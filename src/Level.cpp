@@ -28,14 +28,17 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	std::string sStartPos  = "content/levels/startpos/"  + sAct  + ".bin";
 	std::string sObjPos    = "content/levels/objpos/" 	 + sAct  + ".bin";
 
+	m_terrain = loadTerrainTest();
+	trn = new Terrain(*m_terrain);
+
 	scr.loadTextureFromFile(sTex.c_str(), 255);
 
 	loadTerrainZone(sCollide.c_str(), sMap256.c_str());
 	loadTerrainAct(sLayout.c_str(), sStartPos.c_str());
 	loadObjects(sObjPos.c_str());
 
-	trn.create(tiles16, tilesBig, tilesLayout, 255);
-	trn.createLayeringObjs(entities);
+	trn->create(tiles16, tilesBig, tilesLayout, 255);
+	trn->createLayeringObjs(entities);
 
 	// Bg
 	bg = new Bg();
@@ -84,26 +87,29 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	}
 
 	// Create player
-	Player* pl = new Player(plStartPos, trn, input, audio, rings, score);
+	Player* pl = new Player(plStartPos, *trn, input, audio, rings, score);
 	entities.push_back(pl);	
 
     cam.create(Vector2f(plStartPos.x - scr.getSize().width / 2, 
 						plStartPos.y - scr.getSize().height / 2), 
-			   trn.getSize());
+			   trn->getSize());
+
+	if (m_terrain == nullptr) {
+		printf("Crap\n");
+	}
 
 	// S Tubes
 	if (sZone == "GHZ") {
 		audio.playMusic(2);
-		for (int i = 0; i < trn.getSize().height; i++)
-			for (int j = 0; j < trn.getSize().width; j++) {
-				int x = j * 256;
-				int y = i * 256;
-				uint8_t chunk = trn.getChunk(Vector2i(x, y));
+		for (int i = 0; i < m_terrain->getLayout().getHeight(); i++)
+			for (int j = 0; j < m_terrain->getLayout().getWidth(); j++) {
+				uint8_t chunkId = m_terrain->getLayout().getChunkId(j, i);
 
-				if (chunk == 0x1F) 		
-					entities.push_back(new GimGHZ_STube(Vector2f(x+8+8, y+112), 0));
-				else if (chunk == 0x20) 
-					entities.push_back(new GimGHZ_STube(Vector2f(x+248-8, y+112), 1));
+				int x = j * m_terrain->getLayout().getChunksRadiusPixels();
+				int y = i * m_terrain->getLayout().getChunksRadiusPixels();
+
+				if (chunkId == 0x1F) 		entities.push_back(new GimGHZ_STube(Vector2f(x+8+8, y+112),   0));
+				else if (chunkId == 0x20) 	entities.push_back(new GimGHZ_STube(Vector2f(x+248-8, y+112), 1));
 			}
 	}
 	
@@ -210,7 +216,7 @@ void Level::update() {
 					isFadeDeath = true;
 			} else if ((*it)->getType() == TYPE_ENEMY) {
 				Enemy* en = (Enemy*)(*it);
-				en->trnCollision(trn);
+				en->trnCollision(*trn);
 			} else if ((*it)->getType() == TYPE_RING) {
 				// Ring animation
 				Ring* ring = (Ring*)(*it);
@@ -254,10 +260,10 @@ void Level::update() {
 void Level::draw() {
 	cam.update();
 
-	bg->draw(cam, trn);
+	bg->draw(cam, *trn);
 
 	// Terrain
-	trn.draw(cam);
+	trn->draw(cam);
 
 	// Entities
 	for (it = entities.begin(); it != entities.end(); it++) {

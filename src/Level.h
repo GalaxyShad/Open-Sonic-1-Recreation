@@ -2,6 +2,8 @@
 
 #include <list>
 
+#include "terrain-loader.hpp"
+
 #include "entities/_index.hpp"
 
 #include "Camera.h"
@@ -15,8 +17,7 @@
 class Level {
     public:
         Level(Screen& scr, IInputMgr& input, Audio& audio) : 
-            cam(scr), scr(scr), input(input), audio(audio),
-            trn(*loadTerrainTest()) {}
+            cam(scr), scr(scr), input(input), audio(audio) {}
         void create(std::string fZone, std::string fAct, int act);
         void free();
         void restart() { free(); create(sZone, sAct, act); };
@@ -34,7 +35,7 @@ class Level {
         
         std::unique_ptr<terrain::Layout> m_layout;
 
-        Terrain trn;
+        Terrain* trn;
         Camera cam;
 
         Screen& scr;
@@ -85,16 +86,17 @@ class Level {
 	        std::string sMap256    = "content/levels/map256/GHZ.bin";
 	        std::string sLayout    = "content/levels/layout/ghz1.bin";
 
-            terrain::TerrainLoaderSonic1 loader(terrain::TerrainLoaderSonic1FilePaths {
-                .angles = "content/levels/collide/Angle Map.bin",
-                .verticalHeights = "content/levels/collide/Collision Array (Normal).bin",
-                .horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin",
+            terrain::TerrainLoaderSonic1FilePaths filepaths;
 
-                .blocks = sCollide.c_str(),
-                .chunks = sMap256.c_str(),
+            filepaths.angles            = "content/levels/collide/Angle Map.bin";
+            filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
+            filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
+            
+            filepaths.blocks = "content/levels/collide/ghz.bin";
+            filepaths.chunks = "content/levels/map256/GHZ.bin";
+            filepaths.layout = "content/levels/layout/ghz1.bin";
 
-                .layout = sLayout.c_str()
-            });
+            terrain::TerrainLoaderSonic1 loader(filepaths);
 
             m_storeTiles = loader.loadTiles();
             m_storeBlocks = loader.loadBlocks(*m_storeTiles.get());

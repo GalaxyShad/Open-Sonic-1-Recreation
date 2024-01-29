@@ -1,7 +1,7 @@
 #include "Bg.h"
 
 void Bg::create(uint8_t _from, uint8_t _len) { 
-    chunkFrom = _from; 
+    chunkFrom = _from+1; 
     chunkLen = _len; 
     chunkCur = chunkFrom;
 };
@@ -38,7 +38,8 @@ void Bg::drawLayer(int layerInd, Camera& cam, Terrain& trn) {
     int n = (int)((BackgroundEnd-BackgroundStart)/BackgroundStep);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < chunkLen; j++)
-            trn.drawChunkPart(cam, chunkFrom+j, Vector2f(BackgroundStart+j*256, cy+layer.start), IntRect(0, layer.start, 256, layer.size));
+            m_terrainDrawer.drawChunkPartById(chunkFrom+j, Vector2f(BackgroundStart+j*256, cy+layer.start), IntRect(0, layer.start, 256, layer.size));
+
         BackgroundStart += BackgroundStep;
     }
 }

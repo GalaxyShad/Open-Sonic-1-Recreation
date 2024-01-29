@@ -53,36 +53,17 @@ class Terrain {
             : m_terrain(terrain) 
         {}
 
-        void create(
-            const uint8_t* blocks, const uint16_t* blockMapping, 
-            const uint8_t* lvLayout, uint8_t _lvTexture);
-
         void createLayeringObjs(std::list<Entity*>& entList);
 
-        uint16_t getBlock(Vector2i pos);
-        
         int getTileVerHeight(Vector2i pos);
         int getTileHorHeight(Vector2i pos);
         float getTileAngle(Vector2i pos);
         TileType getTileType(Vector2i pos);  
         Tile getTile(Vector2i pos);
 
-        Size getSize()  { return lvSize; }
+        Size getSize()  { return Size(m_terrain.getLayout().getWidth(), m_terrain.getLayout().getHeight()); }
         void setLayer(uint8_t _layer) { layer = _layer; }
-
-        void draw(Camera& cam);
-        void drawChunk(Camera& cam, uint16_t chunkId, Vector2f pos);
-        void drawChunkPart(Camera& cam, uint16_t chunkId, Vector2f pos, IntRect rect);
     private:
         terrain::Terrain& m_terrain;
-
-        const uint8_t* blocksPtr = nullptr;
-        const uint8_t* lvLayoutPtr = nullptr ;
-        const uint16_t* blockMappingPtr = nullptr;
-
-        const uint16_t chunkSide = 256;
-
-        uint8_t lvTexture = 0;
         uint8_t layer = 0;
-        Size lvSize;
 };

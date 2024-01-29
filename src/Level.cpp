@@ -9,18 +9,6 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	sAct  		= fAct;
 	this->act 	= act;
 
-	verHeights 	= nullptr;
-	horHeights 	= nullptr;
-	angles 		= nullptr;
-
-	tilesLayout = nullptr;
-	tiles16 	= nullptr;
-	tilesBig 	= nullptr;
-
-	// loadTerrainTiles("content/levels/collide/Collision Array (Normal).bin",
-	// 				 "content/levels/collide/Collision Array (Rotated).bin",
-	// 				 "content/levels/collide/Angle Map.bin");
-
 	std::string sTex       = "content/levels/textures/"  + sZone + ".png";
 	std::string sCollide   = "content/levels/collide/"   + sZone + ".bin";
 	std::string sMap256    = "content/levels/map256/"    + sZone + ".bin";
@@ -28,20 +16,30 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	std::string sStartPos  = "content/levels/startpos/"  + sAct  + ".bin";
 	std::string sObjPos    = "content/levels/objpos/" 	 + sAct  + ".bin";
 
-	m_terrain = loadTerrainTest();
+	terrain::TerrainLoaderSonic1FilePaths filepaths;
+
+	filepaths.angles            = "content/levels/collide/Angle Map.bin";
+	filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
+	filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
+	
+	filepaths.blocks = sCollide.c_str();
+	filepaths.chunks = sMap256.c_str();
+	filepaths.layout = sLayout.c_str();
+
+	m_terrain = loadTerrain(filepaths);
 	trn = new Terrain(*m_terrain);
 
 	scr.loadTextureFromFile(sTex.c_str(), 255);
 
-	loadTerrainZone(sCollide.c_str(), sMap256.c_str());
-	loadTerrainAct(sLayout.c_str(), sStartPos.c_str());
+	loadTerrainAct(sStartPos.c_str());
 	loadObjects(sObjPos.c_str());
 
-	trn->create(tiles16, tilesBig, tilesLayout, 255);
 	trn->createLayeringObjs(entities);
 
+	m_terrainDrawer = new terrain::TerrainDrawer(cam, m_terrain->getChunkStore(), m_terrain->getLayout(), 255);
+
 	// Bg
-	bg = new Bg();
+	bg = new Bg(*m_terrainDrawer);
 
 	const char* zoneName = sZone.c_str();
 	if      (sZone == "GHZ") zoneName = "GREEN HILL";
@@ -263,7 +261,7 @@ void Level::draw() {
 	bg->draw(cam, *trn);
 
 	// Terrain
-	trn->draw(cam);
+	m_terrainDrawer->draw();
 
 	// Entities
 	for (it = entities.begin(); it != entities.end(); it++) {
@@ -305,129 +303,70 @@ void Level::drawHud() {
 
 #include <algorithm>
 void Level::loadObjects(const char* filename) {
-	FILE* f = fopen(filename, "rb");
-	if (!f) {
-		printf("File load error\n");
-		return;
-	}
+	std::ifstream file(filename, std::ios::binary);
+	if (!file) {
+        std::cout << "File load error" << std::endl;
+        return;
+    }
 
 	EntityCreator entCreator(entities);
+    uint8_t buff[6];
 
-	uint8_t buff[6];
-	while (fread(buff, 1, 6, f)) {
-		entities.push_back(entCreator.create(EntityPlacement::from6ByteBuffer(buff)));
-	}
+    while (file.read(reinterpret_cast<char*>(buff), sizeof(buff))) {
+        entities.push_back(entCreator.create(EntityPlacement::from6ByteBuffer(buff)));
+    }
 
-	fclose(f);
+    file.close();
 }
 
 
-bool Level::loadTerrainZone(const char* fn16, const char* fnBig) {
-	FILE* f16  = fopen(fn16, "rb");
-	FILE* fBig = fopen(fnBig, "rb");
+bool Level::loadTerrainAct(const char* fnStartPos) {
+    std::ifstream file(fnStartPos, std::ios::binary);
 
-	if (!f16 || !fBig) {
-		printf("Error loading Zone data\n"
-			   "16x16 mappings: %s %s\n"
-			   "256x256 mappings: %s %s\n",
-			   fn16,  f16  ? "OK" : "FAIL",
-			   fnBig, fBig ? "OK" : "FAIL");
-		return false;
-	}
+    if (!file) {
+        std::cout << "Error loading Act data" << std::endl;
+        std::cout << "Start position: " << fnStartPos << " FAIL" << std::endl;
+        return false;
+    }
 
-	uint32_t numbytes;
-	uint8_t* buffer;
+    uint16_t x, y;
 
-	// F16
-	fseek(f16, 0L, SEEK_END);
-	numbytes = ftell(f16);
-	fseek(f16, 0L, SEEK_SET);	
-	
-	buffer = new uint8_t[numbytes];	
-	fread(buffer, 1, numbytes, f16);
-	fclose(f16);
+    if (!file.read(reinterpret_cast<char*>(&x), sizeof(x))) {
+        return false;
+    }
+    
+    x = (x << 8) | (x >> 8); // Swap the byte order for x
 
-	tiles16 = buffer;
+    if (!file.read(reinterpret_cast<char*>(&y), sizeof(y))) {
+        return false;
+    }
 
-	// F256
-	fseek(fBig, 0L, SEEK_END);
-	numbytes = ftell(fBig);
-	fseek(fBig, 0L, SEEK_SET);	
-	
-	buffer = new uint8_t[numbytes];	
-	fread(buffer, 1, numbytes, fBig);
-	fclose(fBig);
+    y = (y << 8) | (y >> 8); // Swap the byte order for y
 
-	tilesBig = new uint16_t[numbytes / 2];
-	for (int i = 0; i < numbytes / 2; i++) {
-		tilesBig[i] = buffer[i*2];
-		tilesBig[i] = (tilesBig[i] << 8) | buffer[i*2+1];
-	}
-	delete buffer;
+    plStartPos.x = static_cast<float>(x);
+    plStartPos.y = static_cast<float>(y);
 
-	return true;
-}
-
-bool Level::loadTerrainAct(const char* fnLayout, const char* fnStartPos) {
-	FILE* fLayout   = fopen(fnLayout, "rb");
-	FILE* fStartPos = fopen(fnStartPos, "rb");
-
-	if (!fLayout || !fStartPos) {
-		printf("Error loading Act data\n"
-			   "Layout: %s %s\n"
-			   "Start position: %s %s\n",
-			   fnLayout,  fLayout  ? "OK" : "FAIL",
-			   fnStartPos, fStartPos ? "OK" : "FAIL");
-		return false;
-	}
-
-	uint32_t numbytes;
-	uint8_t* buffer;
-
-	// Layout
-	fseek(fLayout, 0L, SEEK_END);
-	numbytes = ftell(fLayout);
-	fseek(fLayout, 0L, SEEK_SET);	
-	
-	buffer = new uint8_t[numbytes];	
-	fread(buffer, 1, numbytes, fLayout);
-	fclose(fLayout);
-
-	tilesLayout = buffer;
-
-	// StartPos
-	numbytes = 4;
-	buffer = new uint8_t[numbytes];	
-	if (!fread(buffer, 1, numbytes, fStartPos)) {
-		return false;
-	}
-
-	uint16_t x = buffer[0];
-	x = (x << 8) | buffer[1];
-	uint16_t y = buffer[2];
-	y = (y << 8) | buffer[3];
-
-	plStartPos.x = (float)x;
-	plStartPos.y = (float)y;
-
-	delete buffer;
-
-	return true;
+    return true;
 }
 
 void Level::free() {
 	for (it = entities.begin(); it != entities.end();) {
-		it = entities.erase(it);
 		delete *it;
+		it = entities.erase(it);
 	}
+
+	m_storeTiles.release();
+	m_storeBlocks.release();
+	m_storeChunks.release();
+	m_layout.release();
+
+	delete m_terrain;
+	delete m_terrainDrawer;
+
+	delete trn;
 
 	delete bg;
 	delete lvInformer;
-	delete [] verHeights;
-	delete [] horHeights;
-	delete [] angles;
-	delete [] tilesLayout;
-	delete [] tiles16;
-	delete [] tilesBig;
+
 	scr.freeTexture(255);
 }

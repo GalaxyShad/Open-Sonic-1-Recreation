@@ -4,6 +4,7 @@
 
 #include "Camera.h"
 #include "Terrain.h"
+#include "terrain-drawer.hpp"
 
 struct BgLayer {
     int start;
@@ -18,10 +19,14 @@ struct BgLayer {
 
 class Bg {
     public:
+        Bg(terrain::TerrainDrawer& terrainDrawer) : m_terrainDrawer(terrainDrawer) {}
+
         void create(uint8_t _from, uint8_t _len);
         void draw(Camera& cam, Terrain& trn);
         void addLayer(int start, int end, float scrollRatio, float spd = 0.0);
     private:
+        terrain::TerrainDrawer& m_terrainDrawer;
+
         uint8_t chunkFrom;
         uint8_t chunkCur;
         uint8_t chunkLen;

@@ -14,12 +14,12 @@ std::unique_ptr<Store<Tile>> TerrainLoaderSonic1::loadTiles() {
             "Angles: " + std::string(m_filepaths.angles) + " " + (fAngles ? "OK" : "FAIL"));
     }
 
-    std::vector<uint8_t> verHeights(TILE_HEIGHTS_BUFF_SIZE);
+    std::vector<int8_t> verHeights(TILE_HEIGHTS_BUFF_SIZE);
     if (!fVerHeights.read(reinterpret_cast<char*>(verHeights.data()), TILE_HEIGHTS_BUFF_SIZE)) {
         throw std::runtime_error("Error. Vertical heights file corrupted");
     }
 
-    std::vector<uint8_t> horHeights(TILE_HEIGHTS_BUFF_SIZE);
+    std::vector<int8_t> horHeights(TILE_HEIGHTS_BUFF_SIZE);
     if (!fHorHeights.read(reinterpret_cast<char*>(horHeights.data()), TILE_HEIGHTS_BUFF_SIZE)) {
         throw std::runtime_error("Error. Horizontal heights file corrupted");
     }

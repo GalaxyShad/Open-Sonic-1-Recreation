@@ -16,8 +16,12 @@
 
 class Level {
     public:
-        Level(Screen& scr, IInputMgr& input, Audio& audio) : 
-            cam(scr), scr(scr), input(input), audio(audio) {}
+        Level(Screen& scr, IInputMgr& input, Audio& audio) 
+            : cam(scr)
+            , scr(scr)
+            , input(input)
+            , audio(audio) 
+        {}
         void create(std::string fZone, std::string fAct, int act);
         void free();
         void restart() { free(); create(sZone, sAct, act); };
@@ -27,9 +31,10 @@ class Level {
         void update();
         void draw();
     private:
-        terrain::Terrain* m_terrain;
+        terrain::Terrain*       m_terrain;
+        terrain::TerrainDrawer* m_terrainDrawer;
 
-        std::unique_ptr<terrain::Store<terrain::Tile>> m_storeTiles;
+        std::unique_ptr<terrain::Store<terrain::Tile>>  m_storeTiles;
         std::unique_ptr<terrain::Store<terrain::Block>> m_storeBlocks;
         std::unique_ptr<terrain::Store<terrain::Chunk>> m_storeChunks;
         
@@ -46,14 +51,6 @@ class Level {
 		std::list<Entity*>::iterator it;
         Bg* bg = nullptr;
         LevelInformer* lvInformer = nullptr;
-
-        uint8_t* verHeights = nullptr;
-        uint8_t* horHeights = nullptr;
-        uint8_t* angles = nullptr;
-
-        uint8_t* tilesLayout = nullptr;
-        uint8_t* tiles16 = nullptr;
-        uint16_t* tilesBig = nullptr;
 
         Vector2f plStartPos = Vector2f(32, 32);
 
@@ -76,25 +73,19 @@ class Level {
 
         void drawHud();
 
-        bool loadTerrainZone(const char* fn16, const char* fnBig);
-        bool loadTerrainAct(const char* fnLayout, const char* fnStartPos);
-
+        bool loadTerrainAct(const char* fnStartPos);
         void loadObjects(const char* filename);
 
-        terrain::Terrain* loadTerrainTest() {
-            std::string sCollide   = "content/levels/collide/ghz.bin";
-	        std::string sMap256    = "content/levels/map256/GHZ.bin";
-	        std::string sLayout    = "content/levels/layout/ghz1.bin";
+        terrain::Terrain* loadTerrain(terrain::TerrainLoaderSonic1FilePaths filepaths) {
+            // terrain::TerrainLoaderSonic1FilePaths filepaths;
 
-            terrain::TerrainLoaderSonic1FilePaths filepaths;
-
-            filepaths.angles            = "content/levels/collide/Angle Map.bin";
-            filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
-            filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
+            // filepaths.angles            = "content/levels/collide/Angle Map.bin";
+            // filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
+            // filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
             
-            filepaths.blocks = "content/levels/collide/ghz.bin";
-            filepaths.chunks = "content/levels/map256/GHZ.bin";
-            filepaths.layout = "content/levels/layout/ghz1.bin";
+            // filepaths.blocks = "content/levels/collide/ghz.bin";
+            // filepaths.chunks = "content/levels/map256/GHZ.bin";
+            // filepaths.layout = "content/levels/layout/ghz1.bin";
 
             terrain::TerrainLoaderSonic1 loader(filepaths);
 

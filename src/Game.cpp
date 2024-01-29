@@ -170,6 +170,8 @@ void Game::menuKeyHandle(sf::Event::KeyEvent key) {
 
     if ((key.code == sf::Keyboard::Left) || (key.code == sf::Keyboard::Right)) {
         switch (menuTab) {
+            case T_MAIN:
+                break;
             case T_SETTINGS:
                 switch (menuPos) {
                     case 0: 

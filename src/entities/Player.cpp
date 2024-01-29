@@ -1051,6 +1051,8 @@ void Player::animation() {
         }
     } else {
         switch(action) {
+            case ACT_NORMAL:
+                break;
             case ACT_JUMP:
                 anim.set(15, 22, 1.0 / int(fmax(1, 4.0-abs(gsp))));
                 break;

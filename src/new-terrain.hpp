@@ -38,8 +38,8 @@ const int TERRAIN_TILE_SIZE = 16;
 struct Tile {
     int id;
     HexAngle angle;
-    uint8_t heightsVertical[TERRAIN_TILE_SIZE];
-    uint8_t heightsHorizontal[TERRAIN_TILE_SIZE];
+    int8_t heightsVertical[TERRAIN_TILE_SIZE];
+    int8_t heightsHorizontal[TERRAIN_TILE_SIZE];
 
     Tile flip(bool horizontal, bool vertical) const {
         Tile flipped = { };
@@ -160,20 +160,28 @@ public:
         }
     }
 
-    ChunkBlock getBlock(int index) {
+    int getRadius() const {
+        return m_radius;
+    }
+
+    int getRadiusPixels() const {
+        return m_radius * TERRAIN_TILE_SIZE;
+    }
+
+    ChunkBlock getBlock(int index) const {
         assert(index < m_radius*m_radius);
 
         return m_blockList[index];
     }
 
-    ChunkBlock getBlock(int x, int y) {
+    ChunkBlock getBlock(int x, int y) const {
         assert(x >= 0 && y >= 0 && x < m_radius && y < m_radius);
 
         return m_blockList[y * m_radius + x];
     }
 private:
     std::vector<ChunkBlock> m_blockList;
-    size_t m_radius;
+    int m_radius;
 };
 
 enum class TerrainLayer {
@@ -276,8 +284,8 @@ public:
     Terrain(Layout& layout) : m_layout(layout) {}
 
     Chunk& getChunk(float x, float y, TerrainLayer layer = TerrainLayer::NORMAL) const {
-        int ix = (int)(x / (m_layout.getChunksRadius() * TERRAIN_TILE_SIZE));
-        int iy = (int)(y / (m_layout.getChunksRadius() * TERRAIN_TILE_SIZE));
+        int ix = (int)(x / m_layout.getChunksRadiusPixels());
+        int iy = (int)(y / m_layout.getChunksRadiusPixels());
 
         if (ix < 0 || iy < 0 || ix >= m_layout.getWidth() || iy >= m_layout.getHeight()) {
             return getChunkStore().get(0);
@@ -292,9 +300,24 @@ public:
         int ix = (int)(x / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
         int iy = (int)(y / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
 
+        if (ix < 0 || iy < 0)
+            return getChunkStore().get(0).getBlock(0, 0);
+
         ChunkBlock block = chunk.getBlock(ix, iy);
 
         return block;
+    }
+
+    static int getVerticalHeightInTile(float x, const Tile& tile) {
+        int ix = ((int)x) % TERRAIN_TILE_SIZE;
+
+        return tile.heightsVertical[ix];
+    }
+
+    static int getHorizontalHeightInTile(float y, const Tile& tile) {
+        int iy = ((int)y) % TERRAIN_TILE_SIZE;
+
+        return tile.heightsHorizontal[iy];
     }
 
     Store<Chunk>& getChunkStore() const { return m_layout.getChunkStore(); } 
@@ -305,6 +328,7 @@ private:
     Layout& m_layout;
 
 };
+
 
 
 }

@@ -4,7 +4,18 @@
 
 #include "AnimMgr.h"
 
-class Camera {
+class IDrawer {
+    virtual void draw(uint8_t tex, IntRect texRect, Vector2f _pos, Vector2i offset=Vector2i(0, 0),
+                      float angle=0.0, bool horFlip=false, bool verFlip=false) = 0;
+
+    virtual void draw(uint8_t tex, Frame frame, Vector2f _pos, float angle=0.0,
+                      bool horFlip=false, bool verFlip=false) = 0;
+
+    virtual void draw(const AnimMgr& anim, Vector2f _pos, float angle=0.0, 
+                      bool horFlip=false, bool verFlip=false) = 0;
+};
+
+class Camera : public IDrawer {
     public:
         Camera(Screen& scr) : scr(scr) { }
 
@@ -12,11 +23,11 @@ class Camera {
         void update();
 
 		void draw(uint8_t tex, IntRect texRect, Vector2f _pos, Vector2i offset=Vector2i(0, 0),
-			      float angle=0.0, bool horFlip=false, bool verFlip=false);
+			      float angle=0.0, bool horFlip=false, bool verFlip=false) override;
         void draw(uint8_t tex, Frame frame, Vector2f _pos, float angle=0.0, bool horFlip=false,
-                  bool verFlip=false);
+                  bool verFlip=false) override;
         void draw(const AnimMgr& anim, Vector2f _pos, float angle=0.0, bool horFlip=false, 
-			      bool verFlip=false);
+			      bool verFlip=false) override;
 		
         Vector2f getPos()           { return pos; }
 		void setPos(Vector2f _pos)  { pos = _pos; }

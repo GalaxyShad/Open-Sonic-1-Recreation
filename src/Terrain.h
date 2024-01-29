@@ -59,7 +59,6 @@ class Terrain {
 
         void createLayeringObjs(std::list<Entity*>& entList);
 
-        uint8_t getChunk(Vector2i pos);
         uint16_t getBlock(Vector2i pos);
         
         int getTileVerHeight(Vector2i pos);

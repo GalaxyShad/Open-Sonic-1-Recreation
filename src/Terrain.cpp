@@ -20,13 +20,15 @@ void Terrain::create(
 }
 
 void Terrain::createLayeringObjs(std::list<Entity*>& entList) {
-    for (int i = 0; i < lvSize.width*lvSize.height; i++) {
-        uint8_t chunk = lvLayoutPtr[i];
+    auto& layout = m_terrain.getLayout();
+    
+    for (int i = 0; i < layout.getHeight(); i++) {
+        for (int j = 0; j < layout.getWidth(); j++) {
+            if (!layout.isLayeringChunk(j, i)) continue;
 
-        if (chunk & 0x80) {
-            int x = (i % lvSize.width) * 256;
-            int y = (i / lvSize.width) * 256;
-            
+            int x = j * layout.getChunksRadiusPixels();
+            int y = i * layout.getChunksRadiusPixels();
+
             entList.push_back(new LayerSwitcher(Vector2f(x+128, y+32), Vector2f(16, 64), 2));
             entList.push_back(new LayerSwitcher(Vector2f(x-8, y+128), Vector2f(16, 256), 0));
             entList.push_back(new LayerSwitcher(Vector2f(x+264, y+128), Vector2f(16, 256), 1));
@@ -34,23 +36,9 @@ void Terrain::createLayeringObjs(std::list<Entity*>& entList) {
     }
 }
 
-uint8_t Terrain::getChunk(Vector2i pos) {
-    if (pos.x  < 0 || pos.x  > lvSize.width  * 256 || 
-        pos.y  < 0 || pos.y  > lvSize.height * 256)
-            return 0;
-    
-    uint8_t chunk = lvLayoutPtr[(pos.y / 256) * lvSize.width + pos.x / 256];
-
-    // Loop
-    if (chunk & 0x80) {
-        return (chunk & 0x7F) + layer;    
-    } else {
-        return (chunk & 0x7F);
-    }
-}
-
 uint16_t Terrain::getBlock(Vector2i pos) {
-    int chunk  = int(getChunk(pos));
+    uint8_t chunk = m_terrain.getLayout().getChunkId(pos.x / 256, pos.y / 256);
+
     int chunkX = (pos.x / 256) * 256;
     int chunkY = (pos.y / 256) * 256;
     
@@ -62,13 +50,15 @@ uint16_t Terrain::getBlock(Vector2i pos) {
 }
 
 Tile Terrain::getTile(Vector2i pos) {
-    terrain::ChunkBlock trBlock = m_terrain.getBlock(pos.x, pos.y);
-    terrain::Tile  trTile = trBlock.tile;
+    const terrain::ChunkBlock& trBlock = m_terrain.getBlock(pos.x, pos.y, (terrain::TerrainLayer)layer);
+    const terrain::Tile&  trTile = trBlock.tile;
 
-    Tile tile;
+
+    Tile tile = {};
 
     tile.type = (TileType)trBlock.solidityNormalLayer;
     tile.pos  = Vector2i((pos.x / 16) * 16, (pos.y / 16) * 16);
+
 
     // Set Heights
     for (int i = 0; i < 16; i++) {
@@ -100,9 +90,7 @@ int Terrain::getTileHorHeight(Vector2i pos) {
 }
 
 TileType Terrain::getTileType(Vector2i pos) {
-    uint16_t block = getBlock(pos);
-    uint8_t solidity = block >> 13;
-    return (TileType)solidity;
+    return getTile(pos).type;
 }
 
 float Terrain::getTileAngle(Vector2i pos) {
@@ -152,24 +140,6 @@ void Terrain::drawChunk(Camera& cam, uint16_t chunkId, Vector2f pos) {
                 block.xFlip, 
                 block.yFlip
             );
-
-            // uint16_t block = blockMappingPtr[(chunkId*16+i)*16 + j];
-
-            // uint16_t yFlip    = ((block << 3) >> 15) & 1;
-            // uint16_t xFlip    = ((block << 4) >> 15) & 1;
-            // uint16_t blockID  = (block << 5);
-
-            // blockID = blockID >> 5;
-
-            // cam.draw(
-            //     lvTexture, 
-            //     IntRect(0, blockID * 16, 16, 16), 
-            //     Vector2f(pos.x + j * 16.0, pos.y + i * 16.0), 
-            //     Vector2i(0, 0), 
-            //     0.0, 
-            //     xFlip, 
-            //     yFlip
-            // );
         }
     }
 }

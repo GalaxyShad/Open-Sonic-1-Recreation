@@ -4,10 +4,14 @@
 #include <cstdio>
 
 
-void Level::create(std::string fZone, std::string fAct, int act) {
+void Level::create(std::string fZone, std::string fAct, int act, GameType gameType) {
 	sZone 		= fZone;
 	sAct  		= fAct;
 	this->act 	= act;
+
+	if (sAct == "icz1") {
+		gameType = GameType::SONIC_3K;
+	}
 
 	std::string sTex       = "content/levels/textures/"  + sZone + ".png";
 	std::string sCollide   = "content/levels/collide/"   + sZone + ".bin";
@@ -16,25 +20,52 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	std::string sStartPos  = "content/levels/startpos/"  + sAct  + ".bin";
 	std::string sObjPos    = "content/levels/objpos/" 	 + sAct  + ".bin";
 
+	terrain::ITerrainLoader* terrainLoader = nullptr;
+
 	terrain::TerrainLoaderSonic1FilePaths filepaths;
 
-	filepaths.angles            = "content/levels/collide/Angle Map.bin";
-	filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
-	filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
-	
-	filepaths.blocks = sCollide.c_str();
-	filepaths.chunks = sMap256.c_str();
-	filepaths.layout = sLayout.c_str();
+	switch (gameType) {
+		case GameType::SONIC_1:
+			filepaths.angles            = "content/levels/collide/Angle Map.bin";
+			filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
+			filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
 
-	m_terrain = loadTerrain(filepaths);
+			filepaths.blocks = sCollide.c_str();
+			filepaths.chunks = sMap256.c_str();
+			filepaths.layout = sLayout.c_str();
+
+			scr.loadTextureFromFile(sTex.c_str(), 255);
+
+			terrainLoader = new terrain::TerrainLoaderSonic1(filepaths);
+
+			loadTerrainAct(sStartPos.c_str());
+			break;
+		case GameType::SONIC_3K: 
+			filepaths.angles            = "content/levels/sonic3/Angles S3.bin";
+			filepaths.verticalHeights   = "content/levels/sonic3/Height Maps S3.bin";
+			filepaths.horizontalHeights = "content/levels/sonic3/Height Maps Rotated S3.bin";
+
+			filepaths.blocks = "content/levels/sonic3/ICZ/Collision/1.bin";
+			filepaths.chunks = "content/levels/sonic3/ICZ/Chunks/Primary.bin";
+			filepaths.layout = "content/levels/sonic3/ICZ/Layout/1.bin";
+
+			scr.loadTextureFromFile("content/levels/sonic3/ICZ/texture.png", 255);
+
+			terrainLoader = new terrain::TerrainLoaderSonic3(filepaths);
+			break;
+		default:
+			throw std::exception("Other games not implemented");
+	}
+
+	m_terrain = loadTerrain(filepaths, *terrainLoader);
 	trn = new Terrain(*m_terrain);
 
-	scr.loadTextureFromFile(sTex.c_str(), 255);
+	delete terrainLoader;
 
-	loadTerrainAct(sStartPos.c_str());
-	loadObjects(sObjPos.c_str());
-
-	trn->createLayeringObjs(entities);
+	if (gameType == GameType::SONIC_1) {
+		loadObjects(sObjPos.c_str());
+		trn->createLayeringObjs(entities);
+	}
 
 	m_terrainDrawer = new terrain::TerrainDrawer(cam, m_terrain->getChunkStore(), m_terrain->getLayout(), 255);
 
@@ -51,38 +82,9 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 
 	lvInformer = new  LevelInformer(zoneName, act, scr, audio, LevelInformer::T_TITLE_CARD);
 
-	if (sZone == "GHZ") {
-		scr.setBgColor(0x08E0);
-		bg->create(0x3C, 3);
-		bg->addLayer(0,   32, 0.001, 0.5);
-		bg->addLayer(32,  16, 0.002, 0.25);
-		bg->addLayer(48,  16, 0.003, 0.125);
-		bg->addLayer(64,  48, 0.005);
-		bg->addLayer(112, 40, 0.060);
-		const int waterDiv = 8; 
-		for (int i = 0; i < 104/waterDiv; i++)
-			bg->addLayer(152+i*waterDiv, waterDiv, 0.060+(float)i/25.0);
-	} else if (sZone == "LZ") {
-		scr.setBgColor(0x0000);
-		bg->create(0x32, 7);
-		bg->addLayer(0, 256, 0.005);
-	} else if (sZone == "MZ") {
-		scr.setBgColor(0x00a0);
-		bg->create(0x36, 2);
-		bg->addLayer(0, 256, 0.005);
-	} else if (sZone == "SBZ") {
-		scr.setBgColor(0x6400);
-		bg->create(0x34, 4);
-		bg->addLayer(0, 256, 0.005);
-	} else if (sZone == "SLZ") {
-		scr.setBgColor(0x0000);
-		bg->create(0x30, 1);
-		bg->addLayer(0, 256, 0.005);
-	} else if (sZone == "SYZ") {
-		scr.setBgColor(0x6260);
-		bg->create(0x3D, 2);
-		bg->addLayer(0, 256, 0.005);
-	}
+	if (gameType == GameType::SONIC_1) {
+        createLevelSpecific();
+    }
 
 	// Create player
 	Player* pl = new Player(plStartPos, *trn, input, audio, rings, score);
@@ -92,24 +94,7 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 						plStartPos.y - scr.getSize().height / 2), 
 			   trn->getSize());
 
-	if (m_terrain == nullptr) {
-		printf("Crap\n");
-	}
 
-	// S Tubes
-	if (sZone == "GHZ") {
-		audio.playMusic(2);
-		for (int i = 0; i < m_terrain->getLayout().getHeight(); i++)
-			for (int j = 0; j < m_terrain->getLayout().getWidth(); j++) {
-				uint8_t chunkId = m_terrain->getLayout().getChunkId(j, i);
-
-				int x = j * m_terrain->getLayout().getChunksRadiusPixels();
-				int y = i * m_terrain->getLayout().getChunksRadiusPixels();
-
-				if (chunkId == 0x1F) 		entities.push_back(new GimGHZ_STube(Vector2f(x+8+8, y+112),   0));
-				else if (chunkId == 0x20) 	entities.push_back(new GimGHZ_STube(Vector2f(x+248-8, y+112), 1));
-			}
-	}
 	
 	for (it = entities.begin(); it != entities.end(); it++)
 		(*it)->create();
@@ -125,7 +110,72 @@ void Level::create(std::string fZone, std::string fAct, int act) {
 	isFadeOut = false;
 	isFadeDeath = false;
 	fade = 0;
+}
 
+void Level::createLevelSpecific()
+{
+    if (sZone == "GHZ")
+    {
+        scr.setBgColor(0x08E0);
+        bg->create(0x3C, 3);
+        bg->addLayer(0, 32, 0.001, 0.5);
+        bg->addLayer(32, 16, 0.002, 0.25);
+        bg->addLayer(48, 16, 0.003, 0.125);
+        bg->addLayer(64, 48, 0.005);
+        bg->addLayer(112, 40, 0.060);
+        const int waterDiv = 8;
+        for (int i = 0; i < 104 / waterDiv; i++)
+            bg->addLayer(152 + i * waterDiv, waterDiv, 0.060 + (float)i / 25.0);
+    }
+    else if (sZone == "LZ")
+    {
+        scr.setBgColor(0x0000);
+        bg->create(0x32, 7);
+        bg->addLayer(0, 256, 0.005);
+    }
+    else if (sZone == "MZ")
+    {
+        scr.setBgColor(0x00a0);
+        bg->create(0x36, 2);
+        bg->addLayer(0, 256, 0.005);
+    }
+    else if (sZone == "SBZ")
+    {
+        scr.setBgColor(0x6400);
+        bg->create(0x34, 4);
+        bg->addLayer(0, 256, 0.005);
+    }
+    else if (sZone == "SLZ")
+    {
+        scr.setBgColor(0x0000);
+        bg->create(0x30, 1);
+        bg->addLayer(0, 256, 0.005);
+    }
+    else if (sZone == "SYZ")
+    {
+        scr.setBgColor(0x6260);
+        bg->create(0x3D, 2);
+        bg->addLayer(0, 256, 0.005);
+    }
+
+    // S Tubes
+    if (sZone == "GHZ")
+    {
+        audio.playMusic(2);
+        for (int i = 0; i < m_terrain->getLayout().getHeight(); i++)
+            for (int j = 0; j < m_terrain->getLayout().getWidth(); j++)
+            {
+                uint8_t chunkId = m_terrain->getLayout().getChunkId(j, i);
+
+                int x = j * m_terrain->getLayout().getChunksRadiusPixels();
+                int y = i * m_terrain->getLayout().getChunksRadiusPixels();
+
+                if (chunkId == 0x1F)
+                    entities.push_back(new GimGHZ_STube(Vector2f(x + 8 + 8, y + 112), 0));
+                else if (chunkId == 0x20)
+                    entities.push_back(new GimGHZ_STube(Vector2f(x + 248 - 8, y + 112), 1));
+            }
+    }
 }
 
 void Level::update() {

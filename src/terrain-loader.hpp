@@ -47,4 +47,24 @@ private:
     TerrainLoaderSonic1FilePaths m_filepaths;
 };
 
+class TerrainLoaderSonic3 : public ITerrainLoader {
+private:
+    const int TILE_HEIGHTS_BUFF_SIZE = 4096;
+    const int TILE_ANGLES_BUFF_SIZE  = 256;
+
+public:
+    TerrainLoaderSonic3(TerrainLoaderSonic1FilePaths filepaths)
+        : m_filepaths(filepaths) {}
+
+    std::unique_ptr<Store<Tile>>  loadTiles() override;
+    std::unique_ptr<Store<Block>> loadBlocks(Store<Tile>& tileStore)   override;
+    std::unique_ptr<Store<Chunk>> loadChunks(Store<Block>& blockStore) override;
+    std::unique_ptr<Layout>       loadLayout(Store<Chunk>& chunkStore) override;
+
+private:
+    TerrainLoaderSonic1FilePaths m_filepaths;
+
+    void addChunksFromFile(const char* filename, Store<Block>& blockStore, Store<Chunk>& chunkStore);
+};
+
 }

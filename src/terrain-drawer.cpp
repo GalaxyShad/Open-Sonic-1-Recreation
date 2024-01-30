@@ -53,6 +53,12 @@ void TerrainDrawer::drawChunk(const Chunk& chunk, float x, float y) const {
     }
 }
 
+void terrain::TerrainDrawer::drawChunkById(int chunkId, float x, float y) const {
+    auto& chunk = m_storeChunk.get(chunkId);
+
+    drawChunk(chunk, x, y);
+}
+
 void TerrainDrawer::drawChunkPart(const Chunk& chunk, Vector2f pos, IntRect rect) const {
     int ystart = rect.top / 16;
     int yend   = (rect.top+rect.height) / 16;

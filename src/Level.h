@@ -14,6 +14,13 @@
 #define TILE_HEIGHTS_BUFF_SIZE 4096
 #define TILE_ANGLES_BUFF_SIZE  256
 
+enum class GameType {
+    SONIC_1,
+    SONIC_CD,
+    SONIC_2,
+    SONIC_3K,
+};
+
 class Level {
     public:
         Level(Screen& scr, IInputMgr& input, Audio& audio) 
@@ -22,9 +29,11 @@ class Level {
             , input(input)
             , audio(audio) 
         {}
-        void create(std::string fZone, std::string fAct, int act);
+        void create(std::string fZone, std::string fAct, int act, GameType gameType = GameType::SONIC_1);
         void free();
-        void restart() { free(); create(sZone, sAct, act); };
+        void restart() { free();
+            create(sZone, sAct, act);
+        };
 
         bool isEnded() { return end; }
 
@@ -75,21 +84,11 @@ class Level {
 
         bool loadTerrainAct(const char* fnStartPos);
         void loadObjects(const char* filename);
+        
+        void createLevelSpecific();
 
-        terrain::Terrain* loadTerrain(terrain::TerrainLoaderSonic1FilePaths filepaths) {
-            // terrain::TerrainLoaderSonic1FilePaths filepaths;
-
-            // filepaths.angles            = "content/levels/collide/Angle Map.bin";
-            // filepaths.verticalHeights   = "content/levels/collide/Collision Array (Normal).bin";
-            // filepaths.horizontalHeights = "content/levels/collide/Collision Array (Rotated).bin";
-            
-            // filepaths.blocks = "content/levels/collide/ghz.bin";
-            // filepaths.chunks = "content/levels/map256/GHZ.bin";
-            // filepaths.layout = "content/levels/layout/ghz1.bin";
-
-            terrain::TerrainLoaderSonic1 loader(filepaths);
-
-            m_storeTiles = loader.loadTiles();
+        terrain::Terrain* loadTerrain(terrain::TerrainLoaderSonic1FilePaths filepaths, terrain::ITerrainLoader& loader) {
+            m_storeTiles  = loader.loadTiles();
             m_storeBlocks = loader.loadBlocks(*m_storeTiles.get());
             m_storeChunks = loader.loadChunks(*m_storeBlocks.get());
             

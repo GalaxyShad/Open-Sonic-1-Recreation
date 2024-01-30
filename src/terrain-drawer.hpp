@@ -17,6 +17,7 @@ public:
 
     void draw() const;
     void drawChunk(const Chunk& chunk, float x, float y) const;
+    void drawChunkById(int chunkId, float x, float y) const;
     void drawChunkPart(const Chunk& chunk, Vector2f pos, IntRect rect) const;
     void drawChunkPartById(int chunkId, Vector2f pos, IntRect rect) const;
 

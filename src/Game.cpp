@@ -86,16 +86,19 @@ void Game::update() {
         }
     }
 
+
+    constexpr int n = (sizeof(strLevels) / sizeof(strLevels[0]));
+
     if (curLevel < 0)
-        curLevel = 0;
-    if (curLevel > 16)
+        curLevel = n - 1;
+    if (curLevel >= n)
         curLevel = 0;
 
     if (!ts) {
         if (curLevel != prevLevel || lv.isEnded()) {
             if (lv.isEnded()) curLevel++;
             lv.free();
-            lv.create(strZones[curLevel / 3], strLevels[curLevel], curLevel % 3 + 1);
+            lv.create(strZones[curLevel / 3], strLevels[curLevel], curLevel % 3 + 1, (std::string(strLevels[curLevel]) == "icz1") ? GameType::SONIC_3K : GameType::SONIC_1);
         }
     }
 
@@ -136,7 +139,7 @@ void Game::menuKeyHandle(sf::Event::KeyEvent key) {
                         menuTab = T_MAIN;
                     } else {
                         lv.create(strZones[curLevel / 3], 
-                            strLevels[curLevel], curLevel % 3 + 1); 
+                            strLevels[curLevel], curLevel % 3 + 1, (std::string(strLevels[curLevel]) == "icz1") ? GameType::SONIC_3K : GameType::SONIC_1); 
                         delete ts;
                         ts = nullptr;
                         return;
@@ -215,8 +218,10 @@ void Game::menuKeyHandle(sf::Event::KeyEvent key) {
                 if (key.code == sf::Keyboard::Left)  curLevel--;
                 if (key.code == sf::Keyboard::Right) curLevel++;
 
-                if (curLevel < 0)  curLevel = 0;
-                if (curLevel > 16) curLevel = 0;
+                constexpr int n = (sizeof(strLevels) / sizeof(strLevels[0]));
+
+                if (curLevel < 0)  curLevel = n-1;
+                if (curLevel >= n) curLevel = 0;
 
                 menuPlayUpdate();
                 break;

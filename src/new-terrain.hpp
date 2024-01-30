@@ -219,6 +219,29 @@ public:
         return new Layout(buffer+2, width, height, 16, chunkStore, true);
     }
 
+    static Layout* createFromSonic3(const uint8_t* buffer, Store<Chunk>& chunkStore) {
+        int foregroundWidth  = (buffer[0] << 8) | buffer[1];
+        int backgroundWidth  = (buffer[2] << 8) | buffer[3];
+
+        int foregroundHeight = (buffer[4] << 8) | buffer[5];
+        int backgroundHeight = (buffer[6] << 8) | buffer[7];
+
+        Layout* result = nullptr;
+
+        auto     foregroundSize = foregroundWidth * foregroundHeight;
+        uint8_t* foreground     = new uint8_t[foregroundSize];
+
+        for (int i = 0; i < foregroundSize; i++) {
+            foreground[i] = buffer[0x88 + i];
+        }
+
+        result = new Layout(foreground, foregroundWidth, foregroundHeight, 8, chunkStore, false);
+
+        delete [] foreground;
+
+        return result;
+    }
+
     int getChunkId(int index) const {
         assert(index >= 0 && index < m_width * m_height);
         

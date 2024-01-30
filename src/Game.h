@@ -35,13 +35,13 @@ class Game: public IGame {
 
         int wndSize = SS_NORMAL;
 
-        const char* strLevels[17] = {
+        const char* strLevels[18] = {
             "ghz1", "ghz2", "ghz3", 
             "mz1", "mz2", "mz3", 
             "syz1", "syz2", "syz3", 
             "lz1", "lz2", "lz3",
             "slz1", "slz2", "slz3",
-            "sbz1", "sbz2",
+            "sbz1", "sbz2", "icz1"
         };
         const char* strZones[6] = { 
             "GHZ", "MZ", "SYZ", "LZ", "SLZ", "SBZ" 

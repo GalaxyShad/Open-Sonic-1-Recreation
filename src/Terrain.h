@@ -5,7 +5,7 @@
  
 #include "core/Geometry.h"
 #include "entities/Entity.h"
-#include "camera.h"
+#include "Camera.h"
 
 #include "new-terrain.hpp"
 

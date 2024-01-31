@@ -1,5 +1,7 @@
 #include "terrain-loader.hpp"
 
+#include "makeunique.hpp"
+
 using namespace terrain;
 
 std::unique_ptr<Store<Tile>> TerrainLoaderSonic3::loadTiles() {
@@ -29,7 +31,7 @@ std::unique_ptr<Store<Tile>> TerrainLoaderSonic3::loadTiles() {
         throw std::runtime_error("Error. Angles file corrupted");
     }
 
-    auto res = std::make_unique<Store<Tile>>();
+    auto res = make_unique<Store<Tile>>();
 
     for (int i = 0; i < 256; i++) {
         Tile tile;
@@ -63,7 +65,7 @@ std::unique_ptr<Store<Block>> TerrainLoaderSonic3::loadBlocks(Store<Tile>& tileS
     fstreamBlocks.read(reinterpret_cast<char*>(buffer.data()), numbytes);
     fstreamBlocks.close();
 
-    std::unique_ptr<Store<Block>> storeBlocks = std::make_unique<Store<Block>>();
+    std::unique_ptr<Store<Block>> storeBlocks = make_unique<Store<Block>>();
 
     for (int i = 0; i < numbytes / 2; i++) {
         Block block(i, tileStore.get(buffer[i*2+1]));
@@ -74,7 +76,7 @@ std::unique_ptr<Store<Block>> TerrainLoaderSonic3::loadBlocks(Store<Tile>& tileS
 }
 
 std::unique_ptr<Store<Chunk>> TerrainLoaderSonic3::loadChunks(Store<Block>& blockStore) {
-    std::unique_ptr<Store<Chunk>> storeChunks = std::make_unique<Store<Chunk>>();
+    std::unique_ptr<Store<Chunk>> storeChunks = make_unique<Store<Chunk>>();
 
     addChunksFromFile("content/levels/sonic3/ICZ/Chunks/Primary.bin", blockStore, *storeChunks.get());
     addChunksFromFile("content/levels/sonic3/ICZ/Chunks/Act 1 Secondary.bin", blockStore, *storeChunks.get());

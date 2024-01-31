@@ -54,7 +54,7 @@ void Level::create(std::string fZone, std::string fAct, int act, GameType gameTy
 			terrainLoader = new terrain::TerrainLoaderSonic3(filepaths);
 			break;
 		default:
-			throw std::exception("Other games not implemented");
+			throw std::exception();
 	}
 
 	m_terrain = loadTerrain(filepaths, *terrainLoader);

@@ -4,17 +4,18 @@
 #include "./sonic-1/object-ids-s1.hpp"
 
 enum class ObjectID_General {
+    None,
     Player = 1,
     Ring,
     Spring,
 };
 
 struct EntityId {
-    ObjectID_S1 sonic1Id = ObjectID_S1::NONE;
-    // ObjectID_S2 sonic2Id;
-    // ObjectID_S3 sonic3Id;
-
     ObjectID_General id;
+
+    ObjectID_S1 idSonic1 = ObjectID_S1::NONE;
+    // ObjectID_S2 idSonic2;
+    // ObjectID_S3 idSonic3;
 };
 
 class IEntityUpdatable {

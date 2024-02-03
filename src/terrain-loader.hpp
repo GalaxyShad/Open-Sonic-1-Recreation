@@ -29,6 +29,7 @@ struct TerrainLoaderSonic1FilePaths {
     const char* layout;
 };
 
+
 class TerrainLoaderSonic1 : public ITerrainLoader {
 private:
     const int TILE_HEIGHTS_BUFF_SIZE = 4096;
@@ -37,6 +38,18 @@ private:
 public:
     TerrainLoaderSonic1(TerrainLoaderSonic1FilePaths filepaths)
         : m_filepaths(filepaths) {}
+
+    void setFilePathBlocks(const char* filepath) {
+        m_filepaths.blocks = filepath;
+    }
+
+    void setFilePathChunks(const char* filepath) {
+        m_filepaths.chunks = filepath;
+    }
+
+    void setFilePathLayout(const char* filepath) {
+        m_filepaths.layout = filepath;
+    }
 
     std::unique_ptr<Store<Tile>>  loadTiles() override;
     std::unique_ptr<Store<Block>> loadBlocks(Store<Tile>& tileStore)   override;
@@ -55,6 +68,18 @@ private:
 public:
     TerrainLoaderSonic3(TerrainLoaderSonic1FilePaths filepaths)
         : m_filepaths(filepaths) {}
+
+    void setFilePathBlocks(const char* filepath) {
+        m_filepaths.blocks = filepath;
+    }
+
+    void setFilePathChunks(const char* filepath) {
+        m_filepaths.chunks = filepath;
+    }
+
+    void setFilePathLayout(const char* filepath) {
+        m_filepaths.layout = filepath;
+    }
 
     std::unique_ptr<Store<Tile>>  loadTiles() override;
     std::unique_ptr<Store<Block>> loadBlocks(Store<Tile>& tileStore)   override;

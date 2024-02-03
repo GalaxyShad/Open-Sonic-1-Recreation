@@ -194,12 +194,21 @@ private:
     const int FLAGGED_MASK = 0x80;
 
 public:
-    Layout(const uint8_t* layoutBuffer, size_t width, size_t height, size_t chunkRadius, Store<Chunk>& chunkStore, bool useFlaggedTiles = false) 
-        : m_chunkStore(chunkStore)
-        , m_width(width)
+    Layout(
+        const uint8_t* layoutBuffer, 
+        size_t width, 
+        size_t height, 
+        size_t chunkRadius, 
+        Store<Chunk>& chunkStore, 
+        bool useFlaggedTiles = false,
+        bool useWarp = false
+    ) 
+        : m_width(width)
         , m_height(height)
-        , m_usingFlaggedLayering(useFlaggedTiles)
         , m_chunkRadius(chunkRadius)
+        , m_chunkStore(chunkStore)
+        , m_usingFlaggedLayering(useFlaggedTiles)
+        , m_warp(useWarp)
     {
         int size = m_width * m_height;
 
@@ -235,7 +244,7 @@ public:
             foreground[i] = buffer[0x88 + i];
         }
 
-        result = new Layout(foreground, foregroundWidth, foregroundHeight, 8, chunkStore, false);
+        result = new Layout(foreground, foregroundWidth, foregroundHeight, 8, chunkStore, false, true);
 
         delete [] foreground;
 
@@ -249,7 +258,7 @@ public:
     }
 
     int getChunkId(int x, int y) const {
-        return getChunkId(y * m_width + x);
+        return getChunkId(fromXY(x, y));
     }
 
     Chunk& getChunk(int index, TerrainLayer layer = TerrainLayer::NORMAL) const {
@@ -267,9 +276,7 @@ public:
     }
 
     Chunk& getChunk(int x, int y, TerrainLayer layer = TerrainLayer::NORMAL) const {
-        assert((x < m_width) && (y < m_height));
-
-        return getChunk(byXY(x, y), layer);
+        return getChunk(fromXY(x, y), layer);
     }
 
     int getChunksRadius() const { return m_chunkRadius; }
@@ -280,10 +287,10 @@ public:
 
     int getHeight() const { return m_height; }
 
-    bool isLayeringChunk(int x, int y) const {
-        assert((x < m_width) && (y < m_height));
+    bool isWarpEnabled() { return m_warp; }
 
-        return (m_layoutIndexes[y * m_width + x] & FLAGGED_MASK) && m_usingFlaggedLayering;
+    bool isLayeringChunk(int x, int y) const {
+        return (m_layoutIndexes[fromXY(x, y)] & FLAGGED_MASK) && m_usingFlaggedLayering;
     }
 
     Store<Chunk>& getChunkStore() const { return m_chunkStore; }
@@ -295,23 +302,42 @@ private:
     int m_height;
     int m_chunkRadius;
     bool m_usingFlaggedLayering = false;
+    bool m_warp = false;
 
 private:
-    int byXY(int x, int y) const {
+    int modFloor(int a, int n) const {
+        return ((a % n) + n) % n;
+    }
+
+    int fromXY(int x, int y) const {
+        if (!m_warp) {
+            assert((x >= 0) && (y >= 0) && (x < m_width) && (y < m_height));
+        }
+
+        x = modFloor(x, m_width);
+        y = modFloor(y, m_height);
+
         return y * m_width + x;
     }
 };
 
 class Terrain {
 public:
-    Terrain(Layout& layout) : m_layout(layout) {}
+    Terrain(Layout& layout) 
+        : m_layout(layout) 
+    {}
 
     Chunk& getChunk(float x, float y, TerrainLayer layer = TerrainLayer::NORMAL) const {
         int ix = (int)(x / m_layout.getChunksRadiusPixels());
         int iy = (int)(y / m_layout.getChunksRadiusPixels());
 
-        if (ix < 0 || iy < 0 || ix >= m_layout.getWidth() || iy >= m_layout.getHeight()) {
-            return getChunkStore().get(0);
+        if (!m_layout.isWarpEnabled()) {
+            if (ix < 0 || iy < 0 || ix >= m_layout.getWidth() || iy >= m_layout.getHeight()) {
+                return getChunkStore().get(0);
+            }
+        } else {
+            ix = modFloor(ix, m_layout.getWidth());
+            iy = modFloor(iy, m_layout.getHeight());
         }
         
         return m_layout.getChunk(ix, iy, layer);
@@ -323,8 +349,13 @@ public:
         int ix = (int)(x / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
         int iy = (int)(y / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
 
-        if (ix < 0 || iy < 0)
-            return getChunkStore().get(0).getBlock(0, 0);
+        if (!m_layout.isWarpEnabled()) {
+            if (ix < 0 || iy < 0)
+                return getChunkStore().get(0).getBlock(0, 0);
+        } else {
+            ix = modFloor(ix, m_layout.getChunksRadius());
+            iy = modFloor(iy, m_layout.getChunksRadius());
+        }
 
         ChunkBlock block = chunk.getBlock(ix, iy);
 
@@ -349,6 +380,11 @@ public:
 
 private:
     Layout& m_layout;
+
+private:
+    int modFloor(int a, int n) const {
+        return ((a % n) + n) % n;
+    }
 
 };
 

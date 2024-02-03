@@ -136,7 +136,7 @@ void Player::terrainCollision(Camera& cam)
     if (debug) 
         return;
 
-    if (pos.y + 20 > cam.getBottomBorder() && action != ACT_DIE) {
+    if (pos.y + 20 > cam.getBottomBorder() && !cam.isFree() && action != ACT_DIE) {
         action = ACT_DIE;
         xsp = 0;
         ysp = -7;

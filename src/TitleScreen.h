@@ -21,7 +21,7 @@ class TitleScreen {
             scr.loadTextureFromFile("content/textures/texTitle.png", 254, framesTitleSonic, 8);
             scr.loadTextureFromFile("content/textures/texTitleBg.png", 253);
 
-            cam.create(Vector2f(0, 0), scr.getSize());
+            cam.create(Vector2f(0, 0), scr.getSize(), false);
 
             anim.create(254);
             anim.set(0, 0, 0.25);

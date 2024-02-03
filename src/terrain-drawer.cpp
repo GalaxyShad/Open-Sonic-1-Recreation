@@ -15,10 +15,12 @@ void TerrainDrawer::draw() const {
     auto right  = (camX + chunkSide + camW) / chunkSide;
     auto bottom = (camY + chunkSide + camH) / chunkSide;
 
-    if (bottom >= m_layout.getHeight()) bottom = m_layout.getHeight();
-    if (top < 0)                        top    = 0;
-    if (right >= m_layout.getWidth())   right  = m_layout.getWidth();
-    if (left < 0)                       left   = 0;
+    if (!m_layout.isWarpEnabled()) {
+        if (bottom >= m_layout.getHeight()) bottom = m_layout.getHeight();
+        if (top < 0)                        top    = 0;
+        if (right >= m_layout.getWidth())   right  = m_layout.getWidth();
+        if (left < 0)                       left   = 0;
+    }
 
     for(int i = top; i < bottom; i++) {
         for (int j = left; j < right; j++) {

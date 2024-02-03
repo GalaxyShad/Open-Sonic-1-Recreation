@@ -2,15 +2,18 @@
 
 #include <string> 
 
-void Camera::create(Vector2f _pos, Size _levelSize) {
+void Camera::create(Vector2f _pos, Size _levelSize, bool free) {
     levelSize = _levelSize;
 	bottomBorder = levelSize.height * 256;
 	rightBorder  = levelSize.width * 256;
 	pos = _pos;
 	size = scr.getSize();
+	m_free = free;
 }
 
 void Camera::update() {
+	if (m_free) return;
+
     if (pos.x < 0.0) 
         pos.x = 0.0;
     if (pos.y < 0.0) 

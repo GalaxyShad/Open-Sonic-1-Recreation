@@ -92,7 +92,7 @@ void Level::create(std::string fZone, std::string fAct, int act, GameType gameTy
 
     cam.create(Vector2f(plStartPos.x - scr.getSize().width / 2, 
 						plStartPos.y - scr.getSize().height / 2), 
-			   trn->getSize());
+			   trn->getSize(), true);
 
 
 	

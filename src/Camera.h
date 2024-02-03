@@ -19,8 +19,10 @@ class Camera : public IDrawer {
     public:
         Camera(Screen& scr) : scr(scr) { }
 
-        void create(Vector2f _pos, Size _levelSize);
+        void create(Vector2f _pos, Size _levelSize, bool free);
         void update();
+
+        bool isFree() { return free; }
 
 		void draw(uint8_t tex, IntRect texRect, Vector2f _pos, Vector2i offset=Vector2i(0, 0),
 			      float angle=0.0, bool horFlip=false, bool verFlip=false) override;
@@ -47,4 +49,5 @@ class Camera : public IDrawer {
         Size levelSize;   
         int bottomBorder = 0;
         int rightBorder = 0;
+        bool m_free = false;
 };

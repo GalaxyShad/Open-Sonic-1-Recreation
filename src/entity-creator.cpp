@@ -6,6 +6,15 @@
 Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     Entity* res = nullptr;
 
+    // printf(
+    //     "%s x=%d y=%d fv=%d fh=%d resp=%d args=%02X\n", 
+    //     ObjectID_S1ToString((ObjectID_S1)entPlacement.objectId),
+    //     entPlacement.x, entPlacement.y,
+    //     entPlacement.flipVertical, entPlacement.flipHorizontal,
+    //     entPlacement.shouldRespawn,
+    //     entPlacement.additionalArgs
+    // );
+
     if ((res = createGeneral(entPlacement))) return res;
     if ((res = createEnemies(entPlacement))) return res;
     if ((res = createOther(entPlacement)))   return res;

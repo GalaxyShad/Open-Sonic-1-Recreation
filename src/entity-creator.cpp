@@ -3,7 +3,7 @@
 #include "entities/_index.hpp"
 
 
-Entity* EntityCreator::create(EntityPlacement entPlacement) {
+Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     Entity* res = nullptr;
 
     if ((res = createGeneral(entPlacement))) return res;
@@ -14,7 +14,7 @@ Entity* EntityCreator::create(EntityPlacement entPlacement) {
     return new Ring(Vector2f(entPlacement.x, entPlacement.y));
 }
 
-Entity* EntityCreator::createGeneral(EntityPlacement eplc) {
+Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
     Vector2f position = Vector2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
@@ -65,7 +65,7 @@ Entity* EntityCreator::createGeneral(EntityPlacement eplc) {
     }
 }
 
-Entity* EntityCreator::createEnemies(EntityPlacement eplc) {
+Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     Vector2f position = Vector2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
@@ -86,7 +86,7 @@ Entity* EntityCreator::createEnemies(EntityPlacement eplc) {
     }
 }
 
-Entity* EntityCreator::createOther(EntityPlacement eplc) {
+Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
     Vector2f position = Vector2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {

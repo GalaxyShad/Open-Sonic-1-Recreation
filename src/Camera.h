@@ -22,7 +22,7 @@ class Camera : public IDrawer {
         void create(Vector2f _pos, Size _levelSize, bool free);
         void update();
 
-        bool isFree() { return free; }
+        bool isFree() { return m_free; }
 
 		void draw(uint8_t tex, IntRect texRect, Vector2f _pos, Vector2i offset=Vector2i(0, 0),
 			      float angle=0.0, bool horFlip=false, bool verFlip=false) override;

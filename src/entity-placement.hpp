@@ -2,20 +2,23 @@
 
 #include <stdint.h>
 
+#include "entities/entity-interfaces.hpp"
+
 struct EntityPlacement {
-    uint16_t x             : 16;
+    uint16_t x;
+    uint16_t y;
     
-    uint8_t flipVertical   : 1;
-    uint8_t flipHorizontal : 1;
-    uint8_t                : 2;
-    uint16_t y             : 12;
+    bool flipVertical;
+    bool flipHorizontal;
 
-    uint8_t shouldRespawn  : 1;
-    uint8_t objectId       : 7;
+    bool shouldRespawn;
 
-    uint8_t additionalArgs : 8;
+    uint8_t  objectId;
+    uint8_t  additionalArgs;
 
-    static EntityPlacement from6ByteBuffer(uint8_t* buff) {
+    static EntityPlacement fromSonic1(uint8_t* buff) {
+        // XXXX XXXX XXXX XXXX  VH00 YYYY YYYY YYYY  RIII IIII AAAA AAAA
+
         EntityPlacement res = { 0 };
 
         res.x               = ((uint16_t)buff[0] << 8) | buff[1];

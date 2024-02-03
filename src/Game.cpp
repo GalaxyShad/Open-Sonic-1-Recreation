@@ -69,7 +69,7 @@ void Game::update() {
             wnd.close();
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::R) {
-                lv.restart();
+                if (m_level) loadLevel(curLevel);
             } else if (event.key.code == sf::Keyboard::F) {
                 wndSize++;
                 if (wndSize > 3) 
@@ -94,21 +94,23 @@ void Game::update() {
     if (curLevel >= n)
         curLevel = 0;
 
-    if (!ts) {
-        if (curLevel != prevLevel || lv.isEnded()) {
-            if (lv.isEnded()) curLevel++;
-            lv.free();
-            lv.create(strZones[curLevel / 3], strLevels[curLevel], curLevel % 3 + 1, (std::string(strLevels[curLevel]) == "icz1") ? GameType::SONIC_3K : GameType::SONIC_1);
+    if (!ts && m_level) {
+        if (m_level->isPlayerDied())
+            loadLevel(curLevel);
+
+        if (curLevel != prevLevel || m_level->isEnded()) {
+            if (m_level->isEnded()) curLevel++;
+            loadLevel(curLevel);
         }
     }
 
     audio.update();
-    if (!ts) lv.update();
+    if (!ts && m_level) m_level->update();
 
     scr.clear();
 
     if (ts) ts->draw();
-    else    lv.draw();
+    else if (m_level) m_level->draw();
 
     scr.render();
 }
@@ -117,7 +119,47 @@ bool Game::isRunning() {
     return (bool)(scr.getSfmlWindow().isOpen());
 }
 
-void Game::menuKeyHandle(sf::Event::KeyEvent key) {
+#include <unordered_map>
+
+void Game::loadLevel(int index) {
+    if (m_level)
+        m_level->free();
+    
+    m_level = nullptr;
+
+    // TODO REFACTOR, ?? TEMP SOLUTION
+    switch (index) {
+        case 0: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::GREEN_HILL, 1); break;
+        case 1: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::GREEN_HILL, 2); break;
+        case 2: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::GREEN_HILL, 3); break;
+
+        case 3: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::MARBLE, 1); break;
+        case 4: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::MARBLE, 2); break;
+        case 5: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::MARBLE, 3); break;
+
+        case 6: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::SPRING_YARD, 1); break;
+        case 7: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::SPRING_YARD, 2); break;
+        case 8: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::SPRING_YARD, 3); break;
+
+        case 9:  m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::LABYRINTH, 1); break;
+        case 10: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::LABYRINTH, 2); break;
+        case 11: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::LABYRINTH, 3); break;
+
+        case 12: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::STAR_LIGHT, 1); break;
+        case 13: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::STAR_LIGHT, 2); break;
+        case 14: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::STAR_LIGHT, 3); break;
+
+        case 15: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::SCRAP_BRAIN, 1); break;
+        case 16: m_level = m_levelLoader.loadFromSonic1(ZoneSonic1::SCRAP_BRAIN, 2); break;
+        
+        case 17: m_level = m_levelLoader.loadFromSonic3K(ZoneSonic3K::ICE_CAP, 1); break;
+    }
+
+    m_level->create();
+}
+
+void Game::menuKeyHandle(sf::Event::KeyEvent key)
+{
     if (key.code == sf::Keyboard::Enter) {
         if (!ts->isStartPressed()) {
             ts->startPress();
@@ -138,8 +180,7 @@ void Game::menuKeyHandle(sf::Event::KeyEvent key) {
                     if (menuPos == 1) {
                         menuTab = T_MAIN;
                     } else {
-                        lv.create(strZones[curLevel / 3], 
-                            strLevels[curLevel], curLevel % 3 + 1, (std::string(strLevels[curLevel]) == "icz1") ? GameType::SONIC_3K : GameType::SONIC_1); 
+                        loadLevel(curLevel);
                         delete ts;
                         ts = nullptr;
                         return;

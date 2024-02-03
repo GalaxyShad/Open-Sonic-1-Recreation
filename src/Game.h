@@ -4,6 +4,7 @@
 
 #include "Level.h"
 #include "TitleScreen.h"
+#include "level-loader.hpp"
 
 class IGame {
     public:
@@ -24,7 +25,10 @@ class Game: public IGame {
         Audio audio;
         Screen scr;
         Keyboard keyboard;
-        Level lv = Level(scr, keyboard, audio);
+
+        LevelLoader m_levelLoader = LevelLoader(scr, keyboard, audio);
+        Level* m_level = nullptr;
+
         TitleScreen* ts = nullptr;
 
         int curLevel = 0;
@@ -46,6 +50,8 @@ class Game: public IGame {
         const char* strZones[6] = { 
             "GHZ", "MZ", "SYZ", "LZ", "SLZ", "SBZ" 
         };
+
+        void loadLevel(int index);
 
         void menuKeyHandle(sf::Event::KeyEvent key);
         void menuSettingUpdate();

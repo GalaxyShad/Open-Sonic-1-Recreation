@@ -284,6 +284,9 @@ void Screen::addFont(uint8_t key, const char* alphabet, uint8_t interval,
 void Screen::drawText(uint8_t fontKey, const char* str, Vector2f pos) {
     if (!fonts.count(fontKey)) return;
 
+    if ((pos.x < 0) || (pos.y < 0) || (pos.x >= wnd.getDefaultView().getSize().x) || (pos.y >= wnd.getDefaultView().getSize().y)) 
+        return;
+
     Font font = fonts[fontKey];
     IntRect letterRect = font.startRect;
     sf::Texture* texFont = sfTextures[font.tex];

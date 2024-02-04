@@ -2,7 +2,44 @@
 
 using namespace terrain;
 
-void TerrainDrawer::draw() const {
+terrain::TerrainDrawer::~TerrainDrawer()
+{
+    delete m_imgTiles;
+    delete m_texTiles;
+}
+
+void terrain::TerrainDrawer::initDebugCollisionView()
+{
+    if (m_imgTiles != nullptr)
+        return;
+
+    m_imgTiles = new sf::Image();
+    m_texTiles = new sf::Texture();
+
+    m_imgTiles->create(TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE * m_storeTiles.count(), sf::Color::Transparent);
+
+    for (int i = 0; i < m_storeTiles.count(); i++) {
+        Tile& tile = m_storeTiles.get(i);
+        
+        int tileTop = i * TERRAIN_TILE_SIZE;
+        int tileBot = tileTop + TERRAIN_TILE_SIZE - 1;
+
+        for (int j = 0; j < TERRAIN_TILE_SIZE; j++) {
+            int height = tile.heightsVertical[j];
+
+            for (int k = 0; k < abs(height); k++) {
+                int y = (height > 0) ? (tileBot - k) : (tileTop + k);
+
+                m_imgTiles->setPixel(j, y, sf::Color(0xFFFFFFFF));
+            }
+        }
+    }
+
+    m_texTiles->loadFromImage(*m_imgTiles);
+}
+
+void TerrainDrawer::draw() const
+{
     auto camX = m_camera.getPos().x;
     auto camY = m_camera.getPos().y;
     auto camW = m_camera.getSize().width;
@@ -36,6 +73,7 @@ void TerrainDrawer::drawChunk(const Chunk& chunk, float x, float y) const {
         for (int j = 0; j < chunk.getRadius(); j++) {
             auto block = chunk.getBlock(j, i);
 
+
             m_camera.draw(
                 m_textureId, 
                 IntRect(
@@ -51,8 +89,34 @@ void TerrainDrawer::drawChunk(const Chunk& chunk, float x, float y) const {
                 block.xFlip, 
                 block.yFlip
             );
+            
+            if (m_debugCollisionView)
+                drawChunkBlockDebug(block, x, j, y, i);
         }
     }
+}
+
+void terrain::TerrainDrawer::drawChunkBlockDebug(terrain::ChunkBlock &block, float x, int j, float y, int i) const
+{
+    int sprLeft = block.xFlip ? TERRAIN_TILE_SIZE : 0;
+    int sprTop  = (TERRAIN_TILE_SIZE * block.tile.id) + (block.yFlip ? TERRAIN_TILE_SIZE : 0);
+
+    int sprWidth  = block.xFlip ? -TERRAIN_TILE_SIZE : TERRAIN_TILE_SIZE;
+    int sprHeight = block.yFlip ? -TERRAIN_TILE_SIZE : TERRAIN_TILE_SIZE;
+
+    sf::Sprite spr(*m_texTiles, sf::IntRect(sprLeft, sprTop, sprWidth, sprHeight));
+    spr.setPosition(
+        x + j * TERRAIN_TILE_SIZE - m_camera.getPos().x,
+        y + i * TERRAIN_TILE_SIZE - m_camera.getPos().y
+    );
+
+    spr.setColor(
+        (block.solidityNormalLayer == BlockSolidity::ONLY_TOP)               ? sf::Color(0x1FCECBF0) : 
+        (block.solidityNormalLayer == BlockSolidity::ONLY_LEFT_BOTTOM_RIGHT) ? sf::Color(0xFFF44FF0)
+                                                                             : sf::Color(0x000000F0));
+
+    if (block.solidityNormalLayer != BlockSolidity::EMPTY)
+        m_camera.getScr().getSfmlWindow().draw(spr);
 }
 
 void terrain::TerrainDrawer::drawChunkById(int chunkId, float x, float y) const {

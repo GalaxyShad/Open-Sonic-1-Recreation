@@ -35,7 +35,8 @@ public:
         std::string& zoneName,
         std::string& zoneNameShort,
         int act,
-        Vector2f playerStartPosition
+        Vector2f playerStartPosition,
+        terrain::Store<terrain::Tile>& storeTile
     ) 
         : m_terrain(terrain)
         , m_entities(entities)
@@ -48,7 +49,7 @@ public:
         , m_zoneNameShort(zoneNameShort)
         , m_act(act)
         , m_playerStartPosition(playerStartPosition)
-        , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255)
+        , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
         , bg(m_terrainDrawer)
         , trn(m_terrain)
     {}
@@ -61,6 +62,8 @@ public:
     void update();
 
     void draw();
+
+    terrain::TerrainDrawer& getTerrainDrawer() { return m_terrainDrawer; } 
 
 private:
     terrain::Terrain &m_terrain;

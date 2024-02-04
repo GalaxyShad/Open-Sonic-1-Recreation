@@ -58,11 +58,11 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
         }
 
         case (ObjectID_S1::S1_SPIKES): 
-            if ((eplc.additionalArgs & 0b00010000) == 0)
-                return new Spikes(position, eplc.additionalArgs, m_entityList);
+            // if ((eplc.additionalArgs & 0b00010000) == 0)
+            return new Spikes(position, eplc.additionalArgs, m_entityList);
 
         case (ObjectID_S1::S1_EGG_PRISON): 
-            if (!eplc.additionalArgs) return new SignPost(position);
+            return new SignPost(position);
 
 
         case (ObjectID_S1::S1_END_OF_LEVEL_SIGNPOST): 

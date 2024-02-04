@@ -80,6 +80,12 @@ void Game::update() {
                 curLevel--;
             } else if (event.key.code == sf::Keyboard::E) {
                 curLevel++;
+            } else if (event.key.code == sf::Keyboard::V) {
+                if (m_level) {
+                    auto& td = m_level->getTerrainDrawer();
+
+                    td.allowDrawingCollisions(!td.isDrawingCollisions());
+                }
             } 
 
             if (ts) menuKeyHandle(event.key);

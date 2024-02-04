@@ -344,17 +344,39 @@ public:
     }
 
     ChunkBlock getBlock(float x, float y, TerrainLayer layer = TerrainLayer::NORMAL) const {
-        auto chunk = getChunk(x, y, layer);
+        return getBlockFromGrid(x / TERRAIN_TILE_SIZE, y / TERRAIN_TILE_SIZE, layer);
+        
+        // auto chunk = getChunk(x, y, layer);
 
-        int ix = (int)(x / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
-        int iy = (int)(y / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
+        // int ix = (int)(x / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
+        // int iy = (int)(y / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
+
+        // if (!m_layout.isWarpEnabled()) {
+        //     if (ix < 0 || iy < 0)
+        //         return getChunkStore().get(0).getBlock(0, 0);
+        // } else {
+        //     ix = modFloor(ix, m_layout.getChunksRadius());
+        //     iy = modFloor(iy, m_layout.getChunksRadius());
+        // }
+
+        // ChunkBlock block = chunk.getBlock(ix, iy);
+
+        // return block;
+    }
+
+    ChunkBlock getBlockFromGrid(int gridX, int gridY, TerrainLayer layer = TerrainLayer::NORMAL) const {
+        auto chunk       = getChunk(gridX * TERRAIN_TILE_SIZE, gridY * TERRAIN_TILE_SIZE, layer);
+        auto chunkRadius = m_layout.getChunksRadius();
+
+        int ix = gridX % chunkRadius;
+        int iy = gridY % chunkRadius;
 
         if (!m_layout.isWarpEnabled()) {
             if (ix < 0 || iy < 0)
                 return getChunkStore().get(0).getBlock(0, 0);
         } else {
-            ix = modFloor(ix, m_layout.getChunksRadius());
-            iy = modFloor(iy, m_layout.getChunksRadius());
+            ix = modFloor(ix, chunkRadius);
+            iy = modFloor(iy, chunkRadius);
         }
 
         ChunkBlock block = chunk.getBlock(ix, iy);

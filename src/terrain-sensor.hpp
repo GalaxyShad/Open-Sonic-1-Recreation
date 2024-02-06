@@ -2,12 +2,15 @@
 
 #include "new-terrain.hpp"
 
+#include "core/Screen.h"
+#include "Camera.h"
+
 namespace terrain {
 
 enum class SensorDirection {
     DOWN,
-    UP,
     RIGHT,
+    UP,
     LEFT,
 };
 
@@ -26,6 +29,44 @@ public:
     void     setPosition(Vector2f position) { m_position = position; }
     Vector2f getPosition()                  { return m_position;     }
 
+    void            setDirection(SensorDirection direction) { m_direction = direction; }
+    SensorDirection getDirection()                          { return m_direction;      }
+
+    int getDistance() {
+        auto gridPos = getCurrentBlockPositionInGrid(m_position);
+        auto blockResult = getBlock(gridPos.x, gridPos.y);
+
+        return blockResult.distance;
+    }
+
+    void draw(Camera& cam) {
+        float poscamx = m_position.x - cam.getPos().x;
+        float poscamy = m_position.y - cam.getPos().y;
+
+        drawDot(poscamx, poscamy, sf::Color::White, cam);
+
+        auto gridPos = getCurrentBlockPositionInGrid(m_position);
+        auto blockResult = getBlock(gridPos.x, gridPos.y);
+
+        int distance = blockResult.distance;
+        printf("%d %d %d\n", distance, blockResult.height, blockResult.block.tile.id);
+
+        switch (m_direction) {
+            case SensorDirection::DOWN:
+                drawDot(poscamx, poscamy + distance, sf::Color::Red, cam);
+                break;
+            case SensorDirection::UP:
+                drawDot(poscamx, poscamy - distance, sf::Color::Red, cam);
+                break;
+            case SensorDirection::LEFT:
+                drawDot(poscamx - distance, poscamy, sf::Color::Red, cam);
+                break;
+            case SensorDirection::RIGHT:
+                drawDot(poscamx + distance, poscamy, sf::Color::Red, cam);
+                break;
+        }
+    }
+
 private: 
     SensorDirection m_direction;
     Vector2f        m_position;
@@ -33,65 +74,92 @@ private:
     TerrainLayer    m_layer = TerrainLayer::NORMAL;
 
 private:
-    ChunkBlock getBlock(int gridX, int gridY) {
-        ChunkBlock baseBlock;
-        int        baseHeight;
+    struct BlockResult {
+        ChunkBlock  block;
+        Vector2i    gridPosition;
+        int         distance;
+        int         height;
+    };
 
-        initBlockAndHeight(baseBlock, baseHeight, gridX, gridY);
+    BlockResult getBlock(int gridX, int gridY) {
+        BlockResult baseBlock = getBlockExtended(gridX, gridY);
 
-        if (baseHeight >= 1 && baseHeight <= 15)
+        if (baseBlock.height >= 1 && baseBlock.height <= 15 && checkBlockSolidity(baseBlock.block) != BlockSolidity::EMPTY)
             return baseBlock;
 
         // Regression
-        else if (baseHeight >= 16) {
-            ChunkBlock regressionBlock;
-            int        regressionHeight;
+        else if (baseBlock.height >= 16 && checkBlockSolidity(baseBlock.block) != BlockSolidity::EMPTY) {
+            BlockResult regressionBlock = getBlockExtended(gridX, gridY, -1);
 
-            initBlockAndHeight(regressionBlock, regressionHeight, gridX, gridY, -1);
-
-            if (isBlockEmpty(regressionHeight, regressionBlock))
+            if (isBlockEmpty(regressionBlock))
                 return baseBlock;
 
             return regressionBlock;
         }
 
         // Extension
-        else if (isBlockEmpty(baseHeight, baseBlock)) {
-            ChunkBlock extensionBlock;
-            int        extensionHeight;
-
-            initBlockAndHeight(extensionBlock, extensionHeight, gridX, gridY, +1);
+        else if (isBlockEmpty(baseBlock)) {
+            BlockResult extensionBlock = getBlockExtended(gridX, gridY, +1);
 
             return extensionBlock;
         }
+
+        printf("Something strange happened :(. -> %d\n", baseBlock.height);
+        return baseBlock;
     }    
 
-    void initBlockAndHeight(ChunkBlock& block, int& height, int gridX, int gridY, int ext = 0) {
+    BlockResult getBlockExtended(int gridX, int gridY, int ext = 0) {
+        BlockResult result = {};
+        
         switch (m_direction) {
-            case SensorDirection::DOWN:
-                block  = m_terrain.getBlockFromGrid(gridX, gridY+ext, m_layer);
-                height = m_terrain.getVerticalHeightInTile(m_position.x, block.tile);
+            case (SensorDirection::DOWN): {
+                result.gridPosition = Vector2i(gridX, gridY + ext);
+                result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
+                result.height       = abs(m_terrain.getVerticalHeightInTile(m_position.x, result.block.tile));
+                
+                auto blockBottom    = (result.gridPosition.y * TERRAIN_TILE_SIZE) + TERRAIN_TILE_SIZE;
+
+                result.distance     = (blockBottom - result.height) - m_position.y; 
                 break;
-            case SensorDirection::UP:
-                block  = m_terrain.getBlockFromGrid(gridX, gridY-ext, m_layer);
-                height = m_terrain.getVerticalHeightInTile(m_position.x, block.tile);
+            }
+            case (SensorDirection::UP): {
+                result.gridPosition = Vector2i(gridX, gridY - ext);
+                result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
+                result.height       = abs(m_terrain.getVerticalHeightInTile(m_position.x, result.block.tile));
+
+                auto blockTop       = (result.gridPosition.y * TERRAIN_TILE_SIZE);
+
+                result.distance     = m_position.y - (blockTop + result.height); 
                 break;
-            case SensorDirection::LEFT:
-                block  = m_terrain.getBlockFromGrid(gridX-ext, gridY, m_layer);
-                height = m_terrain.getHorizontalHeightInTile(m_position.y, block.tile);
+            }
+            case (SensorDirection::LEFT): {
+                result.gridPosition = Vector2i(gridX - ext, gridY);
+                result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
+                result.height       = abs(m_terrain.getHorizontalHeightInTile(m_position.y, result.block.tile));
+
+                auto blockLeft      = (result.gridPosition.x * TERRAIN_TILE_SIZE);
+
+                result.distance     = m_position.x - (blockLeft + result.height); 
                 break;
-            case SensorDirection::RIGHT:
-                block  = m_terrain.getBlockFromGrid(gridX+ext, gridY, m_layer);
-                height = m_terrain.getHorizontalHeightInTile(m_position.y, block.tile);
+            }
+            case (SensorDirection::RIGHT): {
+                result.gridPosition = Vector2i(gridX + ext, gridY);
+                result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
+                result.height       = abs(m_terrain.getHorizontalHeightInTile(m_position.y, result.block.tile));
+
+                auto blockRight     = (result.gridPosition.x * TERRAIN_TILE_SIZE) + TERRAIN_TILE_SIZE;
+
+                result.distance     = (blockRight - result.height) - m_position.x;
                 break;
+            }
         }
 
-        height = abs(height);
+        return result;
     }
 
 
-    bool isBlockEmpty(int detectedHeight, ChunkBlock& block) {
-        return (detectedHeight == 0 || checkBlockSolidity(block) == BlockSolidity::EMPTY);
+    bool isBlockEmpty(BlockResult& blockResult) {
+        return (blockResult.height == 0 || checkBlockSolidity(blockResult.block) == BlockSolidity::EMPTY);
     }
 
     BlockSolidity checkBlockSolidity(ChunkBlock& block) {
@@ -103,6 +171,28 @@ private:
             (int)(position.x / TERRAIN_TILE_SIZE),
             (int)(position.y / TERRAIN_TILE_SIZE)
         );
+    }
+
+    void drawDot(float x, float y, sf::Color color, Camera& cam) {
+        sf::RectangleShape rect(sf::Vector2f(1, 1));
+        rect.setFillColor(color);
+        rect.setPosition(x, y);
+        cam.getScr().getSfmlWindow().draw(rect);
+
+        ////////
+        rect.setFillColor(sf::Color::Black);
+
+        rect.setPosition(x-1, y);
+        cam.getScr().getSfmlWindow().draw(rect);
+
+        rect.setPosition(x+1, y);
+        cam.getScr().getSfmlWindow().draw(rect);
+
+        rect.setPosition(x, y-1);
+        cam.getScr().getSfmlWindow().draw(rect);
+
+        rect.setPosition(x, y+1);
+        cam.getScr().getSfmlWindow().draw(rect);
     }
 };
 

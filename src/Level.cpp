@@ -177,6 +177,21 @@ void Level::update() {
 
 				if (pl->isDied())
 					isFadeDeath = true;
+
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num7))
+					m_sensorA.setDirection(terrain::SensorDirection::DOWN);
+
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num8))
+					m_sensorA.setDirection(terrain::SensorDirection::RIGHT);
+
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num9))
+					m_sensorA.setDirection(terrain::SensorDirection::LEFT);
+
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num0))
+					m_sensorA.setDirection(terrain::SensorDirection::UP);
+
+				m_sensorA.setPosition(Vector2f(pl->getPos().x - 1 - 9, pl->getPos().y + 19));
+				m_sensorB.setPosition(Vector2f(pl->getPos().x + 1 + 9, pl->getPos().y + 19));
 			} else if ((*it)->getType() == TYPE_ENEMY) {
 				Enemy* en = (Enemy*)(*it);
 				en->trnCollision(trn);
@@ -206,6 +221,8 @@ void Level::update() {
 			}
 		}
 	}
+
+	
 
 	// Ring animation
 	ringFrame += 0.125;
@@ -268,6 +285,9 @@ void Level::draw() {
 	}
 
 	if (lvInformer && !isTimeStopped) lvInformer->draw();
+
+	m_sensorA.draw(cam);
+	m_sensorB.draw(cam);
 }
 
 void Level::drawHud() {

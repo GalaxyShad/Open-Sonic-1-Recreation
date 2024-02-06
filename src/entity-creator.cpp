@@ -3,8 +3,17 @@
 #include "entities/_index.hpp"
 
 
-Entity* EntityCreator::create(EntityPlacement entPlacement) {
+Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     Entity* res = nullptr;
+
+    // printf(
+    //     "%s x=%d y=%d fv=%d fh=%d resp=%d args=%02X\n", 
+    //     ObjectID_S1ToString((ObjectID_S1)entPlacement.objectId),
+    //     entPlacement.x, entPlacement.y,
+    //     entPlacement.flipVertical, entPlacement.flipHorizontal,
+    //     entPlacement.shouldRespawn,
+    //     entPlacement.additionalArgs
+    // );
 
     if ((res = createGeneral(entPlacement))) return res;
     if ((res = createEnemies(entPlacement))) return res;
@@ -14,7 +23,7 @@ Entity* EntityCreator::create(EntityPlacement entPlacement) {
     return new Ring(Vector2f(entPlacement.x, entPlacement.y));
 }
 
-Entity* EntityCreator::createGeneral(EntityPlacement eplc) {
+Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
     Vector2f position = Vector2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
@@ -49,11 +58,11 @@ Entity* EntityCreator::createGeneral(EntityPlacement eplc) {
         }
 
         case (ObjectID_S1::S1_SPIKES): 
-            if ((eplc.additionalArgs & 0b00010000) == 0)
-                return new Spikes(position, eplc.additionalArgs, m_entityList);
+            // if ((eplc.additionalArgs & 0b00010000) == 0)
+            return new Spikes(position, eplc.additionalArgs, m_entityList);
 
         case (ObjectID_S1::S1_EGG_PRISON): 
-            if (!eplc.additionalArgs) return new SignPost(position);
+            return new SignPost(position);
 
 
         case (ObjectID_S1::S1_END_OF_LEVEL_SIGNPOST): 
@@ -65,7 +74,7 @@ Entity* EntityCreator::createGeneral(EntityPlacement eplc) {
     }
 }
 
-Entity* EntityCreator::createEnemies(EntityPlacement eplc) {
+Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     Vector2f position = Vector2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
@@ -86,7 +95,7 @@ Entity* EntityCreator::createEnemies(EntityPlacement eplc) {
     }
 }
 
-Entity* EntityCreator::createOther(EntityPlacement eplc) {
+Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
     Vector2f position = Vector2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {

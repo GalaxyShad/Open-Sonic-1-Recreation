@@ -21,80 +21,96 @@ enum class GameType {
     SONIC_3K,
 };
 
+
+
 class Level {
-    public:
-        Level(Screen& scr, IInputMgr& input, Audio& audio) 
-            : cam(scr)
-            , scr(scr)
-            , input(input)
-            , audio(audio) 
-        {}
-        void create(std::string fZone, std::string fAct, int act, GameType gameType = GameType::SONIC_1);
-        void free();
-        void restart() { free();
-            create(sZone, sAct, act);
-        };
+public:
+    Level(
+        terrain::Terrain& terrain,
+        std::list<Entity*>& entities,
+        GameType gameType,
+        Screen& scr, 
+        IInputMgr& input, 
+        Audio& audio,
+        std::string& zoneName,
+        std::string& zoneNameShort,
+        int act,
+        Vector2f playerStartPosition,
+        terrain::Store<terrain::Tile>& storeTile
+    ) 
+        : m_terrain(terrain)
+        , m_entities(entities)
+        , cam(scr)
+        , m_screen(scr)
+        , m_input(input)
+        , m_audio(audio) 
+        , m_gameType(gameType)
+        , m_zoneName(zoneName)
+        , m_zoneNameShort(zoneNameShort)
+        , m_act(act)
+        , m_playerStartPosition(playerStartPosition)
+        , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
+        , bg(m_terrainDrawer)
+        , trn(m_terrain)
+    {}
+    void create();
+    void free();
 
-        bool isEnded() { return end; }
+    bool isPlayerDied() { return playerDied; }
+    bool isEnded() { return end; }
 
-        void update();
-        void draw();
-    private:
-        terrain::Terrain*       m_terrain;
-        terrain::TerrainDrawer* m_terrainDrawer;
+    void update();
 
-        std::unique_ptr<terrain::Store<terrain::Tile>>  m_storeTiles;
-        std::unique_ptr<terrain::Store<terrain::Block>> m_storeBlocks;
-        std::unique_ptr<terrain::Store<terrain::Chunk>> m_storeChunks;
-        
-        std::unique_ptr<terrain::Layout> m_layout;
+    void draw();
 
-        Terrain* trn;
-        Camera cam;
+    terrain::TerrainDrawer& getTerrainDrawer() { return m_terrainDrawer; } 
 
-        Screen& scr;
-        IInputMgr& input;
-        Audio& audio;
+private:
+    terrain::Terrain &m_terrain;
+    std::list<Entity*>& m_entities;
 
-		std::list<Entity*> entities;
-		std::list<Entity*>::iterator it;
-        Bg* bg = nullptr;
-        LevelInformer* lvInformer = nullptr;
+    GameType    m_gameType;
+    std::string m_zoneName;
+    std::string m_zoneNameShort;
+    int         m_act;
 
-        Vector2f plStartPos = Vector2f(32, 32);
+    Screen&     m_screen;
+    IInputMgr&  m_input;
+    Audio&      m_audio;
 
-        std::string sZone, sAct;
+    Vector2f m_playerStartPosition;
 
-        int rings = 0;
-        int score = 0;
-        int time = 0;
-        int tick = 0;
-        bool isTimeStopped = false;
-        bool isFadeOut = false;
-        bool isFadeDeath = false;
+    terrain::TerrainDrawer m_terrainDrawer;
+    Bg bg;
 
-        float ringFrame;
 
-        bool end;
-        int act;
+    Terrain trn;
+    Camera cam;
 
-        uint8_t fade;
 
-        void drawHud();
+    std::list<Entity*>::iterator it;
+    LevelInformer* lvInformer = nullptr;
 
-        bool loadTerrainAct(const char* fnStartPos);
-        void loadObjects(const char* filename);
-        
-        void createLevelSpecific();
+    int rings = 0;
+    int score = 0;
+    int time = 0;
+    int tick = 0;
+    bool isTimeStopped = false;
+    bool isFadeOut = false;
+    bool isFadeDeath = false;
 
-        terrain::Terrain* loadTerrain(terrain::TerrainLoaderSonic1FilePaths filepaths, terrain::ITerrainLoader& loader) {
-            m_storeTiles  = loader.loadTiles();
-            m_storeBlocks = loader.loadBlocks(*m_storeTiles.get());
-            m_storeChunks = loader.loadChunks(*m_storeBlocks.get());
-            
-            m_layout = loader.loadLayout(*m_storeChunks.get());
+    bool playerDied = false;
 
-            return new terrain::Terrain(*m_layout.get());
-        }
+    float ringFrame;
+
+    bool end;
+
+    uint8_t fade;
+
+private:
+    void drawHud();
+    void createZoneSpecific();
+    void updateLevelSpecific();
+
 
 };

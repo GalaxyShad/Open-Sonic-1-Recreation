@@ -5,9 +5,14 @@
 
 #include <list>
 
-class EntityCreator {
+class IEntityCreator {
 public:
-    EntityCreator(std::list<Entity*>& entityList) 
+    virtual Entity* create(EntityPlacement entPlacement) = 0;
+};
+
+class EntityCreatorSonic1 : public IEntityCreator {
+public:
+    EntityCreatorSonic1(std::list<Entity*>& entityList) 
         : m_entityList(entityList) {} 
 
     Entity* create(EntityPlacement entPlacement);

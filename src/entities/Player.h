@@ -8,6 +8,8 @@
 
 #include "Entity.h"
 
+#include "terrain-sensor.hpp"
+
 #include "general/_index.hpp"
 #include "sonic-1/_index.hpp"
 

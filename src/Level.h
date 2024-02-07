@@ -11,7 +11,7 @@
 #include "Bg.h"
 #include "LevelInformer.h"
 
-#include "terrain-sensor.hpp"
+#include "player-sensor.hpp"
 
 #define TILE_HEIGHTS_BUFF_SIZE 4096
 #define TILE_ANGLES_BUFF_SIZE  256
@@ -54,8 +54,7 @@ public:
         , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
         , bg(m_terrainDrawer)
         , trn(m_terrain)
-        , m_sensorA(playerStartPosition, terrain::SensorDirection::DOWN, m_terrain)
-        , m_sensorB(playerStartPosition, terrain::SensorDirection::DOWN, m_terrain)
+        , m_playerSensor(playerStartPosition, Vector2i(9, 19), Vector2i(10, 0), m_terrain)
     {}
     void create();
     void free();
@@ -87,8 +86,7 @@ private:
     terrain::TerrainDrawer m_terrainDrawer;
     Bg bg;
 
-    terrain::Sensor m_sensorA;
-    terrain::Sensor m_sensorB;
+    PlayerSensor m_playerSensor;
 
     Terrain trn;
     Camera cam;

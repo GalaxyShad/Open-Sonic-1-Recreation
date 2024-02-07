@@ -14,6 +14,22 @@ enum class SensorDirection {
     LEFT,
 };
 
+struct SensorResult {
+    HexAngle      angle;
+    int           distance;
+    BlockSolidity solidity;
+    
+    bool isFlagged() { return !angle.isRotatable(); }
+
+    static SensorResult Empty() {
+        return terrain::SensorResult {
+            HexAngle { 0 },
+            31,
+            terrain::BlockSolidity::EMPTY
+        };
+    }
+};
+
 //https://info.sonicretro.org/SPG:Solid_Tiles#Sensors
 class Sensor {
 public:
@@ -29,40 +45,51 @@ public:
     void     setPosition(Vector2f position) { m_position = position; }
     Vector2f getPosition()                  { return m_position;     }
 
+    void     move(Vector2f delta)           { m_position.x += delta.x; m_position.y += delta.y; }
+
     void            setDirection(SensorDirection direction) { m_direction = direction; }
     SensorDirection getDirection()                          { return m_direction;      }
 
-    int getDistance() {
-        auto gridPos = getCurrentBlockPositionInGrid(m_position);
+    SensorResult scan() {
+        auto gridPos     = getCurrentBlockPositionInGrid(m_position);
         auto blockResult = getBlock(gridPos.x, gridPos.y);
 
-        return blockResult.distance;
+        return SensorResult {
+            blockResult.block.tile.angle,
+            blockResult.distance,
+            (m_layer == TerrainLayer::NORMAL) 
+                ? blockResult.block.solidityNormalLayer 
+                : blockResult.block.solidityAlternateLayer
+        };
     }
 
-    void draw(Camera& cam) {
+    int getDistance() {
+        return scan().distance;
+    }
+
+    void draw(Camera& cam, sf::Color color = sf::Color::White) {
         float poscamx = m_position.x - cam.getPos().x;
         float poscamy = m_position.y - cam.getPos().y;
 
-        drawDot(poscamx, poscamy, sf::Color::White, cam);
+        drawDot(poscamx, poscamy, color, cam);
 
         auto gridPos = getCurrentBlockPositionInGrid(m_position);
         auto blockResult = getBlock(gridPos.x, gridPos.y);
 
         int distance = blockResult.distance;
-        printf("%d %d %d\n", distance, blockResult.height, blockResult.block.tile.id);
 
         switch (m_direction) {
             case SensorDirection::DOWN:
-                drawDot(poscamx, poscamy + distance, sf::Color::Red, cam);
+                drawDot(poscamx, poscamy + distance, sf::Color::White, cam);
                 break;
             case SensorDirection::UP:
-                drawDot(poscamx, poscamy - distance, sf::Color::Red, cam);
+                drawDot(poscamx, poscamy - distance, sf::Color::White, cam);
                 break;
             case SensorDirection::LEFT:
-                drawDot(poscamx - distance, poscamy, sf::Color::Red, cam);
+                drawDot(poscamx - distance, poscamy, sf::Color::White, cam);
                 break;
             case SensorDirection::RIGHT:
-                drawDot(poscamx + distance, poscamy, sf::Color::Red, cam);
+                drawDot(poscamx + distance, poscamy, sf::Color::White, cam);
                 break;
         }
     }
@@ -179,8 +206,10 @@ private:
         rect.setPosition(x, y);
         cam.getScr().getSfmlWindow().draw(rect);
 
+        color.a = 100;
+
         ////////
-        rect.setFillColor(sf::Color::Black);
+        rect.setFillColor(color);
 
         rect.setPosition(x-1, y);
         cam.getScr().getSfmlWindow().draw(rect);

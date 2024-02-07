@@ -179,19 +179,18 @@ void Level::update() {
 					isFadeDeath = true;
 
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num7))
-					m_sensorA.setDirection(terrain::SensorDirection::DOWN);
+					m_playerSensor.setMode(PlayerSensorMode::FLOOR);
 
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num8))
-					m_sensorA.setDirection(terrain::SensorDirection::RIGHT);
+					m_playerSensor.setMode(PlayerSensorMode::RIGHT_WALL);
 
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num9))
-					m_sensorA.setDirection(terrain::SensorDirection::LEFT);
+					m_playerSensor.setMode(PlayerSensorMode::CELLING);
 
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num0))
-					m_sensorA.setDirection(terrain::SensorDirection::UP);
+					m_playerSensor.setMode(PlayerSensorMode::LEFT_WALL);
 
-				m_sensorA.setPosition(Vector2f(pl->getPos().x - 1 - 9, pl->getPos().y + 19));
-				m_sensorB.setPosition(Vector2f(pl->getPos().x + 1 + 9, pl->getPos().y + 19));
+				m_playerSensor.setPosition(pl->getPos());
 			} else if ((*it)->getType() == TYPE_ENEMY) {
 				Enemy* en = (Enemy*)(*it);
 				en->trnCollision(trn);
@@ -262,7 +261,7 @@ void Level::updateLevelSpecific()
 void Level::draw() {
 	cam.update();
 
-	bg.draw(cam, trn);
+	// bg.draw(cam, trn);
 
 	// Terrain
 	m_terrainDrawer.draw();
@@ -286,8 +285,7 @@ void Level::draw() {
 
 	if (lvInformer && !isTimeStopped) lvInformer->draw();
 
-	m_sensorA.draw(cam);
-	m_sensorB.draw(cam);
+	m_playerSensor.draw(cam);
 }
 
 void Level::drawHud() {

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TITLESCREEN_H
+#define TITLESCREEN_H
 
 #include "core/InputMgr.h"
 #include "Camera.h"
@@ -26,7 +27,7 @@ class TitleScreen {
             anim.create(254);
             anim.set(0, 0, 0.25);
 
-            pos = v2f(scr.getSize().width / 2, scr.getSize().height / 2);
+            pos = v2f((float)scr.getSize().width / 2, (float)scr.getSize().height / 2);
 
             tick = 0;
             yAnimShift = 8;
@@ -46,7 +47,7 @@ class TitleScreen {
             menuItemsCount = itemsCount;
 
             for (int i = 0; i < menuItemsCount; i++) {
-                strcpy(menuItems[i], items[i]);
+                strcpy_s(menuItems[i], items[i]);
             }  
             
         }
@@ -79,11 +80,11 @@ class TitleScreen {
                     uint16_t w = scr.getTextWidth(0, menuItems[i]);
 
                     if (menuCursor == i) {
-                        scr.drawText(0, ">",  v2f(pos.x - w / 2 - 16, pos.y + 64 + 12*i));
-                        scr.drawText(0, "<",  v2f(pos.x + w / 2 + 5, pos.y + 64 + 12*i));
+                        scr.drawText(0, ">",  v2f(pos.x - (float)w / 2 - 16, pos.y + 64 + 12*i));
+                        scr.drawText(0, "<",  v2f(pos.x + (float)w / 2 + 5, pos.y + 64 + 12*i));
                     }
                         
-                    scr.drawText(0, menuItems[i],  v2f(pos.x-w / 2, pos.y + 64 + 12*i));
+                    scr.drawText(0, menuItems[i],  v2f(pos.x-(float)w / 2, pos.y + 64 + 12*i));
                 }
             }
         }
@@ -102,3 +103,5 @@ class TitleScreen {
         uint16_t menuItemsCount;
         uint16_t menuCursor;
 };
+
+#endif // TITLESCREEN_H

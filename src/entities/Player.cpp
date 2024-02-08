@@ -4,7 +4,7 @@
 void Player::create() 
 {
 	type = TYPE_PLAYER;
-	hitBoxSize = Vector2f(20, 40);
+	hitBoxSize = v2f(20, 40);
 	anim.create(TEX_OBJECTS);
     anim.set(0, 0, 0);
     standOn = nullptr;
@@ -47,7 +47,7 @@ void Player::draw(Camera& cam)
     );
 
     Screen& scr = cam.getScr();
-    scr.drawText(0, dbInfo, Vector2f(scr.getSize().width - 256, 8));
+    scr.drawText(0, dbInfo, v2f(scr.getSize().width - 256, 8));
 
 
 }
@@ -67,7 +67,7 @@ void Player::moveCam(Camera& cam)
 	float _x = pos.x - scrSize.width / 2;
 	float _y = (pos.y - shiftY) - scrSize.height / 2;
 
-	Vector2f camPos = cam.getPos();
+	v2f camPos = cam.getPos();
 
 	float _leftBorder = camPos.x - 16;
 	float _rightBorder = camPos.x;
@@ -96,17 +96,17 @@ void Player::moveCam(Camera& cam)
 	}
 
 	//cam.setPos(camPos);
-    cam.setPos(Vector2f(camPos.x, camPos.y));
+    cam.setPos(v2f(camPos.x, camPos.y));
 }
 
-Vector2i Player::getRotatedPoint(Vector2f _center, int rW, int rH, float angle)
+v2i Player::getRotatedPoint(v2f _center, int rW, int rH, float angle)
 {
-    return Vector2i(int(_center.x + (cosf(radians(angle)) * rW) + (sinf(radians(angle)) * rH)), 
+    return v2i(int(_center.x + (cosf(radians(angle)) * rW) + (sinf(radians(angle)) * rH)), 
                     int(_center.y + (cosf(radians(angle)) * rH) - (sinf(radians(angle)) * rW)));
 
 }
 
-Tile Player::getGround(Vector2i& _senPos, int rW, int rH, float _ang) 
+Tile Player::getGround(v2i& _senPos, int rW, int rH, float _ang) 
 {
     Tile tile = (*trn).getTile(_senPos);
 
@@ -182,8 +182,8 @@ void Player::terrainCollision(Camera& cam)
     // ===== Wall collision ====== //
 	#pragma region Wall Collision
 
-    Vector2i sensorE = getRotatedPoint(pos, -10,  0, senAngle);
-    Vector2i sensorF = getRotatedPoint(pos,  10,  0, senAngle);
+    v2i sensorE = getRotatedPoint(pos, -10,  0, senAngle);
+    v2i sensorF = getRotatedPoint(pos,  10,  0, senAngle);
 
     Tile tileE = (*trn).getTile(sensorE);
     Tile tileF = (*trn).getTile(sensorF);
@@ -263,8 +263,8 @@ void Player::terrainCollision(Camera& cam)
     // ===== Celling Collision ==== //
 	#pragma region Celling Collision 
 
-    Vector2i sensorC = Vector2i(pos.x - gndWidth, pos.y - gndHeight);
-    Vector2i sensorD = Vector2i(pos.x + gndWidth, pos.y - gndHeight); 
+    v2i sensorC = v2i(pos.x - gndWidth, pos.y - gndHeight);
+    v2i sensorD = v2i(pos.x + gndWidth, pos.y - gndHeight); 
 
     Tile tileC = (*trn).getTile(sensorC);
     Tile tileD = (*trn).getTile(sensorD);
@@ -314,8 +314,8 @@ void Player::terrainCollision(Camera& cam)
 
     bool isFalling = true;
 
-    Vector2i sensorA = getRotatedPoint(pos, -gndWidth, gndHeight, senAngle);
-    Vector2i sensorB = getRotatedPoint(pos, gndWidth,  gndHeight, senAngle);
+    v2i sensorA = getRotatedPoint(pos, -gndWidth, gndHeight, senAngle);
+    v2i sensorB = getRotatedPoint(pos, gndWidth,  gndHeight, senAngle);
 
     Tile tileA = getGround(sensorA, -gndWidth, gndHeight, senAngle);  // Left Sensor
     Tile tileB = getGround(sensorB,  gndWidth, gndHeight, senAngle);  // Right Sensor
@@ -506,7 +506,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                 rSfx.create(TEX_OBJECTS);
                 rSfx.set(84, 87, 0.5);
                 rings++;
-                entities.push_back(new Sfx(Vector2f(ring->getPos().x, ring->getPos().y), rSfx));
+                entities.push_back(new Sfx(v2f(ring->getPos().x, ring->getPos().y), rSfx));
 
                 audio.playSound(SND_RING);
 			}
@@ -535,7 +535,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     AnimMgr rSfx;
                     rSfx.create(TEX_OBJECTS);
                     rSfx.set(95, 99, 0.125);
-                    entities.push_back(new Sfx(Vector2f(en->getPos().x, en->getPos().y), rSfx));
+                    entities.push_back(new Sfx(v2f(en->getPos().x, en->getPos().y), rSfx));
 
                     enemyCombo++;
                     switch(enemyCombo) {
@@ -929,12 +929,12 @@ void Player::gameplay() {
 
     // Shift y pos and change ground sensor width when player is rolling 
     if (action == ACT_JUMP || action == ACT_SPINDASH || action == ACT_ROLL) {
-		hitBoxSize = Vector2f(20, 30);
+		hitBoxSize = v2f(20, 30);
         shiftY = 5;
         gndWidth = 7;
         gndHeight = 15;
     } else {
-		hitBoxSize = Vector2f(20, 40);
+		hitBoxSize = v2f(20, 40);
         shiftY = 0;
         gndWidth = 9;
         gndHeight = 20;

@@ -24,11 +24,11 @@ void Game::init() {
     scr.loadTextureFromFile("content/textures/texObj.png", TEX_OBJECTS, framesObjects, 139);
     scr.loadTextureFromFile("content/textures/texHud.png", TEX_HUD);
 
-    scr.addFont(0, "abcdefghijklmnopqrstuvwxyz1234567890*.:-=!?<>", 1, TEX_HUD, IntRect(2, 150, 8, 7));
-    scr.addFont(1, "abcdefghijklmnopqrstuvwxyz1234567890$.-=>", 1, TEX_HUD, IntRect(1, 35, 8, 7), 1);
+    scr.addFont(0, "abcdefghijklmnopqrstuvwxyz1234567890*.:-=!?<>", 1, TEX_HUD, irect(2, 150, 8, 7));
+    scr.addFont(1, "abcdefghijklmnopqrstuvwxyz1234567890$.-=>", 1, TEX_HUD, irect(1, 35, 8, 7), 1);
     uint16_t f2widths[] = {15, 15, 15, 15, 14, 14, 16, 15, 6, 16, 15, 16, 15, 16, 15, 15, 14, 14, 15, 15, 15, 3};
-    scr.addFont(2, "ABCDEFGHIKLMNOPRSTUYZ.", 1, TEX_HUD, IntRect(1, 1, 15, 16), 1, f2widths);
-    scr.addFont(3, "0123456789:", 0, TEX_HUD, IntRect(1, 43, 8, 16), 1);
+    scr.addFont(2, "ABCDEFGHIKLMNOPRSTUYZ.", 1, TEX_HUD, irect(1, 1, 15, 16), 1, f2widths);
+    scr.addFont(3, "0123456789:", 0, TEX_HUD, irect(1, 43, 8, 16), 1);
 
     std::cout << "Textures loaded succesuffuly!" << std::endl;
 

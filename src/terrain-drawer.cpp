@@ -76,15 +76,15 @@ void TerrainDrawer::drawChunk(const Chunk& chunk, float x, float y) const {
 
             m_camera.draw(
                 m_textureId, 
-                IntRect(
+                irect(
                     0,                 block.blockId * TERRAIN_TILE_SIZE, 
                     TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE
                 ), 
-                Vector2f(
+                v2f(
                     x + j * TERRAIN_TILE_SIZE, 
                     y + i * TERRAIN_TILE_SIZE
                 ), 
-                Vector2i(0, 0), 
+                v2i(0, 0), 
                 0.0, 
                 block.xFlip, 
                 block.yFlip
@@ -125,7 +125,7 @@ void terrain::TerrainDrawer::drawChunkById(int chunkId, float x, float y) const 
     drawChunk(chunk, x, y);
 }
 
-void TerrainDrawer::drawChunkPart(const Chunk& chunk, Vector2f pos, IntRect rect) const {
+void TerrainDrawer::drawChunkPart(const Chunk& chunk, v2f pos, irect rect) const {
     int ystart = rect.top / 16;
     int yend   = (rect.top+rect.height) / 16;
 
@@ -135,7 +135,7 @@ void TerrainDrawer::drawChunkPart(const Chunk& chunk, Vector2f pos, IntRect rect
         for (int j = 0; j < 16; j++) {
             auto block = chunk.getBlock(j, i);
 
-            IntRect br = IntRect(0, block.blockId * 16, 16, 16);
+            irect br = irect(0, block.blockId * 16, 16, 16);
 
             if (i == ystart) {
                 br.top += rect.top % 16;
@@ -149,9 +149,9 @@ void TerrainDrawer::drawChunkPart(const Chunk& chunk, Vector2f pos, IntRect rect
             m_camera.draw(
                 m_textureId,
                 br, 
-                Vector2f(pos.x + j * TERRAIN_TILE_SIZE, 
+                v2f(pos.x + j * TERRAIN_TILE_SIZE, 
                         (pos.y + (i - ystart) * TERRAIN_TILE_SIZE) - ((i == ystart) ? 0 : rect.top % 16)),
-                Vector2i(0, 0), 
+                v2i(0, 0), 
                 0.0, 
                 block.xFlip, 
                 block.yFlip
@@ -160,7 +160,7 @@ void TerrainDrawer::drawChunkPart(const Chunk& chunk, Vector2f pos, IntRect rect
     }
 }
 
-void TerrainDrawer::drawChunkPartById(int chunkId, Vector2f pos, IntRect rect) const {
+void TerrainDrawer::drawChunkPartById(int chunkId, v2f pos, irect rect) const {
     auto& chunk = m_storeChunk.get(chunkId);
 
     drawChunkPart(chunk, pos, rect);

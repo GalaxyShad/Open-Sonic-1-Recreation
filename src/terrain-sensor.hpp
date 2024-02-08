@@ -33,7 +33,7 @@ struct SensorResult {
 //https://info.sonicretro.org/SPG:Solid_Tiles#Sensors
 class Sensor {
 public:
-    Sensor(Vector2f position, SensorDirection direction, Terrain& terrain)
+    Sensor(v2f position, SensorDirection direction, Terrain& terrain)
         : m_terrain(terrain) 
         , m_position(position)
         , m_direction(direction)
@@ -42,10 +42,10 @@ public:
     void         setLayer(TerrainLayer layer) { m_layer = layer; }
     TerrainLayer getLayer()                   { return m_layer;  }
 
-    void     setPosition(Vector2f position) { m_position = position; }
-    Vector2f getPosition()                  { return m_position;     }
+    void     setPosition(v2f position) { m_position = position; }
+    v2f getPosition()                  { return m_position;     }
 
-    void     move(Vector2f delta)           { m_position.x += delta.x; m_position.y += delta.y; }
+    void     move(v2f delta)           { m_position.x += delta.x; m_position.y += delta.y; }
 
     void            setDirection(SensorDirection direction) { m_direction = direction; }
     SensorDirection getDirection()                          { return m_direction;      }
@@ -96,14 +96,14 @@ public:
 
 private: 
     SensorDirection m_direction;
-    Vector2f        m_position;
+    v2f        m_position;
     Terrain&        m_terrain;
     TerrainLayer    m_layer = TerrainLayer::NORMAL;
 
 private:
     struct BlockResult {
         ChunkBlock  block;
-        Vector2i    gridPosition;
+        v2i    gridPosition;
         int         distance;
         int         height;
     };
@@ -140,7 +140,7 @@ private:
         
         switch (m_direction) {
             case (SensorDirection::DOWN): {
-                result.gridPosition = Vector2i(gridX, gridY + ext);
+                result.gridPosition = v2i(gridX, gridY + ext);
                 result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
                 result.height       = abs(m_terrain.getVerticalHeightInTile(m_position.x, result.block.tile));
                 
@@ -150,7 +150,7 @@ private:
                 break;
             }
             case (SensorDirection::UP): {
-                result.gridPosition = Vector2i(gridX, gridY - ext);
+                result.gridPosition = v2i(gridX, gridY - ext);
                 result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
                 result.height       = abs(m_terrain.getVerticalHeightInTile(m_position.x, result.block.tile));
 
@@ -160,7 +160,7 @@ private:
                 break;
             }
             case (SensorDirection::LEFT): {
-                result.gridPosition = Vector2i(gridX - ext, gridY);
+                result.gridPosition = v2i(gridX - ext, gridY);
                 result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
                 result.height       = abs(m_terrain.getHorizontalHeightInTile(m_position.y, result.block.tile));
 
@@ -170,7 +170,7 @@ private:
                 break;
             }
             case (SensorDirection::RIGHT): {
-                result.gridPosition = Vector2i(gridX + ext, gridY);
+                result.gridPosition = v2i(gridX + ext, gridY);
                 result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
                 result.height       = abs(m_terrain.getHorizontalHeightInTile(m_position.y, result.block.tile));
 
@@ -193,8 +193,8 @@ private:
         return (m_layer == TerrainLayer::NORMAL) ? block.solidityNormalLayer : block.solidityAlternateLayer;
     }
 
-    Vector2i getCurrentBlockPositionInGrid(const Vector2f& position) {
-        return Vector2i(
+    v2i getCurrentBlockPositionInGrid(const v2f& position) {
+        return v2i(
             (int)(position.x / TERRAIN_TILE_SIZE),
             (int)(position.y / TERRAIN_TILE_SIZE)
         );

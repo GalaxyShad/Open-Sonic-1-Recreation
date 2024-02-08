@@ -37,7 +37,7 @@ private:
     std::unique_ptr<terrain::Store<terrain::Chunk>> m_storeChunks;
     std::unique_ptr<terrain::Layout>                m_layout;
     
-    Vector2f m_playerStartPosition;
+    v2f m_playerStartPosition;
 
     std::list<Entity*> m_entities;
 private:

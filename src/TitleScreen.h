@@ -21,12 +21,12 @@ class TitleScreen {
             scr.loadTextureFromFile("content/textures/texTitle.png", 254, framesTitleSonic, 8);
             scr.loadTextureFromFile("content/textures/texTitleBg.png", 253);
 
-            cam.create(Vector2f(0, 0), scr.getSize(), false);
+            cam.create(v2f(0, 0), scr.getSize(), false);
 
             anim.create(254);
             anim.set(0, 0, 0.25);
 
-            pos = Vector2f(scr.getSize().width / 2, scr.getSize().height / 2);
+            pos = v2f(scr.getSize().width / 2, scr.getSize().height / 2);
 
             tick = 0;
             yAnimShift = 8;
@@ -53,7 +53,7 @@ class TitleScreen {
         void setCursorPos(uint16_t pos) { menuCursor = (pos < menuItemsCount) ? pos : 0; }
 
         void draw() {
-            scr.drawTextureRect(253, IntRect(0, 0, 427, 240));
+            scr.drawTextureRect(253, irect(0, 0, 427, 240));
 
             yAnimShift -= 6;
             if (yAnimShift < -48) {
@@ -68,22 +68,22 @@ class TitleScreen {
                 anim.set(6, 7, 0.125);
 
             anim.tick();
-            scr.drawTextureRect(254, IntRect(0, 0, 256, 82), Vector2f(pos.x-128, pos.y - 82));
-            cam.draw(anim, Vector2f(pos.x, pos.y + yAnimShift));
-            scr.drawTextureRect(254, IntRect(0, 83, 256, 74), Vector2f(pos.x-128, pos.y - 12));
+            scr.drawTextureRect(254, irect(0, 0, 256, 82), v2f(pos.x-128, pos.y - 82));
+            cam.draw(anim, v2f(pos.x, pos.y + yAnimShift));
+            scr.drawTextureRect(254, irect(0, 83, 256, 74), v2f(pos.x-128, pos.y - 12));
 
             if (needToPressStart && tick % 40 < 20)
-                scr.drawTextureRect(254, IntRect(56, 158, 144, 8), Vector2f(pos.x-72, pos.y + 64));
+                scr.drawTextureRect(254, irect(56, 158, 144, 8), v2f(pos.x-72, pos.y + 64));
             else if (!needToPressStart) {
                 for (int i = 0; i < menuItemsCount; i++) {
                     uint16_t w = scr.getTextWidth(0, menuItems[i]);
 
                     if (menuCursor == i) {
-                        scr.drawText(0, ">",  Vector2f(pos.x - w / 2 - 16, pos.y + 64 + 12*i));
-                        scr.drawText(0, "<",  Vector2f(pos.x + w / 2 + 5, pos.y + 64 + 12*i));
+                        scr.drawText(0, ">",  v2f(pos.x - w / 2 - 16, pos.y + 64 + 12*i));
+                        scr.drawText(0, "<",  v2f(pos.x + w / 2 + 5, pos.y + 64 + 12*i));
                     }
                         
-                    scr.drawText(0, menuItems[i],  Vector2f(pos.x-w / 2, pos.y + 64 + 12*i));
+                    scr.drawText(0, menuItems[i],  v2f(pos.x-w / 2, pos.y + 64 + 12*i));
                 }
             }
         }
@@ -91,7 +91,7 @@ class TitleScreen {
         Screen& scr;
         Camera cam;
         AnimMgr anim;
-        Vector2f pos;
+        v2f pos;
 
         int tick;
         float yAnimShift;

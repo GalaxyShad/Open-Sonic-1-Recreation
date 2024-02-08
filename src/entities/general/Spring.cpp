@@ -6,10 +6,10 @@ void Spring::create()
     solid = true;
 
 	if (rot == R_UP || rot == R_DOWN)
-		hitBoxSize = Vector2f(28, 16);
+		hitBoxSize = v2f(28, 16);
 	else {
 		platform = true;
-		hitBoxSize = Vector2f(16, 28);
+		hitBoxSize = v2f(16, 28);
 	}
 
 	anim.create(TEX_OBJECTS);

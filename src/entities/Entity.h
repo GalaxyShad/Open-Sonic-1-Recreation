@@ -6,7 +6,7 @@
 #define TEX_GHZ_GIMM 1
 #define TEX_GHZ_TILES 2
 
-#include "FramesMappings.h"
+#include "../FramesMappings.h"
 #include "Camera.h"
 
 #include "../core/_index.hpp"
@@ -35,22 +35,22 @@ class Entity
 {
     public:
         Entity() {}
-        Entity(Vector2f _pos);
+        Entity(v2f _pos);
         virtual void create() { return; }
         virtual void update();
         virtual void draw(Camera& cam);
         virtual void reactingToOthers(std::list<Entity*>& entities) { return; }
 
-        void setPos(Vector2f pos) { this->pos = pos; }
-        Vector2f getPos()         { return pos; }
+        void setPos(v2f pos) { this->pos = pos; }
+        v2f getPos()         { return pos; }
 
         void goToStartPos()       { pos = startPos; }
-        Vector2f getStartPos()    { return startPos; }
+        v2f getStartPos()    { return startPos; }
         
-        void setHitBoxSize(Vector2f _size)  { hitBoxSize = _size; };
-        Vector2f getHitBoxSize()            { return hitBoxSize;  };
+        void setHitBoxSize(v2f _size)  { hitBoxSize = _size; };
+        v2f getHitBoxSize()            { return hitBoxSize;  };
 
-        bool entMeeting(Entity& ent, Vector2i meetSize);
+        bool entMeeting(Entity& ent, v2i meetSize);
 
         virtual void destroy() { living = false; }
 
@@ -75,8 +75,8 @@ class Entity
         bool platform = false;
         bool platPushUp = true;
         bool living = true;
-        Vector2f pos;
-        Vector2f startPos;
-        Vector2f hitBoxSize = Vector2f(16, 16);
+        v2f pos;
+        v2f startPos;
+        v2f hitBoxSize = v2f(16, 16);
         AnimMgr anim;
 };

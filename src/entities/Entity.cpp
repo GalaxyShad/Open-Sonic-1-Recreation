@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(Vector2f _pos)
+Entity::Entity(v2f _pos)
 {
     pos = _pos;
     startPos = _pos;
@@ -122,7 +122,7 @@ bool Entity::isInCamera(Camera& cam)
         return true;
 }
 
-bool Entity::entMeeting(Entity& ent, Vector2i meetSize)
+bool Entity::entMeeting(Entity& ent, v2i meetSize)
 {
     float enRectR, enRectL, enRectT, enRectB;
 

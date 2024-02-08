@@ -6,12 +6,12 @@ class Monitor : public Entity {
     public:
         enum Item {M_RINGS, M_INVINCIBILITY, M_LIVE, M_SHIELD, M_SPEED};
 
-        Monitor(Vector2f _pos, Item item) : Entity(_pos), item(item) {}
+        Monitor(v2f _pos, Item item) : Entity(_pos), item(item) {}
         void create() {
             solid = true; 
             platform = true;
             type = TYPE_MONITOR; 
-            hitBoxSize = Vector2f(32, 32); 
+            hitBoxSize = v2f(32, 32); 
             anim.create(TEX_OBJECTS); 
             anim.set(56, 56, 0);
 
@@ -21,7 +21,7 @@ class Monitor : public Entity {
         }
         void draw(Camera& cam) { 
             cam.draw(anim, pos);
-            cam.draw(animIcon, Vector2f(pos.x, pos.y-3)); 
+            cam.draw(animIcon, v2f(pos.x, pos.y-3)); 
         }
 
         Item getItem() { return item; }
@@ -35,12 +35,12 @@ class Monitor : public Entity {
 
 class BrokenMonitor : public Entity {
     public:
-        BrokenMonitor(Vector2f _pos) : Entity(_pos) { anim.create(TEX_OBJECTS); anim.set(57, 57, 0); }
+        BrokenMonitor(v2f _pos) : Entity(_pos) { anim.create(TEX_OBJECTS); anim.set(57, 57, 0); }
 };
 
 class MonitorIcon : public Entity {
     public:
-        MonitorIcon(Vector2f _pos, Monitor::Item item) : 
+        MonitorIcon(v2f _pos, Monitor::Item item) : 
             Entity(_pos), item(item) { create(); }
 
         void create() {

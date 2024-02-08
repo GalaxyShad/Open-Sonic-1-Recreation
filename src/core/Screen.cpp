@@ -35,8 +35,8 @@ void Screen::setPalRow(uint8_t row, const uint16_t* colors,
 }
 
 void Screen::drawTextureRect(uint8_t texId,
-                     IntRect texRect, Vector2f pos, 
-                     Vector2i offset, float angle, 
+                     irect texRect, v2f pos, 
+                     v2i offset, float angle, 
                      bool horFlip, bool verFlip) {
     
 
@@ -61,7 +61,7 @@ void Screen::drawTextureRect(uint8_t texId,
 }
 
 void Screen::drawTextureRect(uint8_t texId,
-                     Frame frame, Vector2f pos, float angle, 
+                     Frame frame, v2f pos, float angle, 
                      bool horFlip, bool verFlip) {
     
     drawTextureRect(
@@ -75,7 +75,7 @@ void Screen::drawTextureRect(uint8_t texId,
     );            
 }
 
-void Screen::drawRectangle(Vector2f pos, Size rsize, uint16_t color) {
+void Screen::drawRectangle(v2f pos, Size rsize, uint16_t color) {
     if (pos.x + rsize.width < 0 || pos.y + rsize.height < 0 || 
         pos.x > size.width ||
         pos.y > size.height)
@@ -240,7 +240,7 @@ uint32_t Screen::color16to32ABGR(uint16_t src) {
     return dst;
 }
 
-void Screen::drawPal(Vector2f pos) {
+void Screen::drawPal(v2f pos) {
 
     for (int i = 0; i < PAL_MAX_ROWS; i++)
         for (int j = 0; j < PAL_MAX_COLUMNS; j++) {
@@ -252,7 +252,7 @@ void Screen::drawPal(Vector2f pos) {
 }
 
 void Screen::addFont(uint8_t key, const char* alphabet, uint8_t interval, 
-                     uint8_t tex, IntRect startRect, uint16_t rectDivSpace, const uint16_t* widths) {
+                     uint8_t tex, irect startRect, uint16_t rectDivSpace, const uint16_t* widths) {
     if (!alphabet) return;
 
     Font font;
@@ -260,7 +260,7 @@ void Screen::addFont(uint8_t key, const char* alphabet, uint8_t interval,
     font.startRect = startRect;
     font.tex = tex;
 
-    IntRect letterRect = startRect;
+    irect letterRect = startRect;
     size_t len = strlen(alphabet);
     for (int i = 0; i < len; i++) {
         char c = alphabet[i];
@@ -281,17 +281,17 @@ void Screen::addFont(uint8_t key, const char* alphabet, uint8_t interval,
 }
 
 
-void Screen::drawText(uint8_t fontKey, const char* str, Vector2f pos) {
+void Screen::drawText(uint8_t fontKey, const char* str, v2f pos) {
     if (!fonts.count(fontKey)) return;
 
     if ((pos.x < 0) || (pos.y < 0) || (pos.x >= wnd.getDefaultView().getSize().x) || (pos.y >= wnd.getDefaultView().getSize().y)) 
         return;
 
     Font font = fonts[fontKey];
-    IntRect letterRect = font.startRect;
+    irect letterRect = font.startRect;
     sf::Texture* texFont = sfTextures[font.tex];
 
-    Vector2f letterPos = pos;
+    v2f letterPos = pos;
 
     size_t len = strlen(str);
     for (int i = 0; i < len; i++) {
@@ -330,7 +330,7 @@ uint16_t Screen::getTextWidth(uint8_t fontKey, const char* str) {
     if (!fonts.count(fontKey)) return 0;
 
     Font font = fonts[fontKey];
-    IntRect letterRect = font.startRect;
+    irect letterRect = font.startRect;
     int x = 0;
 
     size_t len = strlen(str);

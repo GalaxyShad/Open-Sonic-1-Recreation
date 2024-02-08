@@ -19,7 +19,7 @@ void Level::create() {
 	Player* pl = new Player(m_playerStartPosition, trn, m_input, m_audio, rings, score);
 	m_entities.push_back(pl);	
 
-    cam.create(Vector2f(m_playerStartPosition.x - m_screen.getSize().width / 2, 
+    cam.create(v2f(m_playerStartPosition.x - m_screen.getSize().width / 2, 
 						m_playerStartPosition.y - m_screen.getSize().height / 2), 
 			   trn.getSize(), (m_gameType == GameType::SONIC_3K));
 
@@ -101,9 +101,9 @@ void Level::createZoneSpecific()
                 int y = i * layout.getChunksRadiusPixels();
 
                 if (chunkId == 0x1F)
-                    m_entities.push_back(new GimGHZ_STube(Vector2f(x + 8 + 8, y + 112), 0));
+                    m_entities.push_back(new GimGHZ_STube(v2f(x + 8 + 8, y + 112), 0));
                 else if (chunkId == 0x20)
-                    m_entities.push_back(new GimGHZ_STube(Vector2f(x + 248 - 8, y + 112), 1));
+                    m_entities.push_back(new GimGHZ_STube(v2f(x + 248 - 8, y + 112), 1));
             }
     }
 }
@@ -289,9 +289,9 @@ void Level::draw() {
 }
 
 void Level::drawHud() {
-	m_screen.drawTextureRect(2, IntRect(1, 60, 40, 16), Vector2f(16, 8));
-	m_screen.drawTextureRect(2, IntRect(42, 60, 32, 16), Vector2f(16, 24));
-	m_screen.drawTextureRect(2, IntRect(75, 60, 40, 16), Vector2f(16, 40));
+	m_screen.drawTextureRect(2, irect(1, 60, 40, 16), v2f(16, 8));
+	m_screen.drawTextureRect(2, irect(42, 60, 32, 16), v2f(16, 24));
+	m_screen.drawTextureRect(2, irect(75, 60, 40, 16), v2f(16, 40));
 
 	char sScore[7];
 	char sTime[5];
@@ -301,9 +301,9 @@ void Level::drawHud() {
 	snprintf(sTime, 5, "%d:%02d", time / 60, time % 60);
 	snprintf(sRings, 4, "%3d", rings);
 
-	m_screen.drawText(3, sScore, Vector2f(64, 8));
-	m_screen.drawText(3, sTime, Vector2f(56, 24));
-	m_screen.drawText(3, sRings, Vector2f(64, 40));
+	m_screen.drawText(3, sScore, v2f(64, 8));
+	m_screen.drawText(3, sTime, v2f(56, 24));
+	m_screen.drawText(3, sRings, v2f(64, 40));
 }
 
 

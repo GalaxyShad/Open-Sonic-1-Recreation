@@ -26,35 +26,35 @@ enum class PlayerSensorMode {
 
 class PlayerSensor {
 public:
-    PlayerSensor(Vector2f position, Vector2i radius, Vector2i pushRadius, terrain::Terrain& terrain)
+    PlayerSensor(v2f position, v2i radius, v2i pushRadius, terrain::Terrain& terrain)
         : m_position(position)
         , m_radius(radius)
         , m_radiusPush(pushRadius)
         , m_sensors {
-            Sensor { terrain::Sensor(Vector2f(position.x - radius.x, position.y + radius.y), terrain::SensorDirection::DOWN, terrain), true },
-            Sensor { terrain::Sensor(Vector2f(position.x + radius.x, position.y + radius.y), terrain::SensorDirection::DOWN, terrain), true },
+            Sensor { terrain::Sensor(v2f(position.x - radius.x, position.y + radius.y), terrain::SensorDirection::DOWN, terrain), true },
+            Sensor { terrain::Sensor(v2f(position.x + radius.x, position.y + radius.y), terrain::SensorDirection::DOWN, terrain), true },
 
-            Sensor { terrain::Sensor(Vector2f(position.x - radius.x, position.y - radius.y), terrain::SensorDirection::UP, terrain), true },
-            Sensor { terrain::Sensor(Vector2f(position.x + radius.x, position.y - radius.y), terrain::SensorDirection::UP, terrain), true },
+            Sensor { terrain::Sensor(v2f(position.x - radius.x, position.y - radius.y), terrain::SensorDirection::UP, terrain), true },
+            Sensor { terrain::Sensor(v2f(position.x + radius.x, position.y - radius.y), terrain::SensorDirection::UP, terrain), true },
 
-            Sensor { terrain::Sensor(Vector2f(position.x - pushRadius.x, position.y + pushRadius.y), terrain::SensorDirection::LEFT,  terrain), true },
-            Sensor { terrain::Sensor(Vector2f(position.x + pushRadius.x, position.y + pushRadius.y), terrain::SensorDirection::RIGHT, terrain), true },
+            Sensor { terrain::Sensor(v2f(position.x - pushRadius.x, position.y + pushRadius.y), terrain::SensorDirection::LEFT,  terrain), true },
+            Sensor { terrain::Sensor(v2f(position.x + pushRadius.x, position.y + pushRadius.y), terrain::SensorDirection::RIGHT, terrain), true },
         }
     {}
 
     void setMode(PlayerSensorMode mode) {
         float angle = (float)mode * 90.0f;
 
-        float angle_sin = sin(radians(angle));
-        float angle_cos = cos(radians(angle));
+        float angle_sin = sinf(radians(angle));
+        float angle_cos = cosf(radians(angle));
 
         for (int i = 0; i < 6; i++) {
             float sign_x = (i % 2 != 0) ? 1 : -1;
             float sign_y = (i / 2 == 0) ? 1 : -1;
 
-            Vector2i radius = (i < 4) ? m_radius : m_radiusPush;
+            v2i radius = (i < 4) ? m_radius : m_radiusPush;
 
-            m_sensors[i].tsensor.setPosition(Vector2f(
+            m_sensors[i].tsensor.setPosition(v2f(
                 m_position.x + (radius.x * sign_x *  angle_cos) + (radius.y * sign_y * angle_sin),
                 m_position.y + (radius.x * sign_x * -angle_sin) + (radius.y * sign_y * angle_cos)
             ));
@@ -117,16 +117,16 @@ public:
         return scanBoth(PlayerSensorTag::CELLING_LEFT, PlayerSensorTag::CELLING_RIGHT);
     }
 
-    void setPosition(Vector2f position) {
+    void setPosition(v2f position) {
         for (auto& s : m_sensors) {
-            s.tsensor.move(Vector2f(position.x - m_position.x, position.y - m_position.y));
+            s.tsensor.move(v2f(position.x - m_position.x, position.y - m_position.y));
         }
 
         m_position = position;
     }
 
-    void move(Vector2f delta) {
-        setPosition(Vector2f(m_position.x + delta.x, m_position.y + delta.y));
+    void move(v2f delta) {
+        setPosition(v2f(m_position.x + delta.x, m_position.y + delta.y));
     }
 
     void setSensorState(PlayerSensorLetterTag tag, bool state)  { sensor(tag).isEnabled = state; } 
@@ -154,11 +154,11 @@ private:
     };
 
 private:
-    Vector2f         m_position;
+    v2f         m_position;
     PlayerSensorMode m_mode      = PlayerSensorMode::FLOOR;
 
-    Vector2i m_radius;
-    Vector2i m_radiusPush;
+    v2i m_radius;
+    v2i m_radiusPush;
 
     Sensor   m_sensors[6];
 private:

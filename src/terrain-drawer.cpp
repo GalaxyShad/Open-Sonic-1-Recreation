@@ -110,10 +110,14 @@ void terrain::TerrainDrawer::drawChunkBlockDebug(terrain::ChunkBlock &block, flo
         y + i * TERRAIN_TILE_SIZE - m_camera.getPos().y
     );
 
-    spr.setColor(
-        (block.solidityNormalLayer == BlockSolidity::ONLY_TOP)               ? sf::Color(0x1FCECBF0) : 
-        (block.solidityNormalLayer == BlockSolidity::ONLY_LEFT_BOTTOM_RIGHT) ? sf::Color(0xFFF44FF0)
-                                                                             : sf::Color(0x000000F0));
+    sf::Color color = 
+        (block.solidityNormalLayer == BlockSolidity::ONLY_TOP)               ? sf::Color(0x055CBCFF) : 
+        (block.solidityNormalLayer == BlockSolidity::ONLY_LEFT_BOTTOM_RIGHT) ? sf::Color(0x01CC86FF)
+                                                                             : sf::Color(0xD1CDCCFF);
+
+    color.a = ((i + j) % 2) ? 0xF0 : 0xD0;
+
+    spr.setColor(color);
 
     if (block.solidityNormalLayer != BlockSolidity::EMPTY)
         m_camera.getScr().getSfmlWindow().draw(spr);

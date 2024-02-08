@@ -8,11 +8,36 @@ void Player::create()
 	anim.create(TEX_OBJECTS);
     anim.set(0, 0, 0);
     standOn = nullptr;
+
+    m_collider.onLanding([this](HexAngle hexAngle){
+        float angle = hexAngle.degrees();
+
+        if (((angle >= 0.0) && (angle < 22.5)) || ((angle > 337.5) && (angle <= 360.0))) {
+            gsp = spd.x;
+        } else if (((angle >= 22.5) && (angle < 45.0)) || ((angle > 315.0) && (angle <= 337.5))) {
+            if (abs(spd.x) > spd.y)
+                gsp = spd.x;
+            else
+                gsp = spd.y * 0.5 * -fsign(sinf(radians(angle)));
+        } else if (((angle >= 45.0) && (angle < 90.0)) || ((angle > 270.0) && (angle <= 315.0))) {
+            if (abs(spd.x) > spd.y)
+                gsp = spd.x;
+            else
+                gsp = spd.y * -fsign(sinf(radians(angle)));
+        }
+
+        // set normal state if we rolling in air
+        if (action == ACT_ROLL)
+            action = ACT_NORMAL;
+    });
 }
 
 void Player::update() 
 {
     movement();
+    m_collider.update();
+    angle = m_collider.getAngle().degrees();
+
     gameplay();
     animation();
     anim.tick();
@@ -38,7 +63,7 @@ void Player::draw(Camera& cam)
         "ground    %d\n"
         "debug     %d\n",
         pos.x, pos.y,
-        xsp, ysp,
+        spd.x, spd.y,
         angle,
         flrMode,
         action,
@@ -49,7 +74,7 @@ void Player::draw(Camera& cam)
     Screen& scr = cam.getScr();
     scr.drawText(0, dbInfo, v2f(scr.getSize().width - 256, 8));
 
-
+    m_collider.draw(cam);
 }
 
 void Player::moveCam(Camera& cam)
@@ -83,7 +108,7 @@ void Player::moveCam(Camera& cam)
 
 
 	if (ground) {
-		if (fabs(ysp) > 6.0)
+		if (fabs(spd.y) > 6.0)
 			camPos.y += fmin(fmax(_y - camPos.y, -16.0), 16.0);
 		else
 			camPos.y += fmin(fmax(_y - camPos.y, -6.0), 6.0);
@@ -106,30 +131,6 @@ v2i Player::getRotatedPoint(v2f _center, int rW, int rH, float angle)
 
 }
 
-Tile Player::getGround(v2i& _senPos, int rW, int rH, float _ang) 
-{
-    Tile tile = (*trn).getTile(_senPos);
-
-    _senPos = getRotatedPoint(pos, rW, rH, flrMode * 90);
-    if (tile.getHeight(_senPos, flrMode * 90) != 0) {
-        if (tile.getHeight(_senPos, flrMode * 90) >= 16) {
-            _senPos = getRotatedPoint(pos, rW, rH - 16, flrMode * 90);
-            tile = (*trn).getTile(_senPos);
-            if (tile.getHeight(_senPos, flrMode * 90) == 0) {
-                _senPos = getRotatedPoint(pos, rW, rH, flrMode * 90);
-                tile = (*trn).getTile(_senPos);
-            }
-
-        }
-    } 
-
-    if (tile.getHeight(_senPos, flrMode * 90) == 0) {
-        _senPos = getRotatedPoint(pos, rW, rH + 16, flrMode * 90);
-        tile = (*trn).getTile(_senPos);
-    }
-
-    return tile;
-}
 
 void Player::terrainCollision(Camera& cam) 
 {
@@ -138,8 +139,8 @@ void Player::terrainCollision(Camera& cam)
 
     if (pos.y + 20 > cam.getBottomBorder() && !cam.isFree() && action != ACT_DIE) {
         action = ACT_DIE;
-        xsp = 0;
-        ysp = -7;
+        spd.x = 0;
+        spd.y = -7;
         ground = false;
         canHorMove = false;
 
@@ -150,10 +151,10 @@ void Player::terrainCollision(Camera& cam)
         ground = false;
         flrMode = FLOOR;
 		angle = 0.0;
-		if (ysp < 16.0)
-			ysp += PL_GRAV;
+		if (spd.y < 16.0)
+			spd.y += PL_GRAV;
 
-        pos.y += ysp;
+        pos.y += spd.y;
 
         if (pos.y + 20 > cam.getBottomBorder()+40)
             dead = true;
@@ -162,14 +163,14 @@ void Player::terrainCollision(Camera& cam)
     }
 
     if (endLv) {
-        if (pos.x < cam.getPos().x && xsp < 0) {
+        if (pos.x < cam.getPos().x && spd.x < 0) {
             pos.x = cam.getPos().x;
             gsp = 0;
-            xsp = 0;
-        } else if (pos.x > cam.getPos().x+cam.getSize().width && xsp > 0) {
+            spd.x = 0;
+        } else if (pos.x > cam.getPos().x+cam.getSize().width && spd.x > 0) {
             pos.x = cam.getPos().x+cam.getSize().width;
             gsp = 0;
-            xsp = 0;
+            spd.x = 0;
         }
     }
 
@@ -177,222 +178,11 @@ void Player::terrainCollision(Camera& cam)
 
     float senAngle = flrMode * 90;
     // ==== Layering ==== //
-    (*trn).setLayer(layer);
-
-    // ===== Wall collision ====== //
-	#pragma region Wall Collision
-
-    v2i sensorE = getRotatedPoint(pos, -10,  0, senAngle);
-    v2i sensorF = getRotatedPoint(pos,  10,  0, senAngle);
-
-    Tile tileE = (*trn).getTile(sensorE);
-    Tile tileF = (*trn).getTile(sensorF);
-
-    int heightE = tileE.getHeight(sensorE, int(senAngle+270) % 360);
-    int heightF = tileF.getHeight(sensorF, int(senAngle+90) % 360);
-
-    if (ground) {
-        if (gsp > 0)
-            heightE = 0;
-        if (gsp < 0)
-            heightF = 0;
-    } 
-
-   if (angle > 90.0 && angle < 270.0) {
-        heightE = 0;
-        heightF = 0;
-    }
-
-    if (xsp > abs(ysp))
-        heightE = 0;
-    if (-xsp > abs(ysp))
-        heightF = 0;
-
-
-    switch(flrMode) 
-    {
-        case FlrMode::FLOOR:
-            if (heightE != 0 && pos.x - 10 < tileE.pos.x + heightE) {
-                pos.x = tileE.pos.x + heightE + 10;
-                if (action != ACT_ROLL || angle != 45.0) {
-                    xsp = 0; // For air mode
-                    gsp = 0;
-                }
-            }
-            if (heightF != 0 && (pos.x + 10 > (tileF.pos.x + 16 - heightF))) {
-                pos.x = tileF.pos.x + 16 - heightF - 10;
-                if (action != ACT_ROLL || angle != 45.0) {
-                    xsp = 0; // For air mode
-                    gsp = 0;
-                }
-            }
-            break;
-        case FlrMode::BOTTOM:
-            if (heightE != 0 && pos.x + 10 > tileE.pos.x + 16 - heightE) {
-                pos.x = tileE.pos.x + 16 - heightE - 10;
-                gsp = 0;
-            }
-            if (heightF != 0 && (pos.x - 10 < (tileF.pos.x + heightF))) {
-                pos.x = tileF.pos.x + heightF + 10;
-                gsp = 0;
-            }
-            break;
-        case FlrMode::RIGHT_WALL:
-            if (heightE != 0 && pos.y + 10 > tileE.pos.y + 16 - heightE) {
-                pos.y = tileE.pos.y + 16 - heightE - 10;
-                gsp = 0;
-            }
-            if (heightF != 0 && (pos.y - 10 < (tileF.pos.y + heightF))) {
-                pos.y = tileF.pos.y + heightF + 10;
-                gsp = 0;
-            }
-            break;
-        case FlrMode::LEFT_WALL:
-            if (heightE != 0 && pos.y - 10 < tileE.pos.y + heightE) {
-                pos.y = tileE.pos.y + heightE + 10;
-                gsp = 0;
-            }
-            if (heightF != 0 && (pos.y + 10 > (tileF.pos.y + 16 - heightF))) {
-                pos.y = tileF.pos.y + 16 - heightF - 10;
-                gsp = 0;
-            }
-            break;
-    }
-	#pragma endregion
-
-    // ===== Celling Collision ==== //
-	#pragma region Celling Collision 
-
-    v2i sensorC = v2i(pos.x - gndWidth, pos.y - gndHeight);
-    v2i sensorD = v2i(pos.x + gndWidth, pos.y - gndHeight); 
-
-    Tile tileC = (*trn).getTile(sensorC);
-    Tile tileD = (*trn).getTile(sensorD);
-
-    int heightTileC = tileC.getHeight(sensorC, 180);
-    int heightTileD = tileD.getHeight(sensorD, 180);
-
-	if (!ground && ysp < 0) {
-            
-        if (heightTileC != 0 || heightTileD != 0) {
-            int mainHeight = 0;
-
-            if      (heightTileC == 0) mainHeight = tileD.pos.y + heightTileD;
-            else if (heightTileD == 0) mainHeight = tileC.pos.y + heightTileC;
-            else    mainHeight = max(tileC.pos.y + heightTileC, tileD.pos.y + heightTileD); 
-                
-            if (pos.y - gndHeight <= mainHeight) 
-            {
-                if (heightTileC > heightTileD) 
-                    angle = tileC.angle;
-                else 
-                    angle = tileD.angle;
-
-                if ((angle > 90.0 && angle <= 135) || (angle >= 225 && angle < 270)) {
-                    action = ACT_NORMAL;
-                    gndHeight = 20;
-                    pos.y = mainHeight + gndHeight;
-                    gsp = ysp * -fsign(sinf(radians(angle)));
-                    ysp = 0;
-                    ground = true;
-                    flrMode = FlrMode::BOTTOM;
-                    senAngle = flrMode * 90;
-                } else {
-                    ysp = 0;
-                    angle = 0;
-                    flrMode = FlrMode::FLOOR;
-                    pos.y = mainHeight + gndHeight;
-                }
-            }
-        }
-    }
+ 
     
-	#pragma endregion
 
-    // ====== Ground Collision ====== //
-	#pragma region Ground Collision
+    bool isFalling = !m_collider.isGrounded();
 
-    bool isFalling = true;
-
-    v2i sensorA = getRotatedPoint(pos, -gndWidth, gndHeight, senAngle);
-    v2i sensorB = getRotatedPoint(pos, gndWidth,  gndHeight, senAngle);
-
-    Tile tileA = getGround(sensorA, -gndWidth, gndHeight, senAngle);  // Left Sensor
-    Tile tileB = getGround(sensorB,  gndWidth, gndHeight, senAngle);  // Right Sensor
-
-    int heightTileA = tileA.getHeight(sensorA, senAngle);
-    int heightTileB = tileB.getHeight(sensorB, senAngle);
-            
-    if (!standOnObj && ((heightTileA != 0 || heightTileB != 0) && 
-                        ((ground) || 
-                         (!ground && ysp >= 0.0 && flrMode == FlrMode::FLOOR && 
-                          ((pos.y + PL_FOOT_LEVEL > (min(tileA.pos.y + 16 - heightTileA, 
-                                                         tileB.pos.y + 16 - heightTileB)))))))) {
-
-        int tileShift = 16;
-        if (flrMode == FlrMode::BOTTOM || flrMode == FlrMode::LEFT_WALL)
-            tileShift = 0;
-
-        int aHeight, bHeight;
-        if (flrMode == FlrMode::FLOOR || flrMode == FlrMode::BOTTOM) {
-            aHeight = tileA.pos.y + tileShift - cosf(radians(senAngle)) * (heightTileA + gndHeight);
-            bHeight = tileB.pos.y + tileShift - cosf(radians(senAngle)) * (heightTileB + gndHeight);
-        } else {
-            aHeight = tileA.pos.x + tileShift - sinf(radians(senAngle)) * (heightTileA + gndHeight);
-            bHeight = tileB.pos.x + tileShift - sinf(radians(senAngle)) * (heightTileB + gndHeight);
-        }
-
-        float* posPtr;
-        if (flrMode == FlrMode::LEFT_WALL || flrMode == FlrMode::RIGHT_WALL)
-            posPtr = &pos.x;
-        else 
-            posPtr = &pos.y;
-
-        if (heightTileB == 0) {
-            angle = tileA.angle;
-            *posPtr = aHeight;
-        } else if (heightTileA == 0) {
-            angle = tileB.angle;
-            *posPtr = bHeight;
-        } else {
-            if (flrMode == FlrMode::FLOOR || flrMode == FlrMode::RIGHT_WALL)
-                *posPtr = min(aHeight, bHeight);
-            else if (flrMode == FlrMode::BOTTOM || flrMode == FlrMode::LEFT_WALL)
-                *posPtr = max(aHeight, bHeight);
-
-            if (*posPtr == bHeight)      angle = tileB.angle;
-            else if (*posPtr == aHeight) angle = tileA.angle;
-        }
-            
-        // Set angle
-        if (angle == 0.0 || angle == 360.0)
-            angle = 90.0 * float(flrMode);
-     
-        // Landing
-        if (!ground) {
-            if (((angle >= 0.0) && (angle < 22.5)) || ((angle > 337.5) && (angle <= 360.0))) {
-                gsp = xsp;
-            } else if (((angle >= 22.5) && (angle < 45.0)) || ((angle > 315.0) && (angle <= 337.5))) {
-                if (abs(xsp) > ysp)
-                    gsp = xsp;
-                else
-                    gsp = ysp * 0.5 * -fsign(sinf(radians(angle)));
-            } else if (((angle >= 45.0) && (angle < 90.0)) || ((angle > 270.0) && (angle <= 315.0))) {
-                if (abs(xsp) > ysp)
-                    gsp = xsp;
-                else
-                    gsp = ysp * -fsign(sinf(radians(angle)));
-            }
-
-			// set normal state if we rolling in air
-			if (action == ACT_ROLL)
-				action = ACT_NORMAL;
-                
-        }
-
-        isFalling = false;
-    }
-	#pragma endregion
 
     // ===== Gravity ===== //
     if (isFalling && !standOnObj) {
@@ -401,14 +191,14 @@ void Player::terrainCollision(Camera& cam)
 		angle = 0.0;
 
         // Air drug
-        if (!ground && ysp < 0.0 && ysp > -4.0)
-            xsp -= (int(xsp) / 0.125) / 256;
+        if (!ground && spd.y < 0.0 && spd.y > -4.0)
+            spd.x -= (int(spd.x) / 0.125) / 256;
 
-		if (ysp < 16.0) {
+		if (spd.y < 16.0) {
             if (action != ACT_HURT)
-			    ysp += PL_GRAV;
+			    spd.y += PL_GRAV;
             else 
-                ysp += 0.21875;
+                spd.y += 0.21875;
         }
     } else {
         ground = true;   
@@ -469,7 +259,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     if (!collisionBottom(**it, 2)) break;
                     action = ACT_SPRING;
                     ground = false;
-                    ysp = -(spring->isRed() ? 16 : 10);
+                    spd.y = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
                     break;
@@ -477,20 +267,20 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     if (!collisionTop(**it, 2)) break;
                     action = ACT_SPRING;
                     ground = false;
-                    ysp = +(spring->isRed() ? 16 : 10);
+                    spd.y = +(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_LEFT:
-                    if (!collisionRight(**it) || xsp <= 0) break;
-                    xsp = -(spring->isRed() ? 16 : 10);
+                    if (!collisionRight(**it) || spd.x <= 0) break;
+                    spd.x = -(spring->isRed() ? 16 : 10);
                     gsp = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_RIGHT:
-                    if (!collisionLeft(**it) || xsp >= 0) break;
-                    xsp = (spring->isRed() ? 16 : 10);
+                    if (!collisionLeft(**it) || spd.x >= 0) break;
+                    spd.x = (spring->isRed() ? 16 : 10);
                     gsp = (spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
@@ -524,10 +314,10 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			if (collisionMain(*en)) {
 				if (action == ACT_JUMP || action == ACT_ROLL || action == ACT_SPINDASH) {
                     if (!ground) {
-                        if (ysp > 0) {
-                            ysp *= -1;
+                        if (spd.y > 0) {
+                            spd.y *= -1;
                         } else {
-                            ysp -= sign(ysp);
+                            spd.y -= sign(spd.y);
                         }
                     } 
                     en->destroy();
@@ -555,12 +345,12 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         // Monitor
         if ((*it)->getType() == TYPE_MONITOR) {
             Monitor* m = (Monitor*)*it;
-			if (collisionMain(*m) && ysp >= 0 && (action == ACT_JUMP || action == ACT_ROLL)) {
+			if (collisionMain(*m) && spd.y >= 0 && (action == ACT_JUMP || action == ACT_ROLL)) {
                 if (!ground) {
-                    if (ysp > 0) {
-                        ysp *= -1;
+                    if (spd.y > 0) {
+                        spd.y *= -1;
                     } else {
-                        ysp -= sign(ysp);
+                        spd.y -= sign(spd.y);
                     }
                 }
 
@@ -601,13 +391,13 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 		if ((*it)->getType() == TYPE_LAYER_SWITCH) {
 			LayerSwitcher* ls = (LayerSwitcher*)*it;
 			if (collisionMain(*ls) && ground) {
-				if (ls->getMode() == 0 && xsp > 0) {
+				if (ls->getMode() == 0 && spd.x > 0) {
                     layer = 0;
-                } else if (ls->getMode() == 1 && xsp < 0) {
+                } else if (ls->getMode() == 1 && spd.x < 0) {
                     layer = 1;
-                } else if (ls->getMode() == 2 && xsp > 0) {
+                } else if (ls->getMode() == 2 && spd.x > 0) {
                     layer = 0;
-                } else if (ls->getMode() == 2 && xsp < 0) {
+                } else if (ls->getMode() == 2 && spd.x < 0) {
                     layer = 1;
                 }
 			}
@@ -617,14 +407,14 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			GimGHZ_STube* _stube = (GimGHZ_STube*)*it;
 			if (collisionMain(*_stube)) {
 				if (_stube->getMode() == 0) {
-                    if (gsp >= 0 || xsp >= 0) 
+                    if (gsp >= 0 || spd.x >= 0) 
                         sTube = true;
-                    else if (gsp < 0 && xsp < 0)
+                    else if (gsp < 0 && spd.x < 0)
                         sTube = false;
                 } else {
-                    if (gsp >= 0 || xsp >= 0) 
+                    if (gsp >= 0 || spd.x >= 0) 
                         sTube = false;
-                    else if (gsp < 0 && xsp < 0)
+                    else if (gsp < 0 && spd.x < 0)
                         sTube = true;
                 }
 
@@ -643,7 +433,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     standOn = *it;
                     standOnObj = true;
                     ground = true;
-                    gsp = xsp;
+                    gsp = spd.x;
                 }
             }
         }
@@ -651,7 +441,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         if ((*it)->getType() == TYPE_GHZ_SLP_PLATFORM) {
 			GimGHZ_SlpPlatform* slope = (GimGHZ_SlpPlatform*)*it;
             if (((collisionBottom(*slope, 12) && ground) ||
-                 (collisionBottom(*slope, 1)  && !ground)) && ysp >= 0 &&
+                 (collisionBottom(*slope, 1)  && !ground)) && spd.y >= 0 &&
                  pos.y < slope->getPos().y - 30) {
                     int _x = pos.x - (slope->getPos().x - (slope->getHitBoxSize().x / 2));
                     pos.y = slope->getPos().y - (slope->getHeight(_x)) - 22 - hitBoxSize.y / 2;
@@ -659,7 +449,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                         standOnObj = true;
                         standOn = *it;
                         ground = true;
-                        gsp = xsp;
+                        gsp = spd.x;
                     } else {
                         slope->destroy();
                         
@@ -675,27 +465,27 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         }
         // Collision Solid
         if ((*it)->isSolid() && (*it)->isLiving()) {
-			if (collisionRight(**it) && xsp > 0.0) {
+			if (collisionRight(**it) && spd.x > 0.0) {
                 pos.x = (*it)->getPos().x - (*it)->getHitBoxSize().x / 2 - hitBoxSize.x / 2;
-                xsp = 0.0;
+                spd.x = 0.0;
                 gsp = 0.0;
             } 
-            if (collisionLeft(**it) && xsp < 0.0) {
+            if (collisionLeft(**it) && spd.x < 0.0) {
                 pos.x = (*it)->getPos().x + (*it)->getHitBoxSize().x / 2 + hitBoxSize.x / 2;
-                xsp = 0.0;
+                spd.x = 0.0;
                 gsp = 0.0;
             } 
 
-            if (collisionTop(**it) && ysp < 0.0) {
+            if (collisionTop(**it) && spd.y < 0.0) {
 				pos.y = (*it)->getPos().y + (*it)->getHitBoxSize().y / 2 + hitBoxSize.y / 2;
-				ysp = 0.0;
+				spd.y = 0.0;
 				gsp = 0.0;
 			}
         }
         // Platform
         if ((*it)->isPlatform() && (*it)->isLiving()) {
-			if (((collisionBottomPlatform(**it, 12) && ground && ysp >= 0) ||
-                 (collisionBottomPlatform(**it, 1)  && !ground)) && ysp >= 0) {
+			if (((collisionBottomPlatform(**it, 12) && ground && spd.y >= 0) ||
+                 (collisionBottomPlatform(**it, 1)  && !ground)) && spd.y >= 0) {
                 if ((*it)->isPlatPushUp())
                     pos.y = (*it)->getPos().y - (*it)->getHitBoxSize().y / 2 - hitBoxSize.y / 2;
                     
@@ -707,7 +497,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     if (action == ACT_ROLL)
 				        action = ACT_NORMAL;
                         
-                    gsp = xsp;
+                    gsp = spd.x;
                 }
 
                 if ((*it)->getType() == TYPE_PLATFORM) {
@@ -724,7 +514,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 
     if (standOn) {
         if (standOn->isLiving()) {
-            if (!collisionBottomPlatform(*standOn, 12) || ysp < 0) {
+            if (!collisionBottomPlatform(*standOn, 12) || spd.y < 0) {
                 standOnObj = false;
                 standOn = nullptr;
             }
@@ -739,7 +529,7 @@ void Player::movement() {
     if (action == ACT_DIE)
         return;
 
-    if (pos.x - 9 < 0 && xsp < 0) {pos.x = 9; gsp = 0; xsp = 0;}
+    if (pos.x - 9 < 0 && spd.x < 0) {pos.x = 9; gsp = 0; spd.x = 0;}
 
     if (ground) {
 		if ((flrMode == FlrMode::FLOOR && gsp != 0) || (flrMode != FlrMode::FLOOR)) {
@@ -752,12 +542,12 @@ void Player::movement() {
 					gsp -= PL_SLP_ROLL_DOWN * sinf(radians(angle));
 			}
 		}
-        xsp = gsp * cosf(radians(angle));
-        ysp = gsp * -sinf(radians(angle)); 
+        spd.x = gsp * cosf(radians(angle));
+        spd.y = gsp * -sinf(radians(angle)); 
     }
 
-    pos.x += xsp;
-    pos.y += ysp;
+    pos.x += spd.x;
+    pos.y += spd.y;
 
     if (input.isKeyDebug() && !isDebugPressed) {
         debug = !debug;
@@ -770,13 +560,13 @@ void Player::movement() {
     if (debug) {
         ground = false;
 
-        if (input.isKeyLeft())       xsp -= PL_AIR;
-        else if (input.isKeyRight()) xsp += PL_AIR;
-        else xsp = 0;
+        if (input.isKeyLeft())       spd.x -= PL_AIR;
+        else if (input.isKeyRight()) spd.x += PL_AIR;
+        else spd.x = 0;
 
-        if (input.isKeyUp())         ysp -= PL_AIR;
-        else if (input.isKeyDown())  ysp += PL_AIR;
-        else ysp = 0;
+        if (input.isKeyUp())         spd.y -= PL_AIR;
+        else if (input.isKeyDown())  spd.y += PL_AIR;
+        else spd.y = 0;
 
         return;
     }
@@ -807,10 +597,10 @@ void Player::movement() {
             gsp -= fmin(fabs(gsp), PL_FRC_ROLL) * float(fsign(gsp));
         }
     } else {
-        if ((input.isKeyRight()) && (xsp < PL_TOP) && canHorMove)
-            xsp += PL_AIR;
-        else if ((input.isKeyLeft()) && (xsp > -PL_TOP) && canHorMove)
-            xsp -= PL_AIR;
+        if ((input.isKeyRight()) && (spd.x < PL_TOP) && canHorMove)
+            spd.x += PL_AIR;
+        else if ((input.isKeyLeft()) && (spd.x > -PL_TOP) && canHorMove)
+            spd.x -= PL_AIR;
     }
 
 }
@@ -877,14 +667,16 @@ void Player::gameplay() {
         standOnObj = false;
         action = ACT_JUMP;
 
-        xsp -= PL_JMP * sinf(radians(angle));
-        ysp -= PL_JMP * cosf(radians(angle)); 
+        m_collider.forceToAir();
+
+        spd.x -= PL_JMP * sinf(radians(angle));
+        spd.y -= PL_JMP * cosf(radians(angle)); 
 
         audio.playSound(SND_JUMP);
     }
 
-    if ((action == ACT_JUMP) && (ysp < -4.0) && (!input.isKeyAction()))
-        ysp = -4.0;
+    if ((action == ACT_JUMP) && (spd.y < -4.0) && (!input.isKeyAction()))
+        spd.y = -4.0;
 
     // === Spin Dash ===
     if ((action == ACT_NORMAL) && (ground)) {
@@ -946,7 +738,7 @@ void Player::gameplay() {
         if (ground) {
             canHorMove = true;
             action = ACT_NORMAL;
-            xsp = 0;
+            spd.x = 0;
         }
     }
 }
@@ -1076,8 +868,8 @@ void Player::animation() {
                 anim.set(37, 37, 0);
                 break;
 			case ACT_SPRING:
-				if (ysp < 0.0)
-					anim.set(51, 53, (0.125 + fabs(ysp) / 25), true);
+				if (spd.y < 0.0)
+					anim.set(51, 53, (0.125 + fabs(spd.y) / 25), true);
 				else
 					anim.set(54, 55, 0.25, false);
 				break;
@@ -1108,10 +900,10 @@ void Player::getHit(std::list<Entity*>& entities) {
         ringTimer = 64;
         ground = false;
         invicTimer = 120;
-        ysp = -4;
-        xsp = 2 * -sign(xsp);
-        if (xsp == 0) 
-            xsp = -2;
+        spd.y = -4;
+        spd.x = 2 * -sign(spd.x);
+        if (spd.x == 0) 
+            spd.x = -2;
         action = ACT_HURT;
 
         //Rings
@@ -1121,10 +913,11 @@ void Player::getHit(std::list<Entity*>& entities) {
         float _spd = 4.0;
         int _h = 1;
         while(t < rings && t < 32) {
-            Ring* r = new Ring(pos, *trn, float(cosf(radians(_angle)) * _spd * _h), 
-                float(-sinf(radians(_angle)) * _spd));
-            r->create();
-            entities.push_back(r);
+            // TODO
+            // Ring* r = new Ring(pos, *trn, float(cosf(radians(_angle)) * _spd * _h), 
+            //     float(-sinf(radians(_angle)) * _spd));
+            // r->create();
+            // entities.push_back(r);
             _h *= -1;
             if (_n)
                 _angle += 22.5f;
@@ -1140,8 +933,8 @@ void Player::getHit(std::list<Entity*>& entities) {
         audio.playSound(SND_RING_LOSS);
     } else {
         action = ACT_DIE;
-        xsp = 0;
-        ysp = -7;
+        spd.x = 0;
+        spd.y = -7;
         ground = false;
         canHorMove = false;
 

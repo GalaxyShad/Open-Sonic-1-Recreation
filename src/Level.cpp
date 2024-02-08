@@ -16,7 +16,7 @@ void Level::create() {
     }
 
 	// Create player
-	Player* pl = new Player(m_playerStartPosition, trn, m_input, m_audio, rings, score);
+	Player* pl = new Player(m_playerStartPosition, m_terrain, m_input, m_audio, rings, score);
 	m_entities.push_back(pl);	
 
     cam.create(v2f(m_playerStartPosition.x - m_screen.getSize().width / 2, 
@@ -177,20 +177,6 @@ void Level::update() {
 
 				if (pl->isDied())
 					isFadeDeath = true;
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num7))
-					m_playerSensor.setMode(PlayerSensorMode::FLOOR);
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num8))
-					m_playerSensor.setMode(PlayerSensorMode::RIGHT_WALL);
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num9))
-					m_playerSensor.setMode(PlayerSensorMode::CELLING);
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num0))
-					m_playerSensor.setMode(PlayerSensorMode::LEFT_WALL);
-
-				m_playerSensor.setPosition(pl->getPos());
 			} else if ((*it)->getType() == TYPE_ENEMY) {
 				Enemy* en = (Enemy*)(*it);
 				en->trnCollision(trn);
@@ -284,8 +270,6 @@ void Level::draw() {
 	}
 
 	if (lvInformer && !isTimeStopped) lvInformer->draw();
-
-	m_playerSensor.draw(cam);
 }
 
 void Level::drawHud() {

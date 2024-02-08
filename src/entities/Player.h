@@ -8,10 +8,14 @@
 
 #include "Entity.h"
 
+#include "new-terrain.hpp"
+#include "player-collider.hpp"
 #include "terrain-sensor.hpp"
 
 #include "general/_index.hpp"
 #include "sonic-1/_index.hpp"
+
+#include "../player-collider.hpp"
 
 
 // === Constants === //
@@ -40,8 +44,14 @@ using namespace gmath;
 class Player : public Entity
 {
     public:
-		Player(v2f _pos, Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) : 
-            Entity(_pos), input(input), audio(audio), rings(rings), score(score) { trn = &_trn; };
+		Player(v2f _pos, terrain::Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) 
+            : Entity(_pos)
+            , input(input)
+            , audio(audio)
+            , rings(rings)
+            , score(score) 
+            , m_collider(pos, spd, _trn)
+        { };
         void create();
         void terrainCollision(Camera& cam);
 		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);
@@ -51,11 +61,12 @@ class Player : public Entity
         bool isEndLv() {return endLv;}
         bool isDied() { return dead; }
     private:
+        PlayerCollider m_collider;
+
         IInputMgr& input;
         Audio& audio;
 
-        v2f spd;
-        Terrain* trn;
+        v2f spd = v2f(0.f, 0.f);
 
         int& rings;
         int& score;
@@ -83,8 +94,6 @@ class Player : public Entity
         bool debug = false;
 
         // movement
-        float xsp = 0.0;
-        float ysp = 0.0;
         float gsp = 0.0;
         float angle = 0;
         float shiftX = 0;
@@ -133,7 +142,6 @@ class Player : public Entity
         void switchFlrModes();
         void getHit(std::list<Entity*>& entities);
 
-        Tile getGround(v2i& _senPos, int rW, int rH, float _ang);
         v2i getRotatedPoint(v2f _center, int rW, int rH, float angle);
 
 

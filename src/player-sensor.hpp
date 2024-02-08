@@ -42,6 +42,9 @@ public:
         }
     {}
 
+
+    PlayerSensorMode getMode() const { return m_mode; }
+
     void setMode(PlayerSensorMode mode) {
         float angle = (float)mode * 90.0f;
 

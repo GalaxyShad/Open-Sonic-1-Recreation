@@ -54,7 +54,6 @@ public:
         , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
         , bg(m_terrainDrawer)
         , trn(m_terrain)
-        , m_playerSensor(playerStartPosition, v2i(9, 19), v2i(10, 0), m_terrain)
     {}
     void create();
     void free();
@@ -85,8 +84,6 @@ private:
 
     terrain::TerrainDrawer m_terrainDrawer;
     Bg bg;
-
-    PlayerSensor m_playerSensor;
 
     Terrain trn;
     Camera cam;

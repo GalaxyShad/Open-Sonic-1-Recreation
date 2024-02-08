@@ -96,47 +96,47 @@ class LevelInformer {
             if (xFontTop > xCenter+75) xFontTop = xCenter+75;
             if (xFontBottom > xCenter+58) xFontBottom = xCenter+58;
 
-            scr.drawTextureRect(2, IntRect(191, 77, 56, 56), Vector2f(xShape, 69+yShift));
-            scr.drawTextureRect(2, IntRect(2, 121, 24, 8), Vector2f(xAct, 110+yShift));
+            scr.drawTextureRect(2, irect(191, 77, 56, 56), v2f(xShape, 69+yShift));
+            scr.drawTextureRect(2, irect(2, 121, 24, 8), v2f(xAct, 110+yShift));
 
             switch (act) {
-                case 1: scr.drawTextureRect(2, IntRect(34, 113, 7, 24), 
-                                            Vector2f(xAct + 32, 94+yShift)); 
+                case 1: scr.drawTextureRect(2, irect(34, 113, 7, 24), 
+                                            v2f(xAct + 32, 94+yShift)); 
                         break;
-                case 2: scr.drawTextureRect(2, IntRect(51, 113, 14, 24), 
-                                            Vector2f(xAct + 29, 94+yShift)); 
+                case 2: scr.drawTextureRect(2, irect(51, 113, 14, 24), 
+                                            v2f(xAct + 29, 94+yShift)); 
                         break;
-                case 3: scr.drawTextureRect(2, IntRect(75, 113, 14, 24), 
-                                            Vector2f(xAct + 29, 94+yShift)); 
+                case 3: scr.drawTextureRect(2, irect(75, 113, 14, 24), 
+                                            v2f(xAct + 29, 94+yShift)); 
                         break;                    
             }
 
             scr.drawText(2, (type == T_TITLE_CARD) ? zone : "SONIC HAS", 
-                Vector2f(xFontTop - scr.getTextWidth(2, 
+                v2f(xFontTop - scr.getTextWidth(2, 
                 (type == T_TITLE_CARD) ? zone : "SONIC HAS"), 72+yShift));
             scr.drawText(2, (type == T_TITLE_CARD) ? "ZONE" : "PASSED", 
-                Vector2f(xFontBottom - scr.getTextWidth(2, 
+                v2f(xFontBottom - scr.getTextWidth(2, 
                 (type == T_TITLE_CARD) ? "ZONE" : "PASSED"), 92+yShift));
 
             if (type != T_ROUND_CLEAR) return;
 
             const uint8_t shift = 16;
-            scr.drawTextureRect(2, IntRect(231, 60, 16, 16), Vector2f(xScore+29, 100+shift));
-            scr.drawTextureRect(2, IntRect(231, 60, 16, 16), Vector2f(xTimeBonus+70, 116+shift));
-            scr.drawTextureRect(2, IntRect(231, 60, 16, 16), Vector2f(xRingBonus+70, 132+shift));
+            scr.drawTextureRect(2, irect(231, 60, 16, 16), v2f(xScore+29, 100+shift));
+            scr.drawTextureRect(2, irect(231, 60, 16, 16), v2f(xTimeBonus+70, 116+shift));
+            scr.drawTextureRect(2, irect(231, 60, 16, 16), v2f(xRingBonus+70, 132+shift));
 
             char strbuff[9];
-            scr.drawTextureRect(2, IntRect(1, 60, 40, 16), Vector2f(xScore, 100+shift));
+            scr.drawTextureRect(2, irect(1, 60, 40, 16), v2f(xScore, 100+shift));
             snprintf(strbuff, 9, "%8d", *score);
-            scr.drawText(3, strbuff, Vector2f(xScore+96, 100+shift ));
-            scr.drawTextureRect(2, IntRect(42, 60, 32, 16), Vector2f(xTimeBonus, 116+shift));
-            scr.drawTextureRect(2, IntRect(116, 60, 40, 16), Vector2f(xTimeBonus+40, 116+shift));
+            scr.drawText(3, strbuff, v2f(xScore+96, 100+shift ));
+            scr.drawTextureRect(2, irect(42, 60, 32, 16), v2f(xTimeBonus, 116+shift));
+            scr.drawTextureRect(2, irect(116, 60, 40, 16), v2f(xTimeBonus+40, 116+shift));
             snprintf(strbuff, 9, "%8d", timeBonus);
-            scr.drawText(3, strbuff, Vector2f(xTimeBonus+96, 116+16));
-            scr.drawTextureRect(2, IntRect(75, 60, 32, 16), Vector2f(xRingBonus, 132+shift));
-            scr.drawTextureRect(2, IntRect(116, 60, 40, 16), Vector2f(xRingBonus+40, 132+shift));
+            scr.drawText(3, strbuff, v2f(xTimeBonus+96, 116+16));
+            scr.drawTextureRect(2, irect(75, 60, 32, 16), v2f(xRingBonus, 132+shift));
+            scr.drawTextureRect(2, irect(116, 60, 40, 16), v2f(xRingBonus+40, 132+shift));
             snprintf(strbuff, 9, "%8d", ringBonus);
-            scr.drawText(3, strbuff, Vector2f(xRingBonus+96, 132+shift));
+            scr.drawText(3, strbuff, v2f(xRingBonus+96, 132+shift));
         }
 
         bool isDone() { 

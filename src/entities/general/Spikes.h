@@ -10,8 +10,8 @@ class Spikes : public Entity
 {
     public:
         // enum Dir {DIR_RIGHT, DIR_UP, DIR_LEFT, DIR_DOWN}; 
-        Spikes(Vector2f _pos) : Entity(_pos) {}
-        Spikes(Vector2f _pos, uint8_t type, std::list<Entity*>& ent) : Entity(_pos)  {
+        Spikes(v2f _pos) : Entity(_pos) {}
+        Spikes(v2f _pos, uint8_t type, std::list<Entity*>& ent) : Entity(_pos)  {
 
             int spacing = 16;
             int count = 3;
@@ -22,8 +22,8 @@ class Spikes : public Entity
                 case 0x50: count = 1; break; // 1 ver
             }
             for(int i = 1; i < count / 3+1; i++) {
-                ent.push_back(new Spikes(Vector2f(_pos.x + spacing * i, _pos.y)));
-                ent.push_back(new Spikes(Vector2f(_pos.x - spacing * i, _pos.y)));
+                ent.push_back(new Spikes(v2f(_pos.x + spacing * i, _pos.y)));
+                ent.push_back(new Spikes(v2f(_pos.x - spacing * i, _pos.y)));
             }
 
             // living = false;
@@ -32,7 +32,7 @@ class Spikes : public Entity
             solid = true; 
             platform = true;
             type = TYPE_SPIKES; 
-            hitBoxSize = Vector2f(8, 32); 
+            hitBoxSize = v2f(8, 32); 
             anim.create(TEX_OBJECTS); 
             anim.set(138, 138, 0);
         }

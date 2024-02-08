@@ -9,15 +9,15 @@
 
 struct Frame {
     Frame() {}
-	Frame(IntRect _rect):
-        rect(_rect), offset(Vector2i(_rect.width / 2, _rect.height / 2)) {}
-    Frame(IntRect _rect, Vector2i _offset):
+	Frame(irect _rect):
+        rect(_rect), offset(v2i(_rect.width / 2, _rect.height / 2)) {}
+    Frame(irect _rect, v2i _offset):
         rect(_rect), offset(_offset) {}
     Frame(int x, int y, int width, int height):
-        rect(IntRect(x, y, width, height)), offset(Vector2i(width / 2, height / 2)) {}
+        rect(irect(x, y, width, height)), offset(v2i(width / 2, height / 2)) {}
 
-    IntRect rect;
-    Vector2i offset = Vector2i(0, 0);
+    irect rect;
+    v2i offset = v2i(0, 0);
 };
 
 struct Texture {
@@ -35,7 +35,7 @@ struct Letter {
 
 struct Font {
     uint8_t tex;
-    IntRect startRect;
+    irect startRect;
     uint16_t interval;
     std::map<char, Letter> letters;
 };
@@ -57,11 +57,11 @@ class IScreen {
         virtual Size getSize() = 0;
 
         virtual void drawTextureRect(uint8_t texId,
-                        IntRect texRect, Vector2f pos = {0, 0}, 
-                        Vector2i offset = {0, 0}, float angle = 0.0, 
+                        irect texRect, v2f pos = {0, 0}, 
+                        v2i offset = {0, 0}, float angle = 0.0, 
                         bool horFlip = false, bool verFlip = false) = 0;
         virtual void drawTextureRect(uint8_t texId,
-                        Frame frame, Vector2f pos = {0, 0}, float angle = 0.0, 
+                        Frame frame, v2f pos = {0, 0}, float angle = 0.0, 
                         bool horFlip = false, bool verFlip = false) = 0;
 
         virtual void loadTexture(const uint8_t* src, 
@@ -94,14 +94,14 @@ class Screen : public IScreen {
         Size getSize() { return size; }
 
         void drawTextureRect(uint8_t texId,
-                             IntRect texRect, Vector2f pos = {0, 0}, 
-                             Vector2i offset = {0, 0}, float angle = 0.0, 
+                             irect texRect, v2f pos = {0, 0}, 
+                             v2i offset = {0, 0}, float angle = 0.0, 
                              bool horFlip = false, bool verFlip = false);
         void drawTextureRect(uint8_t texId,
-                             Frame frame, Vector2f pos = {0, 0}, float angle = 0.0, 
+                             Frame frame, v2f pos = {0, 0}, float angle = 0.0, 
                              bool horFlip = false, bool verFlip = false);
 
-        void drawRectangle(Vector2f pos, Size rsize = Size(16, 16), uint16_t color = 0xFFFF);
+        void drawRectangle(v2f pos, Size rsize = Size(16, 16), uint16_t color = 0xFFFF);
 
         const Texture* getTexture(uint8_t texture) 
             {return textures.count(texture) ? textures[texture] : nullptr; }
@@ -119,11 +119,11 @@ class Screen : public IScreen {
                                  uint16_t width = 0, uint16_t height = 0);
         void freeTexture(uint8_t key);
 
-        void drawPal(Vector2f pos);
+        void drawPal(v2f pos);
 
         void addFont(uint8_t key, const char* alphabet, uint8_t interval, 
-                     uint8_t tex, IntRect startRect, uint16_t rectDivSpace=0, const uint16_t* widths = nullptr);
-        void drawText(uint8_t fontKey, const char* str, Vector2f pos = Vector2f(0, 0));
+                     uint8_t tex, irect startRect, uint16_t rectDivSpace=0, const uint16_t* widths = nullptr);
+        void drawText(uint8_t fontKey, const char* str, v2f pos = v2f(0, 0));
         uint16_t getTextWidth(uint8_t fontKey, const char* str);
 
         void setBrightness(uint8_t _brightness) { brightness = _brightness; }

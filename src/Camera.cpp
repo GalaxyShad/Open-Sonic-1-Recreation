@@ -2,7 +2,7 @@
 
 #include <string> 
 
-void Camera::create(Vector2f _pos, Size _levelSize, bool free) {
+void Camera::create(v2f _pos, Size _levelSize, bool free) {
     levelSize = _levelSize;
 	bottomBorder = levelSize.height * 256;
 	rightBorder  = levelSize.width * 256;
@@ -30,19 +30,19 @@ void Camera::update() {
 }
 
 
-void Camera::draw(uint8_t tex, IntRect texRect, Vector2f _pos, Vector2i offset,
+void Camera::draw(uint8_t tex, irect texRect, v2f _pos, v2i offset,
 			      float angle, bool horFlip, bool verFlip) {
-	scr.drawTextureRect(tex, texRect, Vector2f(_pos.x - pos.x, _pos.y - pos.y),
+	scr.drawTextureRect(tex, texRect, v2f(_pos.x - pos.x, _pos.y - pos.y),
 				 		offset, angle, horFlip, verFlip);
 }
 
-void Camera::draw(uint8_t tex, Frame frame, Vector2f _pos, float angle, bool horFlip,
+void Camera::draw(uint8_t tex, Frame frame, v2f _pos, float angle, bool horFlip,
                  bool verFlip) {
-	scr.drawTextureRect(tex, frame, Vector2f(_pos.x - pos.x, _pos.y - pos.y),
+	scr.drawTextureRect(tex, frame, v2f(_pos.x - pos.x, _pos.y - pos.y),
 				 		angle, horFlip, verFlip);
 }
 
-void Camera::draw(const AnimMgr& anim, Vector2f _pos, float angle, bool horFlip,
+void Camera::draw(const AnimMgr& anim, v2f _pos, float angle, bool horFlip,
 			      bool verFlip) {
 	
 	uint16_t aFrame = (uint16_t)anim.getCurFrame();
@@ -56,7 +56,7 @@ void Camera::draw(const AnimMgr& anim, Vector2f _pos, float angle, bool horFlip,
 
 
 	if (tex && aFrame < tex->framesLen) {	
-		scr.drawTextureRect(aTextureID, tex->frames[aFrame], Vector2f(_pos.x - pos.x, _pos.y - pos.y), 
+		scr.drawTextureRect(aTextureID, tex->frames[aFrame], v2f(_pos.x - pos.x, _pos.y - pos.y), 
 				 			angle, flip, verFlip);
 	}
 }

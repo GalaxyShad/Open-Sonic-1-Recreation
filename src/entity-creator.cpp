@@ -20,11 +20,11 @@ Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     if ((res = createOther(entPlacement)))   return res;
 
     // Placeholder
-    return new Ring(Vector2f(entPlacement.x, entPlacement.y));
+    return new Ring(v2f(entPlacement.x, entPlacement.y));
 }
 
 Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
-    Vector2f position = Vector2f(eplc.x, eplc.y);
+    v2f position = v2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_RING): {
@@ -75,7 +75,7 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
 }
 
 Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
-    Vector2f position = Vector2f(eplc.x, eplc.y);
+    v2f position = v2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): 
@@ -96,7 +96,7 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
 }
 
 Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
-    Vector2f position = Vector2f(eplc.x, eplc.y);
+    v2f position = v2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_GHZ_BRIDGE):  

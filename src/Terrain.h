@@ -21,12 +21,12 @@ struct Block {
 
 struct Tile {
     uint8_t verHeight[16], horHeight[16];
-    Vector2i pos;
+    v2i pos;
     TileType type;
     float angle = 0;
     uint8_t height = 0;
 
-    uint8_t getHeight(Vector2i _pos, float ang, bool collideLBR=true) {
+    uint8_t getHeight(v2i _pos, float ang, bool collideLBR=true) {
         if (round(ang / 90) == 0 || round(ang / 90) == 2) {
             if ((type == TileType::TILE_FULL) || 
                 (type == TileType::TILE_TOP && std::round(ang / 90) == 0) ||
@@ -55,11 +55,11 @@ class Terrain {
 
         void createLayeringObjs(std::list<Entity*>& entList);
 
-        int getTileVerHeight(Vector2i pos);
-        int getTileHorHeight(Vector2i pos);
-        float getTileAngle(Vector2i pos);
-        TileType getTileType(Vector2i pos);  
-        Tile getTile(Vector2i pos);
+        int getTileVerHeight(v2i pos);
+        int getTileHorHeight(v2i pos);
+        float getTileAngle(v2i pos);
+        TileType getTileType(v2i pos);  
+        Tile getTile(v2i pos);
 
         Size getSize()  { return Size(m_terrain.getLayout().getWidth(), m_terrain.getLayout().getHeight()); }
         void setLayer(uint8_t _layer) { layer = _layer; }

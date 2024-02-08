@@ -40,7 +40,7 @@ using namespace gmath;
 class Player : public Entity
 {
     public:
-		Player(Vector2f _pos, Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) : 
+		Player(v2f _pos, Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) : 
             Entity(_pos), input(input), audio(audio), rings(rings), score(score) { trn = &_trn; };
         void create();
         void terrainCollision(Camera& cam);
@@ -54,7 +54,7 @@ class Player : public Entity
         IInputMgr& input;
         Audio& audio;
 
-        Vector2f spd;
+        v2f spd;
         Terrain* trn;
 
         int& rings;
@@ -123,7 +123,7 @@ class Player : public Entity
         int layer = 0;
 
 		// debug
-		IntRect lSenRect, rSenRect;
+		irect lSenRect, rSenRect;
         bool isDebugPressed = false;
 
         // === functions === //
@@ -133,8 +133,8 @@ class Player : public Entity
         void switchFlrModes();
         void getHit(std::list<Entity*>& entities);
 
-        Tile getGround(Vector2i& _senPos, int rW, int rH, float _ang);
-        Vector2i getRotatedPoint(Vector2f _center, int rW, int rH, float angle);
+        Tile getGround(v2i& _senPos, int rW, int rH, float _ang);
+        v2i getRotatedPoint(v2f _center, int rW, int rH, float angle);
 
 
 };

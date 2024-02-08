@@ -11,7 +11,7 @@
 class EnMotobug : public Enemy
 {
     public:
-        EnMotobug(Vector2f _pos) : Enemy(_pos) {}
+        EnMotobug(v2f _pos) : Enemy(_pos) {}
         void create();
         void update();
         void trnCollision(Terrain& trn);
@@ -23,7 +23,7 @@ class EnMotobug : public Enemy
 class EnChopper : public Enemy
 {
     public:
-        EnChopper(Vector2f _pos) : Enemy(_pos) {}
+        EnChopper(v2f _pos) : Enemy(_pos) {}
         void create();
         void update();
     private:
@@ -33,7 +33,7 @@ class EnChopper : public Enemy
 class EnCrab : public Enemy
 {
     public:
-        EnCrab(Vector2f _pos, std::list<Entity*>& _entities) : Enemy(_pos) {entities = &_entities;}
+        EnCrab(v2f _pos, std::list<Entity*>& _entities) : Enemy(_pos) {entities = &_entities;}
         void create();
         void update();
         void trnCollision(Terrain& trn);
@@ -49,7 +49,7 @@ class EnCrab : public Enemy
 class EnBuzz : public Enemy
 {
     public:
-        EnBuzz(Vector2f _pos) : Enemy(_pos) {}
+        EnBuzz(v2f _pos) : Enemy(_pos) {}
         void create();
         void update();
         void draw(Camera& cam);
@@ -67,7 +67,7 @@ class EnBuzz : public Enemy
 class Bullet: public Entity
 {
     public:
-        Bullet(Vector2f _pos, uint8_t _mode, int _dir = -1) : Entity(_pos) {
+        Bullet(v2f _pos, uint8_t _mode, int _dir = -1) : Entity(_pos) {
                     mode = _mode; 
                     dir = _dir;
                     create();

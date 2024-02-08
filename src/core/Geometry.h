@@ -1,48 +1,48 @@
 #pragma once
 
-struct Vector2f {
+struct v2f {
     float x;
     float y;
-    Vector2f(float _x, float _y): 
+    v2f(float _x, float _y): 
         x(_x), y(_y) {}
-    Vector2f() {}
+    v2f() {}
 };
 
-struct Vector2i {
+struct v2i {
     int x;
     int y;
-    Vector2i(int _x, int _y):
+    v2i(int _x, int _y):
         x(_x), y(_y) {}
-    Vector2i() {}
+    v2i() {}
 };
 
-struct Vector3i {
+struct v3i {
     int x;
     int y;
     int z;
-    Vector3i(int _x, int _y, int _z): 
+    v3i(int _x, int _y, int _z): 
         x(_x), y(_y), z(_z) {}
-    Vector3i() {}
+    v3i() {}
 };
 
-struct IntRect {
+struct irect {
     int left;
     int top;
     int width;
     int height;
-    IntRect(int _left, int _top, int _width, int _height): 
+    irect(int _left, int _top, int _width, int _height): 
         left(_left), top(_top), width(_width), height(_height) {}
-    IntRect() {}
+    irect() {}
 };
 
-struct FloatRect {
+struct frect {
     float left;
     float top;
     float width;
     float height;
-    FloatRect(float _left, float _top, float _width, float _height): 
+    frect(float _left, float _top, float _width, float _height): 
         left(_left), top(_top), width(_width), height(_height) {}
-    FloatRect() {}
+    frect() {}
 };
 
 struct Size {

@@ -37,7 +37,7 @@ public:
         std::string& zoneName,
         std::string& zoneNameShort,
         int act,
-        Vector2f playerStartPosition,
+        v2f playerStartPosition,
         terrain::Store<terrain::Tile>& storeTile
     ) 
         : m_terrain(terrain)
@@ -54,7 +54,7 @@ public:
         , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
         , bg(m_terrainDrawer)
         , trn(m_terrain)
-        , m_playerSensor(playerStartPosition, Vector2i(9, 19), Vector2i(10, 0), m_terrain)
+        , m_playerSensor(playerStartPosition, v2i(9, 19), v2i(10, 0), m_terrain)
     {}
     void create();
     void free();
@@ -81,7 +81,7 @@ private:
     IInputMgr&  m_input;
     Audio&      m_audio;
 
-    Vector2f m_playerStartPosition;
+    v2f m_playerStartPosition;
 
     terrain::TerrainDrawer m_terrainDrawer;
     Bg bg;

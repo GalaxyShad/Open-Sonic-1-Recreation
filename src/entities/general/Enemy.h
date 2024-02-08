@@ -6,7 +6,7 @@
 class Enemy : public Entity
 {
     public:
-        Enemy(Vector2f _pos) : Entity(_pos) {}
+        Enemy(v2f _pos) : Entity(_pos) {}
         void setAbilityToDying(bool _canDie) { canDie = _canDie; };
         virtual void trnCollision(Terrain& trn) {}
     private:
@@ -16,7 +16,7 @@ class Enemy : public Entity
 class EnemyScore : public Entity {
     public:
         enum Points { P_100, P_200, P_500, P_1000 };
-        EnemyScore(Vector2f _pos, Points points) : 
+        EnemyScore(v2f _pos, Points points) : 
             Entity(_pos), points(points) { create(); }
 
         void create() {

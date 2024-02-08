@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TERRAIN_H
+#define TERRAIN_H
 
 #include <cstdint>
 #include <cmath>
@@ -67,3 +68,5 @@ class Terrain {
         terrain::Terrain& m_terrain;
         uint8_t layer = 0;
 };
+
+#endif // TERRAIN_H

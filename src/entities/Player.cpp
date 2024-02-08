@@ -64,8 +64,8 @@ void Player::moveCam(Camera& cam)
 
     Size scrSize = cam.getSize();
 
-	float _x = pos.x - scrSize.width / 2;
-	float _y = (pos.y - shiftY) - scrSize.height / 2;
+	float _x = pos.x - (float)scrSize.width / 2;
+	float _y = (pos.y - shiftY) - (float)scrSize.height / 2;
 
 	v2f camPos = cam.getPos();
 
@@ -450,8 +450,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         // Collsion Sign Post
 		if ((*it)->getType() == TYPE_SIGN_POST) {
 			if (pos.x >= (*it)->getPos().x && !endLv) {
-                cam.setRightBorder((*it)->getPos().x + cam.getSize().width / 2);
-                cam.setBottomBorder((*it)->getPos().y + cam.getSize().height / 2);
+                cam.setRightBorder((*it)->getPos().x + (float)cam.getSize().width / 2);
+                cam.setBottomBorder((*it)->getPos().y + (float)cam.getSize().height / 2);
 
                 audio.playSound(SND_END_TABLE);
 
@@ -474,7 +474,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_DOWN:
-                    if (!collisionTop(**it), 2) break;
+                    if (!collisionTop(**it, 2)) break;
                     action = ACT_SPRING;
                     ground = false;
                     ysp = +(spring->isRed() ? 16 : 10);
@@ -1041,7 +1041,7 @@ void Player::animation() {
         } else if ((fabs(gsp) >= 6.0) && (fabs(gsp) < 12.0)) {
             if (diaAnim) 
                 anim.set(32, 35, 1.0 / int(fmax(2, 8.0-abs(gsp))) );
-             else
+            else
                 anim.set(11, 14, 1.0 / int(fmax(2, 10.0-abs(gsp))) );
         } else if (fabs(gsp) >= 12.0) {
             if (diaAnim)

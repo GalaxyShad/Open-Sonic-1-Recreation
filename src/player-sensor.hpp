@@ -1,5 +1,6 @@
 #pragma once
 
+#include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
 
 enum class PlayerSensorLetterTag {
@@ -45,6 +46,12 @@ public:
 
     PlayerSensorMode getMode() const { return m_mode; }
     PlayerSensorMode getModePush() const { return m_modePush; }
+
+    void setLayer(terrain::TerrainLayer layer) {
+        for (auto& s : m_sensors) {
+            s.tsensor.setLayer(layer);
+        }
+    }
 
     void setModePush(PlayerSensorMode mode) {
          float angle = (float)mode * 90.0f;
@@ -208,6 +215,11 @@ private:
             || (tagRight == PlayerSensorTag::GROUND_RIGHT  && srightRes.solidity == terrain::BlockSolidity::ONLY_LEFT_BOTTOM_RIGHT)
             || (tagRight == PlayerSensorTag::CELLING_RIGHT && srightRes.solidity == terrain::BlockSolidity::ONLY_TOP)
             || srightRes.solidity == terrain::BlockSolidity::EMPTY);
+
+        if (aEmpty && bEmpty)
+            return terrain::SensorResult::Empty();
+
+        // printf("%d %d\n", aEmpty, bEmpty);
 
         res = (aEmpty)                                  ? srightRes : 
               (bEmpty)                                  ? sleftRes  :

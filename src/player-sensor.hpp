@@ -44,6 +44,37 @@ public:
 
 
     PlayerSensorMode getMode() const { return m_mode; }
+    PlayerSensorMode getModePush() const { return m_modePush; }
+
+    void setModePush(PlayerSensorMode mode) {
+         float angle = (float)mode * 90.0f;
+
+        float angle_sin = sinf(radians(angle));
+        float angle_cos = cosf(radians(angle));
+
+        for (int i = 4; i < 6; i++) {
+            float sign_x = (i % 2 != 0) ? 1 : -1;
+
+            m_sensors[i].tsensor.setPosition(v2f(
+                m_position.x + (m_radiusPush.x * sign_x *  angle_cos) + (m_radiusPush.y * angle_sin),
+                m_position.y + (m_radiusPush.x * sign_x * -angle_sin) + (m_radiusPush.y * angle_cos)
+            ));
+
+            terrain::SensorDirection sensorDir;
+
+            PlayerSensorTag sensorTag = ((PlayerSensorTag)i);
+
+            sensorDir = (sensorTag == PlayerSensorTag::PUSH_LEFT) 
+                ? terrain::SensorDirection::LEFT
+                : terrain::SensorDirection::RIGHT;
+
+            auto dir = (terrain::SensorDirection)(((int)mode + (int)sensorDir) % 4);
+
+            m_sensors[i].tsensor.setDirection(dir);
+        }
+
+        m_modePush = mode;
+    }
 
     void setMode(PlayerSensorMode mode) {
         float angle = (float)mode * 90.0f;
@@ -51,7 +82,7 @@ public:
         float angle_sin = sinf(radians(angle));
         float angle_cos = cosf(radians(angle));
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             float sign_x = (i % 2 != 0) ? 1 : -1;
             float sign_y = (i / 2 == 0) ? 1 : -1;
 
@@ -63,26 +94,13 @@ public:
             ));
 
             terrain::SensorDirection sensorDir;
+            
+            auto sensorTag = (PlayerSensorTag)i;
 
-            switch ((PlayerSensorTag)i) {
-                case PlayerSensorTag::GROUND_LEFT:
-                case PlayerSensorTag::GROUND_RIGHT:
-                    sensorDir = terrain::SensorDirection::DOWN;
-                    break;
-
-                case PlayerSensorTag::CELLING_LEFT:
-                case PlayerSensorTag::CELLING_RIGHT:
-                    sensorDir = terrain::SensorDirection::UP;
-                    break;
-
-                case PlayerSensorTag::PUSH_LEFT:
-                    sensorDir = terrain::SensorDirection::LEFT;
-                    break;
-
-                case PlayerSensorTag::PUSH_RIGHT:
-                    sensorDir = terrain::SensorDirection::RIGHT;
-                    break;
-            }
+            if ((sensorTag == PlayerSensorTag::GROUND_LEFT) || (sensorTag == PlayerSensorTag::GROUND_RIGHT))
+                sensorDir = terrain::SensorDirection::DOWN;
+            else 
+                sensorDir = terrain::SensorDirection::UP;
 
             auto dir = (terrain::SensorDirection)(((int)mode + (int)sensorDir) % 4);
 
@@ -146,7 +164,8 @@ public:
         };
 
         for (int i = 0; i < 6; i++) {
-            m_sensors[i].tsensor.draw(cam, colors[i]);
+            if (m_sensors[i].isEnabled)
+                m_sensors[i].tsensor.draw(cam, colors[i]);
         }
     }
 
@@ -157,13 +176,12 @@ private:
     };
 
 private:
-    v2f         m_position;
+    v2f              m_position;
     PlayerSensorMode m_mode      = PlayerSensorMode::FLOOR;
-
-    v2i m_radius;
-    v2i m_radiusPush;
-
-    Sensor   m_sensors[6];
+    PlayerSensorMode m_modePush  = PlayerSensorMode::FLOOR;
+    v2i              m_radius;
+    v2i              m_radiusPush;
+    Sensor           m_sensors[6];
 private:
     Sensor& sensor(PlayerSensorLetterTag tag) { return m_sensors[(int)tag]; }
     Sensor& sensor(PlayerSensorTag tag)       { return m_sensors[(int)tag]; }
@@ -196,7 +214,10 @@ private:
               (sleftRes.distance <= srightRes.distance) ? sleftRes  : srightRes;
         
         if (res.isFlagged()) {
-            res.angle = HexAngle::fromDegrees((float)m_mode * 90.f); 
+            if (tagLeft == PlayerSensorTag::CELLING_LEFT || tagLeft == PlayerSensorTag::CELLING_RIGHT)
+                res.angle = HexAngle::fromDegrees((float)(((int)m_mode + 2) % 4) * 90.f); 
+            else 
+                res.angle = HexAngle::fromDegrees((float)m_mode * 90.f); 
         }
 
         return res;

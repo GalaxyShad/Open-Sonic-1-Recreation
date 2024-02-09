@@ -11,5 +11,9 @@ struct HexAngle {
         return HexAngle{(uint8_t)(((360 - degAng) / 360) * 256)};
     }
 
+    inline bool inRange(uint8_t l, uint8_t r) {
+        return hex >= l && hex <= r;
+    }
+
     
 };

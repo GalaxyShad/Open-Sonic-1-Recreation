@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "player-sensor.hpp"
 
 // === public === //
 void Player::create() 
@@ -10,22 +11,6 @@ void Player::create()
     standOn = nullptr;
 
     m_collider.onLanding([this](HexAngle hexAngle){
-        float angle = hexAngle.degrees();
-
-        if (((angle >= 0.0) && (angle < 22.5)) || ((angle > 337.5) && (angle <= 360.0))) {
-            gsp = spd.x;
-        } else if (((angle >= 22.5) && (angle < 45.0)) || ((angle > 315.0) && (angle <= 337.5))) {
-            if (abs(spd.x) > spd.y)
-                gsp = spd.x;
-            else
-                gsp = spd.y * 0.5 * -fsign(sinf(radians(angle)));
-        } else if (((angle >= 45.0) && (angle < 90.0)) || ((angle > 270.0) && (angle <= 315.0))) {
-            if (abs(spd.x) > spd.y)
-                gsp = spd.x;
-            else
-                gsp = spd.y * -fsign(sinf(radians(angle)));
-        }
-
         // set normal state if we rolling in air
         if (action == ACT_ROLL)
             action = ACT_NORMAL;
@@ -35,7 +20,7 @@ void Player::create()
 void Player::update() 
 {
     movement();
-    m_collider.update();
+    if (!debug) m_collider.update();
     angle = m_collider.getAngle().degrees();
 
     gameplay();
@@ -57,17 +42,17 @@ void Player::draw(Camera& cam)
         dbInfo, 127,
         "position: %4.2f %4.2f\n"
         "spd:      %2.2f %2.2f\n"
-        "angle:    %4f\n"
+        "angle:    %X(%4f)\n"
         "flr mode: %d\n"
         "action:   %d\n"
-        "ground    %d\n"
+        "ground    %d %d\n"
         "debug     %d\n",
         pos.x, pos.y,
         spd.x, spd.y,
-        angle,
-        flrMode,
+        m_collider.getAngle().hex, m_collider.getAngle().degrees(),
+        m_collider.getMode(),
         action,
-        ground,
+        ground, m_collider.isGrounded(),
         debug
     );
 
@@ -124,14 +109,6 @@ void Player::moveCam(Camera& cam)
     cam.setPos(v2f(camPos.x, camPos.y));
 }
 
-v2i Player::getRotatedPoint(v2f _center, int rW, int rH, float angle)
-{
-    return v2i(int(_center.x + (cosf(radians(angle)) * rW) + (sinf(radians(angle)) * rH)), 
-                    int(_center.y + (cosf(radians(angle)) * rH) - (sinf(radians(angle)) * rW)));
-
-}
-
-
 void Player::terrainCollision(Camera& cam) 
 {
     if (debug) 
@@ -149,7 +126,6 @@ void Player::terrainCollision(Camera& cam)
 
     if (action == ACT_DIE) {
         ground = false;
-        flrMode = FLOOR;
 		angle = 0.0;
 		if (spd.y < 16.0)
 			spd.y += PL_GRAV;
@@ -174,20 +150,14 @@ void Player::terrainCollision(Camera& cam)
         }
     }
 
-    switchFlrModes();
-
-    float senAngle = flrMode * 90;
     // ==== Layering ==== //
  
-    
-
     bool isFalling = !m_collider.isGrounded();
 
 
     // ===== Gravity ===== //
     if (isFalling && !standOnObj) {
         ground = false;
-        flrMode = FLOOR;
 		angle = 0.0;
 
         // Air drug
@@ -205,16 +175,16 @@ void Player::terrainCollision(Camera& cam)
     }
 
     // === Fall if doesnt have enough speed ===
-    if (ground && (fabs(gsp) < 2.5) && (flrMode != FlrMode::FLOOR)) {
-        if (angle >= 90.0 && angle <= 270.0) {
-            flrMode = FlrMode::FLOOR;
-            ground = false;
-            angle = 0;
-            isFalling = true;
-            gsp = 0.0;
-        }
-        horizontalLockTimer = 30;
-    }
+    // if (ground && (fabs(gsp) < 2.5) && (flrMode != FlrMode::FLOOR)) {
+    //     if (angle >= 90.0 && angle <= 270.0) {
+    //         flrMode = FlrMode::FLOOR;
+    //         ground = false;
+    //         angle = 0;
+    //         isFalling = true;
+    //         gsp = 0.0;
+    //     }
+    //     horizontalLockTimer = 30;
+    // }
 
     if (action != ACT_ROLL && action != ACT_JUMP)
         enemyCombo = 0;
@@ -532,7 +502,7 @@ void Player::movement() {
     if (pos.x - 9 < 0 && spd.x < 0) {pos.x = 9; gsp = 0; spd.x = 0;}
 
     if (ground) {
-		if ((flrMode == FlrMode::FLOOR && gsp != 0) || (flrMode != FlrMode::FLOOR)) {
+		if ((m_collider.getMode() == PlayerSensorMode::FLOOR && gsp != 0) || (m_collider.getMode() != PlayerSensorMode::FLOOR)) {
 			if (action != ACT_ROLL) {
 				gsp -= PL_SLP * sinf(radians(angle));
 			} else {
@@ -640,7 +610,7 @@ void Player::gameplay() {
     }
 
     // Skid
-    if (action == ACT_NORMAL && fabs(gsp) > 2.5 && ground && flrMode == 0) {
+    if (action == ACT_NORMAL && fabs(gsp) > 2.5 && ground && m_collider.getMode() == PlayerSensorMode::FLOOR) {
         if (gsp > 0 && input.isKeyLeft() ||
             gsp < 0 && input.isKeyRight()) {
                 action = ACT_SKID;
@@ -653,7 +623,7 @@ void Player::gameplay() {
             action = ACT_NORMAL;
         else if (gsp < 0 && !input.isKeyRight())
             action = ACT_NORMAL;
-        else if (gsp == 0 || flrMode != 0)
+        else if (gsp == 0 || m_collider.getMode() != PlayerSensorMode::FLOOR)
             action = ACT_NORMAL;
     }
 
@@ -876,21 +846,6 @@ void Player::animation() {
         }
     }
     
-}
-
-void Player::switchFlrModes() {
-
-    if (angle >= 0.0 && angle <= 45.0) {
-        flrMode = FlrMode::FLOOR;
-    } else if (angle >= 46.0 && angle <= 134.0) {
-        flrMode = FlrMode::RIGHT_WALL;
-    } else if (angle >= 135.0 && angle <= 225.0) {
-        flrMode = FlrMode::BOTTOM;
-    } else if (angle >= 226.0 && angle <= 314.0) {
-        flrMode = FlrMode::LEFT_WALL;
-    } else  {
-        flrMode = FlrMode::FLOOR;
-    }
 }
 
 void Player::getHit(std::list<Entity*>& entities) {

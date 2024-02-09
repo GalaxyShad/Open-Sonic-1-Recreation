@@ -1,6 +1,7 @@
 #ifndef PLAYER_COLLIDER_HPP
 #define PLAYER_COLLIDER_HPP
 
+#include "core/GameMath.h"
 #include "new-terrain.hpp"
 #include "player-sensor.hpp"
 #include "terrain-sensor.hpp"
@@ -8,29 +9,29 @@
 
 class PlayerCollider {
 public:
-    PlayerCollider(v2f& playerPosition, v2f& playerSpeed, terrain::Terrain& terrain) 
-       : m_playerPosition(playerPosition)
-       , m_playerSpeed(playerSpeed)
-       , m_sensor(playerPosition, v2i(9, 20), v2i(10, 0), terrain)
+    PlayerCollider(v2f& playerPosition, v2f& playerSpeed, float& playerGsp, terrain::Terrain& terrain) 
+        : m_playerPosition(playerPosition)
+        , m_playerSpeed(playerSpeed)
+        , m_playerGroundSpeed(playerGsp)
+        , m_sensor(playerPosition, v2i(9, 20), v2i(10, 0), terrain)
     {}
 
     void update() {
+        if (m_grounded) groundedSensorActivation();
+        else            airboneSensorActivation();
+
+        m_sensor.setPosition(m_playerPosition);
+
+        collideWalls();
+
         m_sensor.setPosition(m_playerPosition);
 
         if (m_grounded) collideGround();
         else            collideGroundAirbone();
 
-        // if ((m_angle.hex >= 224 && m_angle.hex <= 255) || (m_angle.hex >= 0 && m_angle.hex <= 32))
-            
-        if (m_angle.hex >= 161 && m_angle.hex <= 223) 
-            m_sensor.setMode(PlayerSensorMode::RIGHT_WALL);
-        else if (m_angle.hex >= 96 && m_angle.hex <= 160)
-            m_sensor.setMode(PlayerSensorMode::CELLING);
-        else if (m_angle.hex >= 33 && m_angle.hex <= 95)
-            m_sensor.setMode(PlayerSensorMode::LEFT_WALL);
-        else 
-            m_sensor.setMode(PlayerSensorMode::FLOOR);
+        if (!m_grounded) collideCelling();
 
+        determineMode();           
     }
 
     void draw(Camera& cam) {
@@ -38,6 +39,8 @@ public:
     }
 
     HexAngle getAngle() { return m_angle; }
+    
+    PlayerSensorMode getMode() { return m_sensor.getMode(); }
 
     void forceToAir() { m_grounded = false; }
     bool isGrounded() const { return m_grounded; }
@@ -47,8 +50,9 @@ public:
     }
 
 private: 
-    v2f& m_playerPosition;
-    v2f& m_playerSpeed;
+    v2f&  m_playerPosition;
+    v2f&  m_playerSpeed;
+    float& m_playerGroundSpeed;
 
     HexAngle m_angle = {0};
     bool m_grounded = false;
@@ -58,6 +62,131 @@ private:
     std::function<void(HexAngle)> m_callback_landing;
 
 private:
+    void determineMode() {
+        if (!m_grounded) {
+            m_sensor.setMode(PlayerSensorMode::FLOOR);
+            m_sensor.setModePush(PlayerSensorMode::FLOOR);
+
+            return;
+        }
+
+        // TODO i dont like how it looks ??
+        if (m_angle.hex >= 161 && m_angle.hex <= 223) 
+            m_sensor.setMode(PlayerSensorMode::RIGHT_WALL);
+        else if (m_angle.hex >= 96 && m_angle.hex <= 160)
+            m_sensor.setMode(PlayerSensorMode::CELLING);
+        else if (m_angle.hex >= 33 && m_angle.hex <= 95)
+            m_sensor.setMode(PlayerSensorMode::LEFT_WALL);
+        else 
+            m_sensor.setMode(PlayerSensorMode::FLOOR);
+
+        if (m_angle.hex >= 160 && m_angle.hex <= 224) 
+            m_sensor.setModePush(PlayerSensorMode::RIGHT_WALL);
+        else if (m_angle.hex >= 97 && m_angle.hex <= 159)
+            m_sensor.setModePush(PlayerSensorMode::CELLING);
+        else if (m_angle.hex >= 32 && m_angle.hex <= 96)
+            m_sensor.setModePush(PlayerSensorMode::LEFT_WALL);
+        else 
+            m_sensor.setModePush(PlayerSensorMode::FLOOR);
+    }
+
+    void groundedSensorActivation() {
+        if (!m_grounded) return;
+
+        m_sensor.setSensorState(PlayerSensorTag::GROUND_LEFT, true);
+        m_sensor.setSensorState(PlayerSensorTag::GROUND_RIGHT, true);
+
+        bool inActivePushAngleRange = (m_angle.degrees() > 90 && m_angle.degrees() < 270) == false;
+
+        m_sensor.setSensorState(PlayerSensorTag::PUSH_LEFT,  (m_playerGroundSpeed < 0) && inActivePushAngleRange);
+        m_sensor.setSensorState(PlayerSensorTag::PUSH_RIGHT, (m_playerGroundSpeed > 0) && inActivePushAngleRange);
+
+        // TODO In S3K Push Sensors will also appear when the Player's Ground Angle is a multiple of 90° (64) in addition to the normal angle ranges.
+
+        m_sensor.setSensorState(PlayerSensorTag::CELLING_LEFT, false);
+        m_sensor.setSensorState(PlayerSensorTag::CELLING_RIGHT, false);
+    }
+
+    void airboneSensorActivation() {
+        if (m_grounded) return;
+
+        // TODO ? check the angle of your motion (X Speed and Y Speed) through the air.
+
+        // shortcuts
+        float& xsp = m_playerSpeed.x;
+        float& ysp = m_playerSpeed.y;
+
+        bool movingMostlyVertical = (abs(ysp) > abs(xsp));
+
+        bool mostlyRight = !movingMostlyVertical && xsp > 0;
+        bool mostlyLeft  = !movingMostlyVertical && xsp < 0;
+        bool mostlyUp    =  movingMostlyVertical && ysp < 0;
+        bool mostlyDown  =  movingMostlyVertical && ysp > 0;
+
+        if (!movingMostlyVertical) {
+            m_sensor.setSensorState(PlayerSensorTag::GROUND_LEFT, true);
+            m_sensor.setSensorState(PlayerSensorTag::GROUND_RIGHT, true);
+
+            m_sensor.setSensorState(PlayerSensorTag::CELLING_LEFT, true);
+            m_sensor.setSensorState(PlayerSensorTag::CELLING_RIGHT, true);
+
+            m_sensor.setSensorState(PlayerSensorTag::PUSH_LEFT, mostlyLeft);
+            m_sensor.setSensorState(PlayerSensorTag::PUSH_RIGHT, mostlyRight);
+        } else {
+            m_sensor.setSensorState(PlayerSensorTag::PUSH_LEFT, true);
+            m_sensor.setSensorState(PlayerSensorTag::PUSH_RIGHT, true);
+
+            m_sensor.setSensorState(PlayerSensorTag::GROUND_LEFT, mostlyDown);
+            m_sensor.setSensorState(PlayerSensorTag::GROUND_RIGHT, mostlyDown);
+
+            m_sensor.setSensorState(PlayerSensorTag::CELLING_LEFT, mostlyUp);
+            m_sensor.setSensorState(PlayerSensorTag::CELLING_RIGHT, mostlyUp);
+        }
+    }
+
+    void collideWalls() {
+        collideWallRight();
+        collideWallLeft();
+    }
+
+    void collideWallLeft() {
+        auto scanRes = m_sensor.scanWallLeft();
+
+        if (scanRes.distance > 0)
+            return;
+
+        if (m_grounded && m_playerGroundSpeed < 0)
+            m_playerGroundSpeed = 0.0;
+
+        if (!m_grounded && m_playerSpeed.x < 0)
+            m_playerSpeed.x = 0.0;
+
+        if (m_sensor.getMode() == PlayerSensorMode::CELLING || m_sensor.getMode() == PlayerSensorMode::FLOOR)
+            m_playerPosition.x -= scanRes.distance;
+        else 
+            m_playerPosition.y -= scanRes.distance;
+        //m_playerSpeed.x += (m_playerSpeed.x > 0) ? scanRes.distance : -scanRes.distance;
+    }
+
+    void collideWallRight() {
+        auto scanRes = m_sensor.scanWallRight();
+
+        if (scanRes.distance > 0)
+            return;
+
+        if (m_grounded && m_playerGroundSpeed > 0)
+            m_playerGroundSpeed = 0.0;
+
+        if (!m_grounded && m_playerSpeed.x > 0)
+            m_playerSpeed.x = 0.0;
+
+        if (m_sensor.getMode() == PlayerSensorMode::CELLING || m_sensor.getMode() == PlayerSensorMode::FLOOR)
+            m_playerPosition.x += scanRes.distance;
+        else 
+            m_playerPosition.y += scanRes.distance;
+        //m_playerSpeed.x += (m_playerSpeed.x > 0) ? scanRes.distance : -scanRes.distance;
+    }
+
     void collideGround() {
         auto scanRes = m_sensor.scanGround();
 
@@ -96,7 +225,29 @@ private:
             (!movingMostlyVertical && ysp >= 0)
         ) {
             collideGround();
-            m_callback_landing(m_angle);
+            landing();
+        }
+    }
+
+    void collideCelling() {
+        auto scanRes = m_sensor.scanCelling();
+
+        if (scanRes.distance >= 0)
+            return;
+
+        // shortcuts
+        float& xsp = m_playerSpeed.x;
+        float& ysp = m_playerSpeed.y;
+
+        bool movingMostlyVertical = (abs(ysp) > abs(xsp));
+        bool movingMostlyUp       = movingMostlyVertical && ysp < 0;
+
+        if ((movingMostlyUp && scanRes.distance <= -(ysp + 8)) ||
+            (!movingMostlyVertical && ysp <= 0)
+        ) {
+            m_playerPosition.y -= scanRes.distance;
+            
+            landingCelling(scanRes.angle);
         }
     }
 
@@ -105,8 +256,49 @@ private:
         if ((sensorResult.distance < -14) || (sensorResult.distance > 14))
             return false;
 
-        return true; //sensorResult.solidity != terrain::BlockSolidity::EMPTY;
+        return sensorResult.solidity != terrain::BlockSolidity::EMPTY;
         // TODO Sonic 2
+    }
+
+    void landingCelling(HexAngle foundAngle) {
+        auto& spd = m_playerSpeed;
+
+        bool flat = (foundAngle.degrees() >= 136 && foundAngle.degrees() <= 225);
+        bool movingMostlyUp = (abs(spd.y) > abs(spd.x)) && spd.y < 0;
+
+        if (flat || !movingMostlyUp) {
+            spd.y = 0;
+
+            return;
+        } 
+
+        m_playerGroundSpeed = spd.y * -gmath::fsign(sinf(radians(foundAngle.degrees())));
+        m_angle = foundAngle;
+        m_grounded = true;
+
+        m_callback_landing(m_angle);
+    }
+
+    void landing() {
+        float angle = m_angle.degrees();
+
+        auto& spd = m_playerSpeed;
+        auto& gsp = m_playerGroundSpeed;
+
+        bool flat  = m_angle.inRange(240, 255) || m_angle.inRange(0, 15);
+        bool slope = m_angle.inRange(224, 255) || m_angle.inRange(0, 31);
+
+        if (flat) {
+            gsp = spd.x;
+        } else {
+            bool movingHorizontal = abs(spd.x) > abs(spd.y);
+
+            gsp = movingHorizontal 
+                ? spd.x
+                : spd.y * -gmath::fsign(sinf(radians(angle))) * (slope ? 0.5 : 1);
+        } 
+
+        m_callback_landing(m_angle);
     }
 
 };

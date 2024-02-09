@@ -50,7 +50,7 @@ class Player : public Entity
             , audio(audio)
             , rings(rings)
             , score(score) 
-            , m_collider(pos, spd, _trn)
+            , m_collider(pos, spd, gsp, _trn)
         { };
         void create();
         void terrainCollision(Camera& cam);
@@ -105,8 +105,6 @@ class Player : public Entity
 
         Entity* standOn;
 
-        FlrMode flrMode = FLOOR;
-
         // gameplay
         Action action = ACT_NORMAL;
 		bool isSpindashDirRight = false;
@@ -139,10 +137,6 @@ class Player : public Entity
         void gameplay();
         void movement();
         void animation();
-        void switchFlrModes();
         void getHit(std::list<Entity*>& entities);
-
-        v2i getRotatedPoint(v2f _center, int rW, int rH, float angle);
-
 
 };

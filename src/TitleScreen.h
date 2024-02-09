@@ -47,7 +47,7 @@ class TitleScreen {
             menuItemsCount = itemsCount;
 
             for (int i = 0; i < menuItemsCount; i++) {
-                strcpy_s(menuItems[i], items[i]);
+                strcpy(menuItems[i], items[i]);
             }  
             
         }

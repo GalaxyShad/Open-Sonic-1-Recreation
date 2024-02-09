@@ -2,6 +2,7 @@
 
 #include <vector> 
 #include <fstream>
+#include <memory>
 
 #include "new-terrain.hpp"
 

@@ -34,6 +34,10 @@ public:
         determineMode();           
     }
 
+    void setLayer(terrain::TerrainLayer layer) {
+        m_sensor.setLayer(layer);
+    }
+
     void draw(Camera& cam) {
         m_sensor.draw(cam);
     }
@@ -70,24 +74,19 @@ private:
             return;
         }
 
-        // TODO i dont like how it looks ??
-        if (m_angle.hex >= 161 && m_angle.hex <= 223) 
-            m_sensor.setMode(PlayerSensorMode::RIGHT_WALL);
-        else if (m_angle.hex >= 96 && m_angle.hex <= 160)
-            m_sensor.setMode(PlayerSensorMode::CELLING);
-        else if (m_angle.hex >= 33 && m_angle.hex <= 95)
-            m_sensor.setMode(PlayerSensorMode::LEFT_WALL);
-        else 
-            m_sensor.setMode(PlayerSensorMode::FLOOR);
+        m_sensor.setMode(
+            m_angle.inRange(161, 223) ? PlayerSensorMode::RIGHT_WALL :
+            m_angle.inRange( 96, 160) ? PlayerSensorMode::CELLING    :
+            m_angle.inRange( 33,  95) ? PlayerSensorMode::LEFT_WALL  :
+                                             PlayerSensorMode::FLOOR
+        );
 
-        if (m_angle.hex >= 160 && m_angle.hex <= 224) 
-            m_sensor.setModePush(PlayerSensorMode::RIGHT_WALL);
-        else if (m_angle.hex >= 97 && m_angle.hex <= 159)
-            m_sensor.setModePush(PlayerSensorMode::CELLING);
-        else if (m_angle.hex >= 32 && m_angle.hex <= 96)
-            m_sensor.setModePush(PlayerSensorMode::LEFT_WALL);
-        else 
-            m_sensor.setModePush(PlayerSensorMode::FLOOR);
+        m_sensor.setModePush(
+            m_angle.inRange(160, 224) ? PlayerSensorMode::RIGHT_WALL :
+            m_angle.inRange( 97, 159)      ? PlayerSensorMode::CELLING    :
+            m_angle.inRange( 32,  96)      ? PlayerSensorMode::LEFT_WALL  :
+                                                  PlayerSensorMode::FLOOR
+        );
     }
 
     void groundedSensorActivation() {

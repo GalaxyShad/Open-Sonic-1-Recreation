@@ -362,13 +362,13 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			LayerSwitcher* ls = (LayerSwitcher*)*it;
 			if (collisionMain(*ls) && ground) {
 				if (ls->getMode() == 0 && spd.x > 0) {
-                    layer = 0;
+                    m_collider.setLayer(terrain::TerrainLayer::NORMAL);
                 } else if (ls->getMode() == 1 && spd.x < 0) {
-                    layer = 1;
+                    m_collider.setLayer(terrain::TerrainLayer::ALTERNATE);
                 } else if (ls->getMode() == 2 && spd.x > 0) {
-                    layer = 0;
+                    m_collider.setLayer(terrain::TerrainLayer::NORMAL);
                 } else if (ls->getMode() == 2 && spd.x < 0) {
-                    layer = 1;
+                    m_collider.setLayer(terrain::TerrainLayer::ALTERNATE);
                 }
 			}
 		}

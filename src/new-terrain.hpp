@@ -100,7 +100,7 @@ struct ChunkBlock {
         ChunkBlock chunkBlock = {};
 
         chunkBlock.solidityNormalLayer    = (BlockSolidity)((rawBlockS1 & ms) >> 13);
-        chunkBlock.solidityAlternateLayer = BlockSolidity::EMPTY;
+        chunkBlock.solidityAlternateLayer = chunkBlock.solidityNormalLayer;
         chunkBlock.yFlip   = (rawBlockS1 & my) >> 12;
         chunkBlock.xFlip   = (rawBlockS1 & mx) >> 11;
         chunkBlock.blockId = (rawBlockS1 & mi); 
@@ -345,23 +345,6 @@ public:
 
     ChunkBlock getBlock(float x, float y, TerrainLayer layer = TerrainLayer::NORMAL) const {
         return getBlockFromGrid(x / TERRAIN_TILE_SIZE, y / TERRAIN_TILE_SIZE, layer);
-        
-        // auto chunk = getChunk(x, y, layer);
-
-        // int ix = (int)(x / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
-        // int iy = (int)(y / TERRAIN_TILE_SIZE) % (m_layout.getChunksRadius());
-
-        // if (!m_layout.isWarpEnabled()) {
-        //     if (ix < 0 || iy < 0)
-        //         return getChunkStore().get(0).getBlock(0, 0);
-        // } else {
-        //     ix = modFloor(ix, m_layout.getChunksRadius());
-        //     iy = modFloor(iy, m_layout.getChunksRadius());
-        // }
-
-        // ChunkBlock block = chunk.getBlock(ix, iy);
-
-        // return block;
     }
 
     ChunkBlock getBlockFromGrid(int gridX, int gridY, TerrainLayer layer = TerrainLayer::NORMAL) const {

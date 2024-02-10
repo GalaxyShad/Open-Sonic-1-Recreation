@@ -144,7 +144,7 @@ private:
                 result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
                 result.height       = abs(m_terrain.getVerticalHeightInTile(m_position.x, result.block.tile));
                 
-                auto blockBottom    = (result.gridPosition.y * TERRAIN_TILE_SIZE) + TERRAIN_TILE_SIZE;
+                auto blockBottom    = (result.gridPosition.y * TERRAIN_TILE_SIZE) + TERRAIN_TILE_SIZE - 1;
 
                 result.distance     = (blockBottom - result.height) - m_position.y; 
                 break;
@@ -174,7 +174,7 @@ private:
                 result.block        = m_terrain.getBlockFromGrid(result.gridPosition.x, result.gridPosition.y, m_layer);
                 result.height       = abs(m_terrain.getHorizontalHeightInTile(m_position.y, result.block.tile));
 
-                auto blockRight     = (result.gridPosition.x * TERRAIN_TILE_SIZE) + TERRAIN_TILE_SIZE;
+                auto blockRight     = (result.gridPosition.x * TERRAIN_TILE_SIZE) + TERRAIN_TILE_SIZE - 1;
 
                 result.distance     = (blockRight - result.height) - m_position.x;
                 break;

@@ -34,6 +34,10 @@ public:
         determineMode();           
     }
 
+    void setRadius(v2i radius) {
+        m_sensor.setRadius(radius);
+    }
+
     void setLayer(terrain::TerrainLayer layer) {
         m_sensor.setLayer(layer);
     }

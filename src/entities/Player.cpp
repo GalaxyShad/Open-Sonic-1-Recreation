@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "entities/Player.h"
 #include "player-sensor.hpp"
 
 // === public === //
@@ -19,6 +20,15 @@ void Player::create()
 
 void Player::update() 
 {
+    bool curling = action == ACT_JUMP || action == ACT_ROLL || action == ACT_SPINDASH;
+
+    m_collider.setRadius(
+        curling 
+            ? v2i(7, 14) 
+            : v2i(9, 19)
+    );
+
+
     movement();
     if (!debug) m_collider.update();
     angle = m_collider.getAngle().degrees();

@@ -231,13 +231,13 @@ private:
 
         if (aEmpty && bEmpty)
             return terrain::SensorResult::Empty();
-
-        // printf("%d %d\n", aEmpty, bEmpty);
-
+        
         res = (aEmpty)                                  ? srightRes : 
               (bEmpty)                                  ? sleftRes  :
               (sleftRes.distance <= srightRes.distance) ? sleftRes  : srightRes;
         
+        //res = (sleftRes.distance <= srightRes.distance) ? sleftRes  : srightRes;
+
         if (res.isFlagged()) {
             if (tagLeft == PlayerSensorTag::CELLING_LEFT || tagLeft == PlayerSensorTag::CELLING_RIGHT)
                 res.angle = HexAngle::fromDegrees((float)(((int)m_mode + 2) % 4) * 90.f); 

@@ -42,6 +42,21 @@ public:
         m_sensor.draw(cam);
     }
 
+    bool isPlayerCanJump() {
+        bool stateLeft = m_sensor.getSensorState(PlayerSensorTag::CELLING_LEFT);
+        bool stateRight = m_sensor.getSensorState(PlayerSensorTag::CELLING_RIGHT);
+
+        m_sensor.setSensorState(PlayerSensorTag::CELLING_LEFT, true);
+        m_sensor.setSensorState(PlayerSensorTag::CELLING_RIGHT, true);
+
+        auto scanRes = m_sensor.scanCelling();
+
+        m_sensor.setSensorState(PlayerSensorTag::CELLING_LEFT, stateLeft);
+        m_sensor.setSensorState(PlayerSensorTag::CELLING_RIGHT, stateRight);
+        
+        return (scanRes.distance < 6) == false;
+    }
+
     HexAngle getAngle() { return m_angle; }
     
     PlayerSensorMode getMode() { return m_sensor.getMode(); }
@@ -144,6 +159,8 @@ private:
     }
 
     void collideWalls() {
+        m_sensor.setRadiusPush(v2i(10, (m_angle.hex == 0 && m_grounded) ? 8 : 0));
+
         collideWallRight();
         collideWallLeft();
     }
@@ -271,16 +288,14 @@ private:
             return;
         } 
 
-        m_playerGroundSpeed = spd.y * -gmath::fsign(sinf(radians(foundAngle.degrees())));
         m_angle = foundAngle;
+        m_playerGroundSpeed = spd.y * gmath::sign(HexAngle::sin(m_angle));
         m_grounded = true;
 
         m_callback_landing(m_angle);
     }
 
     void landing() {
-        float angle = m_angle.degrees();
-
         auto& spd = m_playerSpeed;
         auto& gsp = m_playerGroundSpeed;
 
@@ -294,7 +309,7 @@ private:
 
             gsp = movingHorizontal 
                 ? spd.x
-                : spd.y * -gmath::fsign(sinf(radians(angle))) * (slope ? 0.5 : 1);
+                : spd.y * gmath::sign(HexAngle::sin(m_angle)) * (slope ? 0.5 : 1);
         } 
 
         m_callback_landing(m_angle);

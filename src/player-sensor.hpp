@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/Geometry.h"
 #include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
 
@@ -46,6 +47,16 @@ public:
 
     PlayerSensorMode getMode() const { return m_mode; }
     PlayerSensorMode getModePush() const { return m_modePush; }
+
+    void setRadius(v2i radius) {
+        m_radius = radius;
+        setMode(m_mode);
+    }
+
+    void setRadiusPush(v2i radius) {
+        m_radiusPush = radius;
+        setModePush(m_mode);
+    }
 
     void setLayer(terrain::TerrainLayer layer) {
         for (auto& s : m_sensors) {
@@ -159,6 +170,8 @@ public:
 
     void setSensorState(PlayerSensorLetterTag tag, bool state)  { sensor(tag).isEnabled = state; } 
     void setSensorState(PlayerSensorTag tag, bool state)        { sensor(tag).isEnabled = state; } 
+    bool getSensorState(PlayerSensorLetterTag tag)              { return sensor(tag).isEnabled;  }
+    bool getSensorState(PlayerSensorTag tag)                    { return sensor(tag).isEnabled;  }
 
     void draw(Camera& cam) {
         sf::Color colors[] = {

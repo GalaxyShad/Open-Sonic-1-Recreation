@@ -3,19 +3,13 @@
 using namespace gmath;
 
 int gmath::sign(int val) {
-    if (val > 0)
-        return 1;
-    else if (val < 0)
-        return -1;
-    else
-        return 0; 
+    return (val > 0) ?  1  : 
+           (val < 0) ? -1 
+                     :  0;
 }
 
 float gmath::fsign(float val) {
-    if (val > 0.0)
-        return 1.0;
-    else if (val < 0.0)
-        return -1.0;
-    else
-        return 0.0; 
+    return (val > 0.f) ?  1.f  : 
+           (val < 0.f) ? -1.f 
+                       :  0.f;
 }

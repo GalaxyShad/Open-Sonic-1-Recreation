@@ -632,7 +632,7 @@ void Player::gameplay() {
         spindashTimer--;
 
     // === Jump ===
-    if (input.isKeyAction() && ground && action != ACT_HURT && !sTube) {
+    if (input.isKeyAction() && ground && action != ACT_HURT && !sTube && m_collider.isPlayerCanJump()) {
         ground = false;
         standOnObj = false;
         action = ACT_JUMP;

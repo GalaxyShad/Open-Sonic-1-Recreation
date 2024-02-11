@@ -2,6 +2,10 @@
 #include "entities/Player.h"
 #include "player-sensor.hpp"
 
+#include "player-state-machine.hpp"
+#include "player-state-normal.hpp"
+#include "player-state-jump.hpp"
+
 // === public === //
 void Player::create() 
 {
@@ -11,19 +15,26 @@ void Player::create()
     anim.set(0, 0, 0);
     standOn = nullptr;
 
+    m_stateMachine.add(new PlayerStateNormal(m_props));
+    m_stateMachine.add(new PlayerStateJump(m_props, 6.5));
+    m_stateMachine.add(new PlayerStateRoll(m_props));
+    m_stateMachine.add(new PlayerStateSkid(m_props));
+    m_stateMachine.add(new PlayerStateSpindashCD(m_props));
+    m_stateMachine.add(new PlayerStateSpring(m_props));
+    m_stateMachine.add(new PlayerStateHurt(m_props));
+    m_stateMachine.add(new PlayerStateDie(m_props));
+
     m_collider.onLanding([this](HexAngle hexAngle){
-        // set normal state if we rolling in air
-        if (action == ACT_ROLL)
-            action = ACT_NORMAL;
+        m_stateMachine.pushLanding();
     });
 }
 
 void Player::update() 
 {
-    bool curling = action == ACT_JUMP || action == ACT_ROLL || action == ACT_SPINDASH;
+    m_stateMachine.update();
 
     m_collider.setRadius(
-        curling 
+        m_stateMachine.isCurling() 
             ? v2i(7, 14) 
             : v2i(9, 19)
     );
@@ -44,7 +55,7 @@ void Player::draw(Camera& cam)
     if (animAngle == 360)
         animAngle = 0;
 
-    if (invicTimer == 0 || (invicTimer > 0 && invicTimer % 8 >= 4) || action == ACT_HURT)
+    if (invicTimer == 0 || (invicTimer > 0 && invicTimer % 8 >= 4) || m_stateMachine.currentId() == PlayerStateID::HURT)
         cam.draw(anim, pos, anim8Angle, animFlip, false);
 
     char dbInfo[128];
@@ -55,14 +66,14 @@ void Player::draw(Camera& cam)
         "angle:    %X(%4f)\n"
         "flr mode: %d\n"
         "action:   %d\n"
-        "ground    %d %d\n"
+        "ground    %d\n"
         "debug     %d\n",
         pos.x, pos.y,
         spd.x, spd.y,
         m_collider.getAngle().hex, m_collider.getAngle().degrees(),
         m_collider.getMode(),
-        action,
-        ground, m_collider.isGrounded(),
+        m_stateMachine.currentId(),
+        m_collider.isGrounded(),
         debug
     );
 
@@ -74,7 +85,7 @@ void Player::draw(Camera& cam)
 
 void Player::moveCam(Camera& cam)
 {
-    if (action == ACT_DIE)
+    if (m_stateMachine.currentId() == PlayerStateID::DIE)
         return;
 
     if (camLagTimer > 0) {
@@ -102,7 +113,7 @@ void Player::moveCam(Camera& cam)
     }
 
 
-	if (ground) {
+	if (m_collider.isGrounded()) {
 		if (fabs(spd.y) > 6.0)
 			camPos.y += fmin(fmax(_y - camPos.y, -16.0), 16.0);
 		else
@@ -124,24 +135,11 @@ void Player::terrainCollision(Camera& cam)
     if (debug) 
         return;
 
-    if (pos.y + 20 > cam.getBottomBorder() && !cam.isFree() && action != ACT_DIE) {
-        action = ACT_DIE;
-        spd.x = 0;
-        spd.y = -7;
-        ground = false;
-        canHorMove = false;
-
-        audio.playSound(SND_HURT);
+    if (pos.y + 20 > cam.getBottomBorder() && !cam.isFree()) {
+        m_stateMachine.changeTo(PlayerStateID::DIE);
     }
 
-    if (action == ACT_DIE) {
-        ground = false;
-		angle = 0.0;
-		if (spd.y < 16.0)
-			spd.y += PL_GRAV;
-
-        pos.y += spd.y;
-
+    if (m_stateMachine.currentId() == PlayerStateID::DIE) {
         if (pos.y + 20 > cam.getBottomBorder()+40)
             dead = true;
 
@@ -160,35 +158,28 @@ void Player::terrainCollision(Camera& cam)
         }
     }
 
-    // ==== Layering ==== //
- 
-    bool isFalling = !m_collider.isGrounded();
-
-
     // ===== Gravity ===== //
-    if (isFalling && !standOnObj) {
-        ground = false;
+    if (!m_collider.isGrounded()) {
 		angle = 0.0;
 
         // Air drug
-        if (!ground && spd.y < 0.0 && spd.y > -4.0)
+        if (!m_collider.isGrounded() && spd.y < 0.0 && spd.y > -4.0)
             spd.x -= (int(spd.x) / 0.125) / 256;
 
 		if (spd.y < 16.0) {
-            if (action != ACT_HURT)
+            // TODO
+            if (m_stateMachine.currentId() != PlayerStateID::HURT)
 			    spd.y += PL_GRAV;
             else 
                 spd.y += 0.21875;
         }
-    } else {
-        ground = true;   
     }
 
     // === Fall if doesnt have enough speed ===
-    // if (ground && (fabs(gsp) < 2.5) && (flrMode != FlrMode::FLOOR)) {
+    // if (m_collider.isGrounded() && (fabs(gsp) < 2.5) && (flrMode != FlrMode::FLOOR)) {
     //     if (angle >= 90.0 && angle <= 270.0) {
     //         flrMode = FlrMode::FLOOR;
-    //         ground = false;
+    //         m_collider.isGrounded() = false;
     //         angle = 0;
     //         isFalling = true;
     //         gsp = 0.0;
@@ -196,22 +187,18 @@ void Player::terrainCollision(Camera& cam)
     //     horizontalLockTimer = 30;
     // }
 
-    if (action != ACT_ROLL && action != ACT_JUMP)
+    // TODO Wha?
+    if (!m_stateMachine.isCurling())
         enemyCombo = 0;
-
-    // Return to normal state after landing
-    if (ground && (action == ACT_JUMP || action == ACT_SPRING))
-        action = ACT_NORMAL;
-
 }
 
+// TODO Make better system
 void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 {
-
     if (debug)
         return;
 
-    if (action == ACT_DIE)
+    if (m_stateMachine.currentId() == PlayerStateID::DIE)
         return;
 
 	std::list<Entity*>::iterator it;
@@ -237,16 +224,19 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
             switch(spring->getRotation()) {
                 case Spring::R_UP:
                     if (!collisionBottom(**it, 2)) break;
-                    action = ACT_SPRING;
-                    ground = false;
+
+                    m_stateMachine.changeTo(PlayerStateID::SPRING);
+
+
                     spd.y = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_DOWN:
                     if (!collisionTop(**it, 2)) break;
-                    action = ACT_SPRING;
-                    ground = false;
+                    
+                    m_stateMachine.changeTo(PlayerStateID::SPRING);
+
                     spd.y = +(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
@@ -292,8 +282,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 		if ((*it)->getType() == TYPE_ENEMY) {
 			Enemy* en = (Enemy*)*it;
 			if (collisionMain(*en)) {
-				if (action == ACT_JUMP || action == ACT_ROLL || action == ACT_SPINDASH) {
-                    if (!ground) {
+				if (m_stateMachine.isCurling()) {
+                    if (!m_collider.isGrounded()) {
                         if (spd.y > 0) {
                             spd.y *= -1;
                         } else {
@@ -325,8 +315,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         // Monitor
         if ((*it)->getType() == TYPE_MONITOR) {
             Monitor* m = (Monitor*)*it;
-			if (collisionMain(*m) && spd.y >= 0 && (action == ACT_JUMP || action == ACT_ROLL)) {
-                if (!ground) {
+			if (collisionMain(*m) && spd.y >= 0 && m_stateMachine.isCurling()) {
+                if (!m_collider.isGrounded()) {
                     if (spd.y > 0) {
                         spd.y *= -1;
                     } else {
@@ -370,7 +360,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         // Collision Layer Switch
 		if ((*it)->getType() == TYPE_LAYER_SWITCH) {
 			LayerSwitcher* ls = (LayerSwitcher*)*it;
-			if (collisionMain(*ls) && ground) {
+			if (collisionMain(*ls) && m_collider.isGrounded()) {
 				if (ls->getMode() == 0 && spd.x > 0) {
                     m_collider.setLayer(terrain::TerrainLayer::NORMAL);
                 } else if (ls->getMode() == 1 && spd.x < 0) {
@@ -398,21 +388,20 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                         sTube = true;
                 }
 
-                if (action != ACT_ROLL)
+                if (m_stateMachine.currentId() != PlayerStateID::ROLL)
                     audio.playSound(SND_ROLL);
 			}
 		}
         // GHZ Bridge
         if ((*it)->getType() == TYPE_BRIDGE) {
 			GimGHZ_Bridge* br = (GimGHZ_Bridge*)*it;
-            if ((!ground && collisionBottom(**it)) || (ground && collisionBottomPlatform(**it, 14))) {
+            if ((!m_collider.isGrounded() && collisionBottom(**it)) || (m_collider.isGrounded() && collisionBottomPlatform(**it, 14))) {
                 br->setActive(true);
                 pos.y = ((*br).getY()) - ((*br).getHitBoxSize().y / 2) - (hitBoxSize.y / 2);
 
                 if (!standOnObj) {
                     standOn = *it;
                     standOnObj = true;
-                    ground = true;
                     gsp = spd.x;
                 }
             }
@@ -420,22 +409,20 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         // GHZ Slope Platform
         if ((*it)->getType() == TYPE_GHZ_SLP_PLATFORM) {
 			GimGHZ_SlpPlatform* slope = (GimGHZ_SlpPlatform*)*it;
-            if (((collisionBottom(*slope, 12) && ground) ||
-                 (collisionBottom(*slope, 1)  && !ground)) && spd.y >= 0 &&
+            if (((collisionBottom(*slope, 12) && m_collider.isGrounded()) ||
+                 (collisionBottom(*slope, 1)  && !m_collider.isGrounded())) && spd.y >= 0 &&
                  pos.y < slope->getPos().y - 30) {
                     int _x = pos.x - (slope->getPos().x - (slope->getHitBoxSize().x / 2));
                     pos.y = slope->getPos().y - (slope->getHeight(_x)) - 22 - hitBoxSize.y / 2;
                     if (!standOnObj) {
                         standOnObj = true;
                         standOn = *it;
-                        ground = true;
                         gsp = spd.x;
                     } else {
                         slope->destroy();
                         
                         if (!slope->isLiving()) {
                             standOnObj = false;
-                            ground = false;
                         }
                     }
 
@@ -464,18 +451,17 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
         }
         // Platform
         if ((*it)->isPlatform() && (*it)->isLiving()) {
-			if (((collisionBottomPlatform(**it, 12) && ground && spd.y >= 0) ||
-                 (collisionBottomPlatform(**it, 1)  && !ground)) && spd.y >= 0) {
+			if (((collisionBottomPlatform(**it, 12) && m_collider.isGrounded() && spd.y >= 0) ||
+                 (collisionBottomPlatform(**it, 1)  && !m_collider.isGrounded())) && spd.y >= 0) {
                 if ((*it)->isPlatPushUp())
                     pos.y = (*it)->getPos().y - (*it)->getHitBoxSize().y / 2 - hitBoxSize.y / 2;
                     
                 if (!standOnObj) {
                     standOnObj = true;
                     standOn = *it;
-                    ground = true;
 
-                    if (action == ACT_ROLL)
-				        action = ACT_NORMAL;
+                    //if (action == ACT_ROLL)
+				        //action = ACT_NORMAL;
                         
                     gsp = spd.x;
                 }
@@ -506,14 +492,14 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 
 // === private === //
 void Player::movement() {
-    if (action == ACT_DIE)
+    if (m_stateMachine.currentId() == PlayerStateID::DIE)
         return;
 
     if (pos.x - 9 < 0 && spd.x < 0) {pos.x = 9; gsp = 0; spd.x = 0;}
 
-    if (ground) {
+    if (m_collider.isGrounded()) {
 		if ((m_collider.getMode() == PlayerSensorMode::FLOOR && gsp != 0) || (m_collider.getMode() != PlayerSensorMode::FLOOR)) {
-			if (action != ACT_ROLL) {
+			if (m_stateMachine.currentId() != PlayerStateID::ROLL) {
 				gsp -= PL_SLP * sinf(radians(angle));
 			} else {
 				if (sign(gsp) == sign(sinf(radians(angle))))
@@ -538,7 +524,6 @@ void Player::movement() {
 
 
     if (debug) {
-        ground = false;
 
         if (input.isKeyLeft())       spd.x -= PL_AIR;
         else if (input.isKeyRight()) spd.x += PL_AIR;
@@ -551,8 +536,8 @@ void Player::movement() {
         return;
     }
 
-    if (ground) {
-        if (action == ACT_NORMAL || action == ACT_SKID) {
+    if (m_collider.isGrounded()) {
+        if ( m_stateMachine.currentId() != PlayerStateID::ROLL ) {
             if (input.isKeyRight() && !input.isKeyLeft() && canHorMove) {
                 if (gsp < 0.0)
                     gsp += PL_DEC;
@@ -566,7 +551,7 @@ void Player::movement() {
             } else {
                 gsp -= fmin(fabs(gsp), PL_FRC) * float(fsign(gsp));
             }
-        } else if (action == ACT_ROLL) {
+        } else {
             if (input.isKeyRight() && !input.isKeyLeft() && canHorMove) {
                 if (gsp < 0.0)
                     gsp += PL_DEC_ROLL;
@@ -589,149 +574,59 @@ void Player::gameplay() {
     if (debug)
         return;
 
-    if (action == ACT_DIE)
+    if (m_stateMachine.currentId() == PlayerStateID::DIE)
         return;
 
     // invincibility Timer
-    if (invicTimer > 0 && action != ACT_HURT)
+    if (invicTimer > 0 && m_stateMachine.currentId() != PlayerStateID::HURT)
         invicTimer--;
     if (ringTimer > 0)
         ringTimer--;
 
     // Hor lock timer
     if (horizontalLockTimer > -1) {
-        if (horizontalLockTimer == 0)
-            canHorMove = true;
-        else
-            canHorMove = false;
+        // if (horizontalLockTimer == 0)
+        //     canHorMove = true;
+        // else
+        //     canHorMove = false;
 
         horizontalLockTimer--;
     }
 
     // S Tube
     if (sTube) {
-        action = ACT_ROLL;
+        m_stateMachine.changeTo(PlayerStateID::ROLL);
+
         if (gsp == 0.0) {
-            if (!animFlip)
-                gsp = 2.0;
-            else 
-                gsp = -2.0;
+            gsp = (!animFlip) ? 2.0 : -2.0;
         }
     }
-
-    // Skid
-    if (action == ACT_NORMAL && fabs(gsp) > 2.5 && ground && m_collider.getMode() == PlayerSensorMode::FLOOR) {
-        if (gsp > 0 && input.isKeyLeft() ||
-            gsp < 0 && input.isKeyRight()) {
-                action = ACT_SKID;
-                audio.playSound(SND_SKID);
-            }
-    } 
-
-    if (action == ACT_SKID) {
-        if (gsp > 0 && !input.isKeyLeft())
-            action = ACT_NORMAL;
-        else if (gsp < 0 && !input.isKeyRight())
-            action = ACT_NORMAL;
-        else if (gsp == 0 || m_collider.getMode() != PlayerSensorMode::FLOOR)
-            action = ACT_NORMAL;
-    }
-
-    // Spindash timer
-    if (spindashTimer > 0)
-        spindashTimer--;
 
     // === Jump ===
-    if (input.isKeyAction() && ground && action != ACT_HURT && !sTube && m_collider.isPlayerCanJump()) {
-        ground = false;
-        standOnObj = false;
-        action = ACT_JUMP;
-
-        m_collider.forceToAir();
-
-        spd.x -= PL_JMP * sinf(radians(angle));
-        spd.y -= PL_JMP * cosf(radians(angle)); 
-
-        audio.playSound(SND_JUMP);
+    if (input.isKeyAction() && m_collider.isGrounded() && !sTube && m_collider.isPlayerCanJump()) {
+        m_stateMachine.changeTo(PlayerStateID::JUMP);
     }
 
-    if ((action == ACT_JUMP) && (spd.y < -4.0) && (!input.isKeyAction()))
-        spd.y = -4.0;
-
-    // === Spin Dash ===
-    if ((action == ACT_NORMAL) && (ground)) {
-        if (fabs(gsp) <= 1.0 && input.isKeySpindash()) {
-            spindashTimer = 45;
-            action = ACT_SPINDASH;
-            audio.playSound(SND_ROLL);
-            pos.y += 5;
-			if (animFlip)
-				isSpindashDirRight = false;
-			else
-				isSpindashDirRight = true;
-        } else if (input.isKeyDown() && gsp != 0.0) {
-            action = ACT_ROLL;
-            pos.y += 5;
-            audio.playSound(SND_ROLL);
-        }
-    }
-
-    // Sonic CD Style Spindash
-    if ((action == ACT_SPINDASH) && (!input.isKeySpindash())) {
-        if (spindashTimer == 0) {
-            action = ACT_ROLL;
-            if (isSpindashDirRight) {
-                gsp = 12.f;
-                animFlip = false;
-            } else {
-                gsp = -12.f;
-                animFlip = true;
-            }
-            camLagTimer = 16;
-            audio.playSound(SND_ROLL);
-        } else {
-            action = ACT_NORMAL;
-        }
-    }
-
-    if ((ground) && ((action == ACT_ROLL) && (gsp == 0.0))) {
-        action = ACT_NORMAL;
-        pos.y -= 5;
-    }
-
-    // Shift y pos and change ground sensor width when player is rolling 
-    if (action == ACT_JUMP || action == ACT_SPINDASH || action == ACT_ROLL) {
+    // Shift y pos and change m_collider.isGrounded() sensor width when player is rolling 
+    if (m_stateMachine.isCurling()) {
 		hitBoxSize = v2f(20, 30);
         shiftY = 5;
-        gndWidth = 7;
-        gndHeight = 15;
     } else {
 		hitBoxSize = v2f(20, 40);
         shiftY = 0;
-        gndWidth = 9;
-        gndHeight = 20;
     }
 
-    // Hurt
-    if (action == ACT_HURT) {
-        canHorMove = false;
-        if (ground) {
-            canHorMove = true;
-            action = ACT_NORMAL;
-            spd.x = 0;
-        }
-    }
 }
 
 void Player::animation() {
     //Animation angle
-    if (ground) {
-		if ((action != ACT_ROLL) && (action != ACT_SPINDASH) && (action != ACT_SKID)  && (abs(gsp) > 0))
+    if (m_collider.isGrounded()) {
+		if (!m_stateMachine.isCurling() && (abs(gsp) > 0))
             animAngle = angle;
 		else
 			animAngle = 0.0;
 	} else {
-        if (animAngle != 0 && action != ACT_JUMP) {
+        if (animAngle != 0 && m_stateMachine.currentId() != PlayerStateID::JUMP) {
 			if (animAngle > 180.0)
 				animAngle += 4.0;
 			else
@@ -775,7 +670,7 @@ void Player::animation() {
     } 
 
     // Set sprite direction
-    if (ground && action != ACT_ROLL) {
+    if (m_collider.isGrounded() && m_stateMachine.currentId() != PlayerStateID::ROLL) {
         if ((gsp < 0.0) && (input.isKeyLeft()))
             animFlip = true;
         else if ((gsp > 0.0) && (input.isKeyRight()))
@@ -787,90 +682,18 @@ void Player::animation() {
             animFlip = false;
     }
 
-    // Set animations from actions
-    if (!ground || gsp != 0.0)
-        animIdleTimer = 288;
-    if (action == ACT_NORMAL) {
-        if (ground) {
-            if (fabs(gsp) == 0.0) {
-                if (animIdleTimer > 0) {
-                    anim.set(0, 0, 0);
-                    animIdleTimer--;
-                } else  {
-                    animIdleTimer--;
-                    if (animIdleTimer < -72)
-                        anim.set(2, 3, 0.042);
-                    else 
-                        anim.set(1, 1, 0);
-                }
-            } 
-        }
-        if ((fabs(gsp) > 0.0) && (fabs(gsp) < 6.0)) {
-            if (diaAnim) 
-                anim.set(26, 31, 1.0 / int(fmax(3, 8.0-abs(gsp))) );
-            else 
-                anim.set(4, 9, 1.0 / int(fmax(3, 8.0-abs(gsp))) );
-        } else if ((fabs(gsp) >= 6.0) && (fabs(gsp) < 12.0)) {
-            if (diaAnim) 
-                anim.set(32, 35, 1.0 / int(fmax(2, 8.0-abs(gsp))) );
-            else
-                anim.set(11, 14, 1.0 / int(fmax(2, 10.0-abs(gsp))) );
-        } else if (fabs(gsp) >= 12.0) {
-            if (diaAnim)
-                anim.set(47, 50, 1.0 / int(fmax(2, 8.0-abs(gsp))) );
-            else 
-                anim.set(43, 46, 1.0 / int(fmax(2, 10.0-abs(gsp))));
-        }
-    } else {
-        switch(action) {
-            case ACT_NORMAL:
-                break;
-            case ACT_JUMP:
-                anim.set(15, 22, 1.0 / int(fmax(1, 4.0-abs(gsp))));
-                break;
-            case ACT_SPINDASH:
-                anim.set(15, 22, (float(45 - spindashTimer) / 30));
-                break;
-            case ACT_ROLL:
-                anim.set(15, 22, 1.0 / int(fmax(1, 4.0-abs(gsp))));
-                break;
-            case ACT_HURT:
-                anim.set(36, 36, 0);
-                break;
-            case ACT_SKID:
-                if (int(anim.getCurFrame()) == 25) {
-                    anim.set(25, 25, 0);
-                } else {
-                    anim.set(23, 25, 0.125);
-                }
-                break;
-            case ACT_DIE:
-                anim.set(37, 37, 0);
-                break;
-			case ACT_SPRING:
-				if (spd.y < 0.0)
-					anim.set(51, 53, (0.125 + fabs(spd.y) / 25), true);
-				else
-					anim.set(54, 55, 0.25, false);
-				break;
-        }
-    }
-    
 }
 
 void Player::getHit(std::list<Entity*>& entities) {
-    if (action == ACT_HURT || invicTimer > 0) return;
+    if (m_stateMachine.currentId() == PlayerStateID::HURT || invicTimer > 0) return;
 
     if (rings != 0) {
         ringTimer = 64;
-        ground = false;
+        m_collider.forceToAir();
         invicTimer = 120;
-        spd.y = -4;
-        spd.x = 2 * -sign(spd.x);
-        if (spd.x == 0) 
-            spd.x = -2;
-        action = ACT_HURT;
-
+        
+        m_stateMachine.changeTo(PlayerStateID::HURT);
+       
         //Rings
         int t = 0;
         float _angle = 101.25f;
@@ -897,12 +720,6 @@ void Player::getHit(std::list<Entity*>& entities) {
 
         audio.playSound(SND_RING_LOSS);
     } else {
-        action = ACT_DIE;
-        spd.x = 0;
-        spd.y = -7;
-        ground = false;
-        canHorMove = false;
-
-        audio.playSound(SND_HURT);
+        m_stateMachine.changeTo(PlayerStateID::DIE);
     }
 }

@@ -15,11 +15,19 @@ struct HexAngle {
         return hex >= l && hex <= r;
     }
 
-    inline static int sin(HexAngle angle) {
+    inline static float sin(HexAngle angle) {
+	    return (float)hexsin(angle) / 256.0f;
+    }
+
+    inline static float cos(HexAngle angle) {
+	    return (float)hexcos(angle) / 256.0f;
+    }
+
+    inline static int hexsin(HexAngle angle) {
 	    return SINCOSLIST[angle.hex % 256];
     }
 
-    inline static int cos(HexAngle angle) {
+    inline static int hexcos(HexAngle angle) {
 	    return SINCOSLIST[(angle.hex + 64) % 256];
     }
 

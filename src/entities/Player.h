@@ -10,13 +10,15 @@
 
 #include "new-terrain.hpp"
 #include "player-collider.hpp"
+#include "player-state-base.hpp"
+#include "player-state-normal.hpp"
 #include "terrain-sensor.hpp"
 
 #include "general/_index.hpp"
 #include "sonic-1/_index.hpp"
 
 #include "../player-collider.hpp"
-
+#include "../player-state-base.hpp"
 
 // === Constants === //
 
@@ -51,6 +53,7 @@ class Player : public Entity
             , rings(rings)
             , score(score) 
             , m_collider(pos, spd, gsp, _trn)
+            , m_stateMachine(m_props)
         { };
         void create();
         void terrainCollision(Camera& cam);
@@ -62,6 +65,8 @@ class Player : public Entity
         bool isDied() { return dead; }
     private:
         PlayerCollider m_collider;
+        PlayerStateMachine m_stateMachine;
+
 
         IInputMgr& input;
         Audio& audio;
@@ -78,16 +83,7 @@ class Player : public Entity
             BOTTOM, 
             LEFT_WALL
         };
-        enum Action { 
-            ACT_NORMAL, 
-            ACT_JUMP, 
-            ACT_ROLL, 
-            ACT_SKID, 
-            ACT_SPINDASH,
-			ACT_SPRING,
-            ACT_HURT,
-            ACT_DIE,
-        };
+
         // controlls
         bool canHorMove = true;
 
@@ -98,15 +94,11 @@ class Player : public Entity
         float angle = 0;
         float shiftX = 0;
         float shiftY = 0;
-        bool ground = false;
-        int gndHeight = 20; // Ground sensor height
-        int gndWidth = 7;   // Ground sensors width
         int enemyCombo = 0;
 
         Entity* standOn;
 
         // gameplay
-        Action action = ACT_NORMAL;
 		bool isSpindashDirRight = false;
         bool standOnObj = false;
         bool sTube = false;
@@ -114,7 +106,6 @@ class Player : public Entity
         bool dead = false;
 
         // timers
-        int spindashTimer = 0;
         int ringTimer = 0;
         int horizontalLockTimer = 0;
         int camLagTimer = 0;
@@ -124,7 +115,6 @@ class Player : public Entity
         bool animFlip = false;
 		float anim8Angle = 0.0;
         float animAngle = 0.0;
-        int animIdleTimer = 288;
         bool diaAnim = false;
 
         int layer = 0;
@@ -132,6 +122,10 @@ class Player : public Entity
 		// debug
 		irect lSenRect, rSenRect;
         bool isDebugPressed = false;
+
+        PlayerStateProps m_props {
+            pos, spd, gsp, input, audio, anim, m_collider, m_stateMachine
+        };
 
         // === functions === //
         void gameplay();

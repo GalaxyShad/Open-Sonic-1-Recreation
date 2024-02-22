@@ -1,7 +1,7 @@
 #include <cstdint>
 
 struct HexAngle {
-    uint8_t hex = 0x00;
+    uint8_t hex;
 
     inline bool isRotatable() const { return (hex != 0xFF); }
 

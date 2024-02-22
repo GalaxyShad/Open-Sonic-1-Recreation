@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "entities/Entity.h"
 #include "entities/Player.h"
 #include "player-sensor.hpp"
 
@@ -201,29 +202,34 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
     if (m_stateMachine.currentId() == PlayerStateID::DIE)
         return;
 
-	std::list<Entity*>::iterator it;
-	for (it = entities.begin(); it != entities.end(); it++) {
-        if (!(*it)->isInCamera(cam)) continue;
+	for (auto& it : entities) {
+        auto& ent = *it;
+        
+        if (!ent.isInCamera(cam))
+            continue;
         // Collsion Sign Post
-		if ((*it)->getType() == TYPE_SIGN_POST) {
-			if (pos.x >= (*it)->getPos().x && !endLv) {
-                cam.setRightBorder((*it)->getPos().x + (float)cam.getSize().width / 2);
-                cam.setBottomBorder((*it)->getPos().y + (float)cam.getSize().height / 2);
+
+		if (ent.getType() == TYPE_SIGN_POST) {
+            v2f entPos = ent.getPos();
+
+			if (pos.x >= ent.getPos().x && !endLv) {
+                cam.setRightBorder(ent.getPos().x + (float)cam.getSize().width / 2);
+                cam.setBottomBorder(ent.getPos().y + (float)cam.getSize().height / 2);
 
                 audio.playSound(SND_END_TABLE);
 
                 endLv = true;
             } else if (endLv) {
-                SignPost* sp = (SignPost*)*it;
+                SignPost* sp = (SignPost*)it;
                 sp->setAnim(true);
             }
 		}
 		// Collsion Spring
-		if ((*it)->getType() == TYPE_SPRING) {
-			Spring* spring = (Spring*)*it;
+		if (ent.getType() == TYPE_SPRING) {
+			Spring* spring = (Spring*)it;
             switch(spring->getRotation()) {
                 case Spring::R_UP:
-                    if (!collisionBottom(**it, 2)) break;
+                    if (!collisionBottom(*it, 2)) break;
 
                     m_stateMachine.changeTo(PlayerStateID::SPRING);
 
@@ -233,7 +239,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_DOWN:
-                    if (!collisionTop(**it, 2)) break;
+                    if (!collisionTop(*it, 2)) break;
                     
                     m_stateMachine.changeTo(PlayerStateID::SPRING);
 
@@ -242,14 +248,14 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_LEFT:
-                    if (!collisionRight(**it) || spd.x <= 0) break;
+                    if (!collisionRight(*it) || spd.x <= 0) break;
                     spd.x = -(spring->isRed() ? 16 : 10);
                     gsp = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_RIGHT:
-                    if (!collisionLeft(**it) || spd.x >= 0) break;
+                    if (!collisionLeft(*it) || spd.x >= 0) break;
                     spd.x = (spring->isRed() ? 16 : 10);
                     gsp = (spring->isRed() ? 16 : 10);
                     spring->doAnim();
@@ -258,8 +264,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
 		// Collision Ring
-		if ((*it)->getType() == TYPE_RING) {
-			Ring* ring = (Ring*)*it;
+		if (ent.getType() == TYPE_RING) {
+			Ring* ring = (Ring*)it;
 			if (collisionMain(*ring) && ringTimer == 0) {
 				ring->destroy();
                 AnimMgr rSfx;
@@ -272,15 +278,15 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
 
-        if ((*it)->getType() == TYPE_SPIKES) {
-            if (collisionBottom(**it, 2)) {
+        if (ent.getType() == TYPE_SPIKES) {
+            if (collisionBottom(*it, 2)) {
                 getHit(entities);
             }
         }
 
         // Collision Enemy
-		if ((*it)->getType() == TYPE_ENEMY) {
-			Enemy* en = (Enemy*)*it;
+		if (ent.getType() == TYPE_ENEMY) {
+			Enemy* en = (Enemy*)it;
 			if (collisionMain(*en)) {
 				if (m_stateMachine.isCurling()) {
                     if (!m_collider.isGrounded()) {
@@ -313,8 +319,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
         // Monitor
-        if ((*it)->getType() == TYPE_MONITOR) {
-            Monitor* m = (Monitor*)*it;
+        if (ent.getType() == TYPE_MONITOR) {
+            Monitor* m = (Monitor*)it;
 			if (collisionMain(*m) && spd.y >= 0 && m_stateMachine.isCurling()) {
                 if (!m_collider.isGrounded()) {
                     if (spd.y > 0) {
@@ -353,13 +359,13 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 		}
 
         // Bullet
-        if ((*it)->getType() == TYPE_BULLET) {
-			if (collisionMain(**it)) 
+        if (ent.getType() == TYPE_BULLET) {
+			if (collisionMain(*it)) 
                 getHit(entities);
 		}
         // Collision Layer Switch
-		if ((*it)->getType() == TYPE_LAYER_SWITCH) {
-			LayerSwitcher* ls = (LayerSwitcher*)*it;
+		if (ent.getType() == TYPE_LAYER_SWITCH) {
+			LayerSwitcher* ls = (LayerSwitcher*)it;
 			if (collisionMain(*ls) && m_collider.isGrounded()) {
 				if (ls->getMode() == 0 && spd.x > 0) {
                     m_collider.setLayer(terrain::TerrainLayer::NORMAL);
@@ -373,8 +379,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
         //STube
-        if ((*it)->getType() == TYPE_STUBE_CNTRL) {
-			GimGHZ_STube* _stube = (GimGHZ_STube*)*it;
+        if (ent.getType() == TYPE_STUBE_CNTRL) {
+			GimGHZ_STube* _stube = (GimGHZ_STube*)it;
 			if (collisionMain(*_stube)) {
 				if (_stube->getMode() == 0) {
                     if (gsp >= 0 || spd.x >= 0) 
@@ -393,22 +399,22 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
         // GHZ Bridge
-        if ((*it)->getType() == TYPE_BRIDGE) {
-			GimGHZ_Bridge* br = (GimGHZ_Bridge*)*it;
-            if ((!m_collider.isGrounded() && collisionBottom(**it)) || (m_collider.isGrounded() && collisionBottomPlatform(**it, 14))) {
+        if (ent.getType() == TYPE_BRIDGE) {
+			GimGHZ_Bridge* br = (GimGHZ_Bridge*)it;
+            if ((!m_collider.isGrounded() && collisionBottom(*it)) || (m_collider.isGrounded() && collisionBottomPlatform(*it, 14))) {
                 br->setActive(true);
                 pos.y = ((*br).getY()) - ((*br).getHitBoxSize().y / 2) - (hitBoxSize.y / 2);
 
                 if (!standOnObj) {
-                    standOn = *it;
+                    standOn = it;
                     standOnObj = true;
                     gsp = spd.x;
                 }
             }
         }
         // GHZ Slope Platform
-        if ((*it)->getType() == TYPE_GHZ_SLP_PLATFORM) {
-			GimGHZ_SlpPlatform* slope = (GimGHZ_SlpPlatform*)*it;
+        if (ent.getType() == TYPE_GHZ_SLP_PLATFORM) {
+			GimGHZ_SlpPlatform* slope = (GimGHZ_SlpPlatform*)it;
             if (((collisionBottom(*slope, 12) && m_collider.isGrounded()) ||
                  (collisionBottom(*slope, 1)  && !m_collider.isGrounded())) && spd.y >= 0 &&
                  pos.y < slope->getPos().y - 30) {
@@ -416,7 +422,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     pos.y = slope->getPos().y - (slope->getHeight(_x)) - 22 - hitBoxSize.y / 2;
                     if (!standOnObj) {
                         standOnObj = true;
-                        standOn = *it;
+                        standOn = it;
                         gsp = spd.x;
                     } else {
                         slope->destroy();
@@ -431,34 +437,34 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
             }
         }
         // Collision Solid
-        if ((*it)->isSolid() && (*it)->isLiving()) {
-			if (collisionRight(**it) && spd.x > 0.0) {
-                pos.x = (*it)->getPos().x - (*it)->getHitBoxSize().x / 2 - hitBoxSize.x / 2;
+        if (ent.isSolid() && ent.isLiving()) {
+			if (collisionRight(*it) && spd.x > 0.0) {
+                pos.x = ent.getPos().x - ent.getHitBoxSize().x / 2 - hitBoxSize.x / 2;
                 spd.x = 0.0;
                 gsp = 0.0;
             } 
-            if (collisionLeft(**it) && spd.x < 0.0) {
-                pos.x = (*it)->getPos().x + (*it)->getHitBoxSize().x / 2 + hitBoxSize.x / 2;
+            if (collisionLeft(*it) && spd.x < 0.0) {
+                pos.x = ent.getPos().x + ent.getHitBoxSize().x / 2 + hitBoxSize.x / 2;
                 spd.x = 0.0;
                 gsp = 0.0;
             } 
 
-            if (collisionTop(**it) && spd.y < 0.0) {
-				pos.y = (*it)->getPos().y + (*it)->getHitBoxSize().y / 2 + hitBoxSize.y / 2;
+            if (collisionTop(*it) && spd.y < 0.0) {
+				pos.y = ent.getPos().y + ent.getHitBoxSize().y / 2 + hitBoxSize.y / 2;
 				spd.y = 0.0;
 				gsp = 0.0;
 			}
         }
         // Platform
-        if ((*it)->isPlatform() && (*it)->isLiving()) {
-			if (((collisionBottomPlatform(**it, 12) && m_collider.isGrounded() && spd.y >= 0) ||
-                 (collisionBottomPlatform(**it, 1)  && !m_collider.isGrounded())) && spd.y >= 0) {
-                if ((*it)->isPlatPushUp())
-                    pos.y = (*it)->getPos().y - (*it)->getHitBoxSize().y / 2 - hitBoxSize.y / 2;
+        if (ent.isPlatform() && ent.isLiving()) {
+			if (((collisionBottomPlatform(*it, 12) && m_collider.isGrounded() && spd.y >= 0) ||
+                 (collisionBottomPlatform(*it, 1)  && !m_collider.isGrounded())) && spd.y >= 0) {
+                if (ent.isPlatPushUp())
+                    pos.y = ent.getPos().y - ent.getHitBoxSize().y / 2 - hitBoxSize.y / 2;
                     
                 if (!standOnObj) {
                     standOnObj = true;
-                    standOn = *it;
+                    standOn = it;
 
                     //if (action == ACT_ROLL)
 				        //action = ACT_NORMAL;
@@ -466,8 +472,8 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     gsp = spd.x;
                 }
 
-                if ((*it)->getType() == TYPE_PLATFORM) {
-                    GimGHZ_Platform* plt = (GimGHZ_Platform*)*it;
+                if (ent.getType() == TYPE_PLATFORM) {
+                    GimGHZ_Platform* plt = (GimGHZ_Platform*)it;
 
                     if (plt->isCanFall())
                         plt->setFalling(true);

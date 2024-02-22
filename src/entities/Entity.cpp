@@ -6,11 +6,6 @@ Entity::Entity(v2f _pos)
     dv_startPos = _pos;
 }
 
-void Entity::update()
-{
-	dv_anim.tick();
-}
-
 
 bool Entity::d_collisionRight(Entity& ent, uint32_t shiftY)
 {
@@ -94,10 +89,6 @@ bool Entity::d_collisionMain(Entity& ent, uint32_t shiftY)
         return true;
     else
         return false;
-}
-
-void Entity::draw(Camera& cam) {
-    cam.draw(dv_anim, dv_pos);
 }
 
 

@@ -79,13 +79,13 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): 
-            return new EnMotobug(position);
+            return new EnMotobug(position, m_terrain);
 
         case (ObjectID_S1::S1_CHOPPER): 
             return new EnChopper(position);
 
         case (ObjectID_S1::S1_CRABMEAT): 
-            return new EnCrab(position, m_entityList);
+            return new EnCrab(position, m_entityList, m_terrain);
         
         case (ObjectID_S1::S1_BUZZ_BOMBER): 
             return new EnBuzz(position);

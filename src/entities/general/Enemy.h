@@ -8,7 +8,6 @@ class Enemy : public Entity
     public:
         Enemy(v2f _pos) : Entity(_pos) {}
         void setAbilityToDying(bool _canDie) { canDie = _canDie; };
-        virtual void trnCollision(Terrain& trn) {}
     private:
         bool canDie = true;
 };

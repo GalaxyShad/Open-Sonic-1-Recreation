@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../general/Enemy.h"
+#include "new-terrain.hpp"
+#include "terrain-sensor.hpp"
 
 #include <list>
 
@@ -11,12 +13,16 @@
 class EnMotobug : public Enemy
 {
     public:
-        EnMotobug(v2f _pos) : Enemy(_pos) {}
+        EnMotobug(v2f pos, terrain::Terrain& terrain) 
+            : m_sensor(pos, terrain::SensorDirection::DOWN, terrain)
+            , Enemy(pos) {}
         void init();
         void d_update();
-        void trnCollision(Terrain& trn);
         void d_draw(Camera& cam);
     private:
+        terrain::Sensor   m_sensor;
+
+        void trnCollision();
         int dir =-1;
 };
 
@@ -33,16 +39,22 @@ class EnChopper : public Enemy
 class EnCrab : public Enemy
 {
     public:
-        EnCrab(v2f _pos, std::list<Entity*>& _entities) : Enemy(_pos) {entities = &_entities;}
+        EnCrab(v2f pos, std::list<Entity*>& _entities, terrain::Terrain& terrain) 
+            : Enemy(pos) 
+            , m_sensor(pos, terrain::SensorDirection::DOWN, terrain)
+        { entities = &_entities;}
         void init();
         void d_update();
-        void trnCollision(Terrain& trn);
     private:
+        void trnCollision();
         float xsp = CRAB_SPD;
         int moveTimer = 0;
         bool faceRight = true;
         bool bulFlag = false;
         std::list<Entity*>* entities;
+
+        int               m_tick = 0;
+        terrain::Sensor   m_sensor;
 
 };
 

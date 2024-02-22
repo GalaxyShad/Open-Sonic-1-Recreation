@@ -7,21 +7,21 @@ class Monitor : public Entity {
         enum Item {M_RINGS, M_INVINCIBILITY, M_LIVE, M_SHIELD, M_SPEED};
 
         Monitor(v2f _pos, Item item) : Entity(_pos), item(item) {}
-        void create() {
-            solid = true; 
-            platform = true;
-            type = TYPE_MONITOR; 
-            hitBoxSize = v2f(32, 32); 
-            anim.create(TEX_OBJECTS); 
-            anim.set(56, 56, 0);
+        void init() {
+            dv_solid = true; 
+            dv_platform = true;
+            dv_type = TYPE_MONITOR; 
+            dv_hitBoxSize = v2f(32, 32); 
+            dv_anim.create(TEX_OBJECTS); 
+            dv_anim.set(56, 56, 0);
 
 
             animIcon.create(TEX_OBJECTS);
             animIcon.set(60+item, 60+item, 0); 
         }
         void draw(Camera& cam) { 
-            cam.draw(anim, pos);
-            cam.draw(animIcon, v2f(pos.x, pos.y-3)); 
+            cam.draw(dv_anim, dv_pos);
+            cam.draw(animIcon, v2f(dv_pos.x, dv_pos.y-3)); 
         }
 
         Item getItem() { return item; }
@@ -35,26 +35,26 @@ class Monitor : public Entity {
 
 class BrokenMonitor : public Entity {
     public:
-        BrokenMonitor(v2f _pos) : Entity(_pos) { anim.create(TEX_OBJECTS); anim.set(57, 57, 0); }
+        BrokenMonitor(v2f _pos) : Entity(_pos) { dv_anim.create(TEX_OBJECTS); dv_anim.set(57, 57, 0); }
 };
 
 class MonitorIcon : public Entity {
     public:
         MonitorIcon(v2f _pos, Monitor::Item item) : 
-            Entity(_pos), item(item) { create(); }
+            Entity(_pos), item(item) { init(); }
 
-        void create() {
-            pos.y -= 3;
+        void init() {
+            dv_pos.y -= 3;
             tick = 0;
-            anim.create(TEX_OBJECTS);
-            anim.set(60+item, 60+item, 0); 
+            dv_anim.create(TEX_OBJECTS);
+            dv_anim.set(60+item, 60+item, 0); 
         }
 
         void update() {
             if (tick < 30)  
-                pos.y -= 2;
+                dv_pos.y -= 2;
             if (tick > 40)
-                living = false;
+                dv_living = false;
 
             tick++;
         }

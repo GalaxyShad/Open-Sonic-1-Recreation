@@ -28,13 +28,13 @@ class Spikes : public Entity
 
             // living = false;
         }
-        void create() { 
-            solid = true; 
-            platform = true;
-            type = TYPE_SPIKES; 
-            hitBoxSize = v2f(8, 32); 
-            anim.create(TEX_OBJECTS); 
-            anim.set(138, 138, 0);
+        void init() { 
+            dv_solid = true; 
+            dv_platform = true;
+            dv_type = TYPE_SPIKES; 
+            dv_hitBoxSize = v2f(8, 32); 
+            dv_anim.create(TEX_OBJECTS); 
+            dv_anim.set(138, 138, 0);
         }
         //void update() { return; }
 };

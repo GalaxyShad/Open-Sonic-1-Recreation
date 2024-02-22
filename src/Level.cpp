@@ -24,7 +24,7 @@ void Level::create() {
 			   trn.getSize(), (m_gameType == GameType::SONIC_3K));
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++)
-		(*it)->create();
+		(*it)->init();
 
 	// Level Variables
 	ringFrame = 80.0; // Using for same animation to all rings
@@ -151,7 +151,7 @@ void Level::update() {
 
     for (it = m_entities.begin(); it != m_entities.end();) {
 		Entity* ent = *it;
-		if (!ent->isLiving()) {
+		if (!ent->d_isLiving()) {
 			it = m_entities.erase(it);
 			delete ent;
 		} else {
@@ -160,10 +160,10 @@ void Level::update() {
 	}
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
-		if ((*it)->isInCamera(cam) || (*it)->getType() == TYPE_PLAYER) {
+		if ((*it)->d_isInCamera(cam) || (*it)->d_getType() == TYPE_PLAYER) {
 			(*it)->update();
-			(*it)->reactingToOthers(m_entities);
-			if ((*it)->getType() == TYPE_PLAYER) {
+			(*it)->d_reactingToOthers(m_entities);
+			if ((*it)->d_getType() == TYPE_PLAYER) {
 				Player* pl = (Player*)(*it);
 				pl->terrainCollision(cam);
 				pl->entitiesCollision(m_entities, cam);
@@ -177,32 +177,32 @@ void Level::update() {
 
 				if (pl->isDied())
 					isFadeDeath = true;
-			} else if ((*it)->getType() == TYPE_ENEMY) {
+			} else if ((*it)->d_getType() == TYPE_ENEMY) {
 				Enemy* en = (Enemy*)(*it);
 				en->trnCollision(trn);
-			} else if ((*it)->getType() == TYPE_RING) {
+			} else if ((*it)->d_getType() == TYPE_RING) {
 				// Ring animation
 				Ring* ring = (Ring*)(*it);
 				ring->animate(float(ringFrame));
 			} 
 			
-		} else if ((*it)->isLiving()) {
-			if ((*it)->getType() == TYPE_PARTICLE) {
-				(*it)->destroy();
+		} else if ((*it)->d_isLiving()) {
+			if ((*it)->d_getType() == TYPE_PARTICLE) {
+				(*it)->d_destroy();
 			}
 
-			(*it)->goToStartPos();
-			if ((*it)->getType() == TYPE_PLATFORM) {
+			(*it)->d_goToStartPos();
+			if ((*it)->d_getType() == TYPE_PLATFORM) {
 				GimGHZ_Platform* plt = (GimGHZ_Platform*)(*it);
-				plt->create();
+				plt->init();
 			}
-			if ((*it)->getType() == TYPE_RING) {
+			if ((*it)->d_getType() == TYPE_RING) {
 				Ring* ring = (Ring*)*it;
 				if (ring->isBounce())
-					ring->destroy();
+					ring->d_destroy();
 			}
-			if ((*it)->getType() == TYPE_BULLET) {
-				(*it)->destroy();
+			if ((*it)->d_getType() == TYPE_BULLET) {
+				(*it)->d_destroy();
 			}
 		}
 	}
@@ -254,7 +254,7 @@ void Level::draw() {
 
 	// Entities
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
-		if ((*it)->isInCamera(cam))
+		if ((*it)->d_isInCamera(cam))
 			(*it)->draw(cam);
 	}
 

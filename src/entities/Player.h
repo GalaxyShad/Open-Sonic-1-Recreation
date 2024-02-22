@@ -52,10 +52,10 @@ class Player : public Entity
             , audio(audio)
             , rings(rings)
             , score(score) 
-            , m_collider(pos, spd, gsp, _trn)
+            , m_collider(dv_pos, spd, gsp, _trn)
             , m_stateMachine(m_props)
         { };
-        void create();
+        void init();
         void terrainCollision(Camera& cam);
 		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);
         void update();
@@ -124,7 +124,7 @@ class Player : public Entity
         bool isDebugPressed = false;
 
         PlayerStateProps m_props {
-            pos, spd, gsp, input, audio, anim, m_collider, m_stateMachine
+            dv_pos, spd, gsp, input, audio, dv_anim, m_collider, m_stateMachine
         };
 
         // === functions === //

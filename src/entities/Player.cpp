@@ -8,12 +8,12 @@
 #include "player-state-jump.hpp"
 
 // === public === //
-void Player::create() 
+void Player::init() 
 {
-	type = TYPE_PLAYER;
-	hitBoxSize = v2f(20, 40);
-	anim.create(TEX_OBJECTS);
-    anim.set(0, 0, 0);
+	dv_type = TYPE_PLAYER;
+	dv_hitBoxSize = v2f(20, 40);
+	dv_anim.create(TEX_OBJECTS);
+    dv_anim.set(0, 0, 0);
     standOn = nullptr;
 
     m_stateMachine.add(new PlayerStateNormal(m_props));
@@ -47,7 +47,7 @@ void Player::update()
 
     gameplay();
     animation();
-    anim.tick();
+    dv_anim.tick();
 }
 
 void Player::draw(Camera& cam) 
@@ -57,7 +57,7 @@ void Player::draw(Camera& cam)
         animAngle = 0;
 
     if (invicTimer == 0 || (invicTimer > 0 && invicTimer % 8 >= 4) || m_stateMachine.currentId() == PlayerStateID::HURT)
-        cam.draw(anim, pos, anim8Angle, animFlip, false);
+        cam.draw(dv_anim, dv_pos, anim8Angle, animFlip, false);
 
     char dbInfo[128];
     snprintf(
@@ -69,7 +69,7 @@ void Player::draw(Camera& cam)
         "action:   %d\n"
         "ground    %d\n"
         "debug     %d\n",
-        pos.x, pos.y,
+        dv_pos.x, dv_pos.y,
         spd.x, spd.y,
         m_collider.getAngle().hex, m_collider.getAngle().degrees(),
         m_collider.getMode(),
@@ -96,8 +96,8 @@ void Player::moveCam(Camera& cam)
 
     Size scrSize = cam.getSize();
 
-	float _x = pos.x - (float)scrSize.width / 2;
-	float _y = (pos.y - shiftY) - (float)scrSize.height / 2;
+	float _x = dv_pos.x - (float)scrSize.width / 2;
+	float _y = (dv_pos.y - shiftY) - (float)scrSize.height / 2;
 
 	v2f camPos = cam.getPos();
 
@@ -136,24 +136,24 @@ void Player::terrainCollision(Camera& cam)
     if (debug) 
         return;
 
-    if (pos.y + 20 > cam.getBottomBorder() && !cam.isFree()) {
+    if (dv_pos.y + 20 > cam.getBottomBorder() && !cam.isFree()) {
         m_stateMachine.changeTo(PlayerStateID::DIE);
     }
 
     if (m_stateMachine.currentId() == PlayerStateID::DIE) {
-        if (pos.y + 20 > cam.getBottomBorder()+40)
+        if (dv_pos.y + 20 > cam.getBottomBorder()+40)
             dead = true;
 
         return;
     }
 
     if (endLv) {
-        if (pos.x < cam.getPos().x && spd.x < 0) {
-            pos.x = cam.getPos().x;
+        if (dv_pos.x < cam.getPos().x && spd.x < 0) {
+            dv_pos.x = cam.getPos().x;
             gsp = 0;
             spd.x = 0;
-        } else if (pos.x > cam.getPos().x+cam.getSize().width && spd.x > 0) {
-            pos.x = cam.getPos().x+cam.getSize().width;
+        } else if (dv_pos.x > cam.getPos().x+cam.getSize().width && spd.x > 0) {
+            dv_pos.x = cam.getPos().x+cam.getSize().width;
             gsp = 0;
             spd.x = 0;
         }
@@ -205,16 +205,16 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 	for (auto& it : entities) {
         auto& ent = *it;
         
-        if (!ent.isInCamera(cam))
+        if (!ent.d_isInCamera(cam))
             continue;
         // Collsion Sign Post
 
-		if (ent.getType() == TYPE_SIGN_POST) {
-            v2f entPos = ent.getPos();
+		if (ent.d_getType() == TYPE_SIGN_POST) {
+            v2f entPos = ent.d_getPos();
 
-			if (pos.x >= ent.getPos().x && !endLv) {
-                cam.setRightBorder(ent.getPos().x + (float)cam.getSize().width / 2);
-                cam.setBottomBorder(ent.getPos().y + (float)cam.getSize().height / 2);
+			if (dv_pos.x >= ent.d_getPos().x && !endLv) {
+                cam.setRightBorder(ent.d_getPos().x + (float)cam.getSize().width / 2);
+                cam.setBottomBorder(ent.d_getPos().y + (float)cam.getSize().height / 2);
 
                 audio.playSound(SND_END_TABLE);
 
@@ -225,11 +225,11 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
             }
 		}
 		// Collsion Spring
-		if (ent.getType() == TYPE_SPRING) {
+		if (ent.d_getType() == TYPE_SPRING) {
 			Spring* spring = (Spring*)it;
             switch(spring->getRotation()) {
                 case Spring::R_UP:
-                    if (!collisionBottom(*it, 2)) break;
+                    if (!d_collisionBottom(*it, 2)) break;
 
                     m_stateMachine.changeTo(PlayerStateID::SPRING);
 
@@ -239,7 +239,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_DOWN:
-                    if (!collisionTop(*it, 2)) break;
+                    if (!d_collisionTop(*it, 2)) break;
                     
                     m_stateMachine.changeTo(PlayerStateID::SPRING);
 
@@ -248,14 +248,14 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_LEFT:
-                    if (!collisionRight(*it) || spd.x <= 0) break;
+                    if (!d_collisionRight(*it) || spd.x <= 0) break;
                     spd.x = -(spring->isRed() ? 16 : 10);
                     gsp = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
                     audio.playSound(SND_SPRING);
                     break;
                 case Spring::R_RIGHT:
-                    if (!collisionLeft(*it) || spd.x >= 0) break;
+                    if (!d_collisionLeft(*it) || spd.x >= 0) break;
                     spd.x = (spring->isRed() ? 16 : 10);
                     gsp = (spring->isRed() ? 16 : 10);
                     spring->doAnim();
@@ -264,30 +264,30 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
 		// Collision Ring
-		if (ent.getType() == TYPE_RING) {
+		if (ent.d_getType() == TYPE_RING) {
 			Ring* ring = (Ring*)it;
-			if (collisionMain(*ring) && ringTimer == 0) {
-				ring->destroy();
+			if (d_collisionMain(*ring) && ringTimer == 0) {
+				ring->d_destroy();
                 AnimMgr rSfx;
                 rSfx.create(TEX_OBJECTS);
                 rSfx.set(84, 87, 0.5);
                 rings++;
-                entities.push_back(new Sfx(v2f(ring->getPos().x, ring->getPos().y), rSfx));
+                entities.push_back(new Sfx(v2f(ring->d_getPos().x, ring->d_getPos().y), rSfx));
 
                 audio.playSound(SND_RING);
 			}
 		}
 
-        if (ent.getType() == TYPE_SPIKES) {
-            if (collisionBottom(*it, 2)) {
+        if (ent.d_getType() == TYPE_SPIKES) {
+            if (d_collisionBottom(*it, 2)) {
                 getHit(entities);
             }
         }
 
         // Collision Enemy
-		if (ent.getType() == TYPE_ENEMY) {
+		if (ent.d_getType() == TYPE_ENEMY) {
 			Enemy* en = (Enemy*)it;
-			if (collisionMain(*en)) {
+			if (d_collisionMain(*en)) {
 				if (m_stateMachine.isCurling()) {
                     if (!m_collider.isGrounded()) {
                         if (spd.y > 0) {
@@ -296,12 +296,12 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                             spd.y -= sign(spd.y);
                         }
                     } 
-                    en->destroy();
+                    en->d_destroy();
 
                     AnimMgr rSfx;
                     rSfx.create(TEX_OBJECTS);
                     rSfx.set(95, 99, 0.125);
-                    entities.push_back(new Sfx(v2f(en->getPos().x, en->getPos().y), rSfx));
+                    entities.push_back(new Sfx(v2f(en->d_getPos().x, en->d_getPos().y), rSfx));
 
                     enemyCombo++;
                     switch(enemyCombo) {
@@ -310,7 +310,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                         case 3:  score += 500;  break;
                         default: score += 1000; break;
                     }
-                    entities.push_back(new EnemyScore(en->getPos(), (EnemyScore::Points)(enemyCombo-1)));
+                    entities.push_back(new EnemyScore(en->d_getPos(), (EnemyScore::Points)(enemyCombo-1)));
                 
                     audio.playSound(SND_DESTROY);
                 } else {
@@ -319,9 +319,9 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
         // Monitor
-        if (ent.getType() == TYPE_MONITOR) {
+        if (ent.d_getType() == TYPE_MONITOR) {
             Monitor* m = (Monitor*)it;
-			if (collisionMain(*m) && spd.y >= 0 && m_stateMachine.isCurling()) {
+			if (d_collisionMain(*m) && spd.y >= 0 && m_stateMachine.isCurling()) {
                 if (!m_collider.isGrounded()) {
                     if (spd.y > 0) {
                         spd.y *= -1;
@@ -343,30 +343,30 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     case Monitor::M_LIVE: break;                 
                 }
 
-                entities.push_back(new BrokenMonitor(m->getPos()));
+                entities.push_back(new BrokenMonitor(m->d_getPos()));
 
                 AnimMgr rSfx;
                 rSfx.create(TEX_OBJECTS);
                 rSfx.set(95, 99, 0.125);
-                entities.push_back(new Sfx(m->getPos(), rSfx));
+                entities.push_back(new Sfx(m->d_getPos(), rSfx));
 
-                entities.push_back(new MonitorIcon(m->getPos(), m->getItem()));
+                entities.push_back(new MonitorIcon(m->d_getPos(), m->getItem()));
 
-                m->destroy();
+                m->d_destroy();
 
                 audio.playSound(SND_DESTROY);
             } 
 		}
 
         // Bullet
-        if (ent.getType() == TYPE_BULLET) {
-			if (collisionMain(*it)) 
+        if (ent.d_getType() == TYPE_BULLET) {
+			if (d_collisionMain(*it)) 
                 getHit(entities);
 		}
         // Collision Layer Switch
-		if (ent.getType() == TYPE_LAYER_SWITCH) {
+		if (ent.d_getType() == TYPE_LAYER_SWITCH) {
 			LayerSwitcher* ls = (LayerSwitcher*)it;
-			if (collisionMain(*ls) && m_collider.isGrounded()) {
+			if (d_collisionMain(*ls) && m_collider.isGrounded()) {
 				if (ls->getMode() == 0 && spd.x > 0) {
                     m_collider.setLayer(terrain::TerrainLayer::NORMAL);
                 } else if (ls->getMode() == 1 && spd.x < 0) {
@@ -379,9 +379,9 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
         //STube
-        if (ent.getType() == TYPE_STUBE_CNTRL) {
+        if (ent.d_getType() == TYPE_STUBE_CNTRL) {
 			GimGHZ_STube* _stube = (GimGHZ_STube*)it;
-			if (collisionMain(*_stube)) {
+			if (d_collisionMain(*_stube)) {
 				if (_stube->getMode() == 0) {
                     if (gsp >= 0 || spd.x >= 0) 
                         sTube = true;
@@ -399,11 +399,11 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 			}
 		}
         // GHZ Bridge
-        if (ent.getType() == TYPE_BRIDGE) {
+        if (ent.d_getType() == TYPE_BRIDGE) {
 			GimGHZ_Bridge* br = (GimGHZ_Bridge*)it;
-            if ((!m_collider.isGrounded() && collisionBottom(*it)) || (m_collider.isGrounded() && collisionBottomPlatform(*it, 14))) {
+            if ((!m_collider.isGrounded() && d_collisionBottom(*it)) || (m_collider.isGrounded() && d_collisionBottomPlatform(*it, 14))) {
                 br->setActive(true);
-                pos.y = ((*br).getY()) - ((*br).getHitBoxSize().y / 2) - (hitBoxSize.y / 2);
+                dv_pos.y = ((*br).getY()) - ((*br).d_getHitBoxSize().y / 2) - (dv_hitBoxSize.y / 2);
 
                 if (!standOnObj) {
                     standOn = it;
@@ -413,54 +413,54 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
             }
         }
         // GHZ Slope Platform
-        if (ent.getType() == TYPE_GHZ_SLP_PLATFORM) {
+        if (ent.d_getType() == TYPE_GHZ_SLP_PLATFORM) {
 			GimGHZ_SlpPlatform* slope = (GimGHZ_SlpPlatform*)it;
-            if (((collisionBottom(*slope, 12) && m_collider.isGrounded()) ||
-                 (collisionBottom(*slope, 1)  && !m_collider.isGrounded())) && spd.y >= 0 &&
-                 pos.y < slope->getPos().y - 30) {
-                    int _x = pos.x - (slope->getPos().x - (slope->getHitBoxSize().x / 2));
-                    pos.y = slope->getPos().y - (slope->getHeight(_x)) - 22 - hitBoxSize.y / 2;
+            if (((d_collisionBottom(*slope, 12) && m_collider.isGrounded()) ||
+                 (d_collisionBottom(*slope, 1)  && !m_collider.isGrounded())) && spd.y >= 0 &&
+                 dv_pos.y < slope->d_getPos().y - 30) {
+                    int _x = dv_pos.x - (slope->d_getPos().x - (slope->d_getHitBoxSize().x / 2));
+                    dv_pos.y = slope->d_getPos().y - (slope->getHeight(_x)) - 22 - dv_hitBoxSize.y / 2;
                     if (!standOnObj) {
                         standOnObj = true;
                         standOn = it;
                         gsp = spd.x;
                     } else {
-                        slope->destroy();
+                        slope->d_destroy();
                         
-                        if (!slope->isLiving()) {
+                        if (!slope->d_isLiving()) {
                             standOnObj = false;
                         }
                     }
 
-                    if (!slope->isLiving())
+                    if (!slope->d_isLiving())
                         audio.playSound(SND_PLT_CRUSH);
             }
         }
         // Collision Solid
-        if (ent.isSolid() && ent.isLiving()) {
-			if (collisionRight(*it) && spd.x > 0.0) {
-                pos.x = ent.getPos().x - ent.getHitBoxSize().x / 2 - hitBoxSize.x / 2;
+        if (ent.d_isSolid() && ent.d_isLiving()) {
+			if (d_collisionRight(*it) && spd.x > 0.0) {
+                dv_pos.x = ent.d_getPos().x - ent.d_getHitBoxSize().x / 2 - dv_hitBoxSize.x / 2;
                 spd.x = 0.0;
                 gsp = 0.0;
             } 
-            if (collisionLeft(*it) && spd.x < 0.0) {
-                pos.x = ent.getPos().x + ent.getHitBoxSize().x / 2 + hitBoxSize.x / 2;
+            if (d_collisionLeft(*it) && spd.x < 0.0) {
+                dv_pos.x = ent.d_getPos().x + ent.d_getHitBoxSize().x / 2 + dv_hitBoxSize.x / 2;
                 spd.x = 0.0;
                 gsp = 0.0;
             } 
 
-            if (collisionTop(*it) && spd.y < 0.0) {
-				pos.y = ent.getPos().y + ent.getHitBoxSize().y / 2 + hitBoxSize.y / 2;
+            if (d_collisionTop(*it) && spd.y < 0.0) {
+				dv_pos.y = ent.d_getPos().y + ent.d_getHitBoxSize().y / 2 + dv_hitBoxSize.y / 2;
 				spd.y = 0.0;
 				gsp = 0.0;
 			}
         }
         // Platform
-        if (ent.isPlatform() && ent.isLiving()) {
-			if (((collisionBottomPlatform(*it, 12) && m_collider.isGrounded() && spd.y >= 0) ||
-                 (collisionBottomPlatform(*it, 1)  && !m_collider.isGrounded())) && spd.y >= 0) {
-                if (ent.isPlatPushUp())
-                    pos.y = ent.getPos().y - ent.getHitBoxSize().y / 2 - hitBoxSize.y / 2;
+        if (ent.d_isPlatform() && ent.d_isLiving()) {
+			if (((d_collisionBottomPlatform(*it, 12) && m_collider.isGrounded() && spd.y >= 0) ||
+                 (d_collisionBottomPlatform(*it, 1)  && !m_collider.isGrounded())) && spd.y >= 0) {
+                if (ent.d_isPlatPushUp())
+                    dv_pos.y = ent.d_getPos().y - ent.d_getHitBoxSize().y / 2 - dv_hitBoxSize.y / 2;
                     
                 if (!standOnObj) {
                     standOnObj = true;
@@ -472,21 +472,21 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     gsp = spd.x;
                 }
 
-                if (ent.getType() == TYPE_PLATFORM) {
+                if (ent.d_getType() == TYPE_PLATFORM) {
                     GimGHZ_Platform* plt = (GimGHZ_Platform*)it;
 
                     if (plt->isCanFall())
                         plt->setFalling(true);
                     if (plt->getDir() < 2)
-                        pos.x += plt->getSpd();
+                        dv_pos.x += plt->getSpd();
                 }
 			} 
         }
 	}
 
     if (standOn) {
-        if (standOn->isLiving()) {
-            if (!collisionBottomPlatform(*standOn, 12) || spd.y < 0) {
+        if (standOn->d_isLiving()) {
+            if (!d_collisionBottomPlatform(*standOn, 12) || spd.y < 0) {
                 standOnObj = false;
                 standOn = nullptr;
             }
@@ -501,7 +501,7 @@ void Player::movement() {
     if (m_stateMachine.currentId() == PlayerStateID::DIE)
         return;
 
-    if (pos.x - 9 < 0 && spd.x < 0) {pos.x = 9; gsp = 0; spd.x = 0;}
+    if (dv_pos.x - 9 < 0 && spd.x < 0) {dv_pos.x = 9; gsp = 0; spd.x = 0;}
 
     if (m_collider.isGrounded()) {
 		if ((m_collider.getMode() == PlayerSensorMode::FLOOR && gsp != 0) || (m_collider.getMode() != PlayerSensorMode::FLOOR)) {
@@ -518,8 +518,8 @@ void Player::movement() {
         spd.y = gsp * -sinf(radians(angle)); 
     }
 
-    pos.x += spd.x;
-    pos.y += spd.y;
+    dv_pos.x += spd.x;
+    dv_pos.y += spd.y;
 
     if (input.isKeyDebug() && !isDebugPressed) {
         debug = !debug;
@@ -615,10 +615,10 @@ void Player::gameplay() {
 
     // Shift y pos and change m_collider.isGrounded() sensor width when player is rolling 
     if (m_stateMachine.isCurling()) {
-		hitBoxSize = v2f(20, 30);
+		dv_hitBoxSize = v2f(20, 30);
         shiftY = 5;
     } else {
-		hitBoxSize = v2f(20, 40);
+		dv_hitBoxSize = v2f(20, 40);
         shiftY = 0;
     }
 

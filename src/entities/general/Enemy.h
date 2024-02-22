@@ -17,20 +17,20 @@ class EnemyScore : public Entity {
     public:
         enum Points { P_100, P_200, P_500, P_1000 };
         EnemyScore(v2f _pos, Points points) : 
-            Entity(_pos), points(points) { create(); }
+            Entity(_pos), points(points) { init(); }
 
-        void create() {
-            pos.y -= 3;
+        void init() {
+            dv_pos.y -= 3;
             tick = 0;
-            anim.create(TEX_OBJECTS);
-            anim.set(70+points, 70+points, 0); 
+            dv_anim.create(TEX_OBJECTS);
+            dv_anim.set(70+points, 70+points, 0); 
         }
 
         void update() {
             if (tick < 30)  
-                pos.y -= 2;
+                dv_pos.y -= 2;
             if (tick > 40)
-                living = false;
+                dv_living = false;
 
             tick++;
         }

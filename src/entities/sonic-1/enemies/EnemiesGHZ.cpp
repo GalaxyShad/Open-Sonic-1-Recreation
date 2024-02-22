@@ -1,4 +1,5 @@
 #include "EnemiesGHZ.h"
+#include "core/GameMath.h"
 
 // Bullet
 void Bullet::init() {
@@ -52,6 +53,7 @@ void EnMotobug::d_update()
 {
     dv_pos.x += MOTOBUG_SPD * dir;
     dv_anim.tick();
+    trnCollision();
 }
 
 void EnMotobug::d_draw(Camera &cam)
@@ -61,31 +63,32 @@ void EnMotobug::d_draw(Camera &cam)
         flip = true;
 
     cam.draw(dv_anim, dv_pos, 0.0, flip);
+
+    m_sensor.draw(cam);
 }
 
-void EnMotobug::trnCollision(Terrain &trn)
+void EnMotobug::trnCollision()
 {
-    // Ground collision
-    for (int i = 0; i < 30; i++)
-    {
-        v2i sensorPos = v2i(dv_pos.x, dv_pos.y + i);
-        if ((trn.getTileVerHeight(sensorPos) != 0) &&
-                (trn.getTileType(sensorPos) != TILE_LBR) &&
-                (trn.getTileType(sensorPos) != TILE_EMPTY))
-        {
-            int tilePosY = int((dv_pos.y + i) / 16) * 16;
-            dv_pos.y = tilePosY + 16 - trn.getTileVerHeight(sensorPos) - 14;
-            break;
-        }
-    }
+    m_sensor.setPosition(v2f(dv_pos.x, dv_pos.y + 14));
 
-    v2i lSensorPos = v2i(dv_pos.x - 17, dv_pos.y + 20);
-    v2i rSensorPos = v2i(dv_pos.x + 17, dv_pos.y + 20);
-    if ((trn.getTileType(lSensorPos) == TILE_EMPTY && dir == -1) ||
-            (trn.getTileType(rSensorPos) == TILE_EMPTY && dir == 1))
-    {
+    auto distToGround = m_sensor.getDistance();
+    bool colliding = (distToGround >= -8) && (distToGround <= 12);
+
+    printf("%d\n", distToGround);
+
+    if (colliding) {
+        dv_pos.y += distToGround;
+    } else {
         dir = -dir;
     }
+
+    // v2i lSensorPos = v2i(dv_pos.x - 17, dv_pos.y + 20);
+    // v2i rSensorPos = v2i(dv_pos.x + 17, dv_pos.y + 20);
+    // if ((trn.getTileType(lSensorPos) == TILE_EMPTY && dir == -1) ||
+    //         (trn.getTileType(rSensorPos) == TILE_EMPTY && dir == 1))
+    // {
+        
+    // }
 }
 
 // Crab
@@ -143,59 +146,25 @@ void EnCrab::d_update()
 
     dv_pos.x += xsp;
     dv_anim.tick();
+
+    m_tick++;
+
+    trnCollision();
 }
 
-void EnCrab::trnCollision(Terrain &trn)
+void EnCrab::trnCollision()
 {
-    v2i lSensorPos = v2i(dv_pos.x - 17, dv_pos.y);
-    v2i rSensorPos = v2i(dv_pos.x + 17, dv_pos.y);
+    m_sensor.setPosition(v2f(dv_pos.x + 8 * (m_tick % 2 == 0) * gmath::fsign(xsp), dv_pos.y + 16));
 
-    // Wall collision
-    if ((trn.getTileHorHeight(lSensorPos) != 0) &&
-            (trn.getTileType(lSensorPos) != TILE_EMPTY) && xsp < 0.0)
-    {
-        moveTimer = 50;
-        faceRight = true;
-        xsp *= -1;
-    }
-    else if ((trn.getTileHorHeight(rSensorPos) != 0) &&
-                     (trn.getTileType(rSensorPos) != TILE_EMPTY) && xsp > 0.0)
-    {
-        moveTimer = 50;
-        faceRight = false;
-        xsp *= -1;
-    }
+    auto distToGround = m_sensor.getDistance();
+    bool colliding = (distToGround >= -8) && (distToGround <= 12);
 
-    // Turn around if no ground
-    lSensorPos = v2i(dv_pos.x - 17, dv_pos.y + 24);
-    rSensorPos = v2i(dv_pos.x + 17, dv_pos.y + 24);
-    if ((trn.getTileType(lSensorPos) == TILE_EMPTY && xsp < 0.0) ||
-            (trn.getTileType(rSensorPos) == TILE_EMPTY && xsp > 0.0))
-    {
-        xsp *= -1;
+    if (colliding) {
+        dv_pos.y += distToGround;
+    } else {
+        moveTimer = 50;
         faceRight = !faceRight;
-        moveTimer = 50;
-    }
-
-    // Ground Collision
-    for (int i = 0; i < 50; i++)
-    {
-        lSensorPos = v2i(dv_pos.x - 15, dv_pos.y + i);
-        rSensorPos = v2i(dv_pos.x + 15, dv_pos.y + i);
-        if (((trn.getTileVerHeight(lSensorPos) != 0) &&
-                 (trn.getTileType(lSensorPos) != TILE_LBR) &&
-                 (trn.getTileType(lSensorPos) != TILE_EMPTY)) ||
-                ((trn.getTileVerHeight(rSensorPos) != 0) &&
-                 (trn.getTileType(rSensorPos) != TILE_LBR) &&
-                 (trn.getTileType(rSensorPos) != TILE_EMPTY)))
-        {
-
-            int tilePosY = int((dv_pos.y + i) / 16) * 16;
-
-            int height = std::max(trn.getTileVerHeight(lSensorPos), trn.getTileVerHeight(rSensorPos));
-            dv_pos.y = tilePosY + 16 - height - 15;
-            break;
-        }
+        xsp       = -xsp;
     }
 }
 

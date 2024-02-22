@@ -165,7 +165,7 @@ void LevelLoader::sonic1LoadObjects(std::string &sZoneAct) {
         return;
     }
 
-	EntityCreatorSonic1 entCreator(m_entities);
+	EntityCreatorSonic1 entCreator(m_entities, *m_terrain);
     uint8_t buff[6];
 
     while (file.read(reinterpret_cast<char*>(buff), sizeof(buff))) {

@@ -181,9 +181,6 @@ void Level::update() {
 
 				if (pl->isDied())
 					isFadeDeath = true;
-			} else if ((*it)->d_getType() == TYPE_ENEMY) {
-				Enemy* en = (Enemy*)(*it);
-				en->trnCollision(trn);
 			} else if ((*it)->d_getType() == TYPE_RING) {
 				// Ring animation
 				Ring* ring = (Ring*)(*it);

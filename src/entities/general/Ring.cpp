@@ -28,7 +28,7 @@ void Ring::init()
 
 }
 
-void Ring::update()
+void Ring::d_update()
 {
 	if (!bouncing) return;
 	dv_pos.y += ysp;
@@ -56,7 +56,7 @@ void Ring::animate(int frame)
 		dv_anim.set(frame, frame, (256 - liveTimer) / 64);
 }
 
-void Ring::draw(Camera& cam)
+void Ring::d_draw(Camera& cam)
 {
 	cam.draw(dv_anim, dv_pos);
 }

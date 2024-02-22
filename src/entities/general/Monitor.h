@@ -19,7 +19,7 @@ class Monitor : public Entity {
             animIcon.create(TEX_OBJECTS);
             animIcon.set(60+item, 60+item, 0); 
         }
-        void draw(Camera& cam) { 
+        void d_draw(Camera& cam) { 
             cam.draw(dv_anim, dv_pos);
             cam.draw(animIcon, v2f(dv_pos.x, dv_pos.y-3)); 
         }
@@ -50,7 +50,7 @@ class MonitorIcon : public Entity {
             dv_anim.set(60+item, 60+item, 0); 
         }
 
-        void update() {
+        void d_update() {
             if (tick < 30)  
                 dv_pos.y -= 2;
             if (tick > 40)

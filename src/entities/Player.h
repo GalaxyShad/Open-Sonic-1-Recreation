@@ -55,11 +55,11 @@ class Player : public Entity
             , m_collider(dv_pos, spd, gsp, _trn)
             , m_stateMachine(m_props)
         { };
-        void init();
+        void init() override;
         void terrainCollision(Camera& cam);
 		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);
-        void update();
-        void draw(Camera& cam);
+        void d_update() override;
+        void d_draw(Camera& cam) override;
 		void moveCam(Camera& cam);
         bool isEndLv() {return endLv;}
         bool isDied() { return dead; }

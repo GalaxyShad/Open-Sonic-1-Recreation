@@ -26,7 +26,7 @@ class EnemyScore : public Entity {
             dv_anim.set(70+points, 70+points, 0); 
         }
 
-        void update() {
+        void d_update() {
             if (tick < 30)  
                 dv_pos.y -= 2;
             if (tick > 40)

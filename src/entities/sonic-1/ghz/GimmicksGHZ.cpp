@@ -36,7 +36,7 @@ void GimGHZ_BridgeController::init()
     dv_type = TYPE_UNKNOWN;
 }
 
-void GimGHZ_BridgeController::update() 
+void GimGHZ_BridgeController::d_update() 
 {
     float LogDistance = 0;
     bool isActiveExist = false;
@@ -97,7 +97,7 @@ void GimGHZ_SlpPlatform::init()
     dv_platPushUp = false;
 }
 
-void GimGHZ_SlpPlatform::update() { 
+void GimGHZ_SlpPlatform::d_update() { 
     if (deathTimer != -1) {
         if (deathTimer != 0) {
             deathTimer--;
@@ -136,7 +136,7 @@ void GimGHZ_Platform::init()
     fallTimer = -1;
 }
 
-void GimGHZ_Platform::update() 
+void GimGHZ_Platform::d_update() 
 {
     if (isFalling()) {
         if (fallTimer > 0) {

@@ -111,6 +111,8 @@ bool Entity::d_isInCamera(Camera& cam)
         return false;
     else
         return true;
+
+    #undef DEACT_DELTA
 }
 
 bool Entity::d_entMeeting(Entity& ent, v2i meetSize)

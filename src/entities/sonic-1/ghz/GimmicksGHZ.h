@@ -35,8 +35,8 @@ class GimGHZ_BridgeController : public Entity
 {
     public: GimGHZ_BridgeController(v2f _pos, uint8_t count, std::list<Entity*>& ent);
             void init();
-            void update();
-            void draw(Camera& cam) {}
+            void d_update();
+            void d_draw(Camera& cam) {}
     private:
             GimGHZ_Bridge** segments;
             int segmentsCount;
@@ -52,7 +52,7 @@ class GimGhz_BridgeColumn : public Entity {
             dv_anim.create(TEX_GHZ_GIMM); 
             dv_anim.set(7, 7, 0);
         }
-        void draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0, flip); }
+        void d_draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0, flip); }
     private:
         bool flip = false;
 };
@@ -63,7 +63,7 @@ class GimGHZ_Platform : public Entity
         GimGHZ_Platform(v2f _pos, int _dir = 0, bool _mooving = false, bool _canFall = false) : Entity(_pos) 
             { dir = _dir; mooving = _mooving; canFall = _canFall; }
         void init();
-        void update();
+        void d_update();
         int getDir() {return dir;}
         float getSpd() { return xsp; }
 
@@ -91,8 +91,8 @@ class GimGHZ_SlpPlatform : public Entity {
         GimGHZ_SlpPlatform(v2f _pos, std::list<Entity*>& ent, 
                            bool _left = false) : Entity(_pos), ent(ent) { isLeft = _left; }
         void init();
-        void update();
-        void draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0.0, isLeft); }
+        void d_update();
+        void d_draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0.0, isLeft); }
         void d_destroy() { if (deathTimer < 0) deathTimer = 32; } 
         
         int getHeight(int x) 
@@ -132,13 +132,13 @@ class GimGHZ_SlpPlatformPart : public Entity {
         GimGHZ_SlpPlatformPart(v2f _pos, int partIndex, bool _left = false) : 
             Entity(_pos), partIndex(partIndex), left(_left) 
             { timer = (35 - partIndex); dv_type = TYPE_PARTICLE; }
-        void update() { 
+        void d_update() { 
             if (timer > 0) timer--; 
             else ysp += 0.2;
 
             dv_pos.y += ysp;
         }
-        void draw(Camera& cam) {
+        void d_draw(Camera& cam) {
             cam.draw(
                 TEX_GHZ_GIMM, 
                 irect(48+(partIndex % 6)*16,
@@ -173,8 +173,8 @@ class GimGHZ_STube : public Entity
    public:
         GimGHZ_STube(v2f _pos, uint8_t _mode) : Entity(_pos) { mode = _mode;}
         void init() {dv_type = TYPE_STUBE_CNTRL; dv_hitBoxSize = v2f(16, 64);}
-        void update() {}
-        void draw(Camera& cam) { 
+        void d_update() {}
+        void d_draw(Camera& cam) { 
             // cam.getScr().drawRectangle(
             // Vector2f(pos.x - cam.getPos().x - hitBoxSize.x/2, 
             //             pos.y - cam.getPos().y - hitBoxSize.y/2), 
@@ -199,7 +199,7 @@ class SignPost : public Entity
             dv_anim.set(105, 105, 0); 
             animPost.set(104, 104, 0); 
             }
-        void draw(Camera& cam) {
+        void d_draw(Camera& cam) {
             cam.draw(animPost, v2f(dv_pos.x, dv_pos.y+24));
             cam.draw(dv_anim, v2f(dv_pos.x, dv_pos.y));
         }

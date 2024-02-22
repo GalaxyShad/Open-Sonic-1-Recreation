@@ -2,6 +2,7 @@
 
 #include <list>
 
+#include "entities/Entity.h"
 #include "terrain-loader.hpp"
 
 #include "entities/_index.hpp"
@@ -43,6 +44,7 @@ public:
         : m_terrain(terrain)
         , m_entities(entities)
         , cam(scr)
+        // , m_entityPool(cam)
         , m_screen(scr)
         , m_input(input)
         , m_audio(audio) 
@@ -70,6 +72,8 @@ public:
 private:
     terrain::Terrain &m_terrain;
     std::list<Entity*>& m_entities;
+
+    // EntityPool  m_entityPool;
 
     GameType    m_gameType;
     std::string m_zoneName;

@@ -8,8 +8,8 @@ class LayerSwitcher : public Entity
         LayerSwitcher(v2f _pos, v2f _hBox, uint8_t _mode) : 
             Entity(_pos) { mode = _mode; dv_hitBoxSize = _hBox;}
         void init() { dv_type = TYPE_LAYER_SWITCH; }
-        void update() {}
-        void draw(Camera& cam) 
+        void d_update() {}
+        void d_draw(Camera& cam) 
         { 
             // cam.getScr().drawRectangle(
             // Vector2f(pos.x - cam.getPos().x - hitBoxSize.x/2, 

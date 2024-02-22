@@ -8,7 +8,7 @@
 #include "player-state-jump.hpp"
 
 // === public === //
-void Player::init() 
+void Player::init()
 {
 	dv_type = TYPE_PLAYER;
 	dv_hitBoxSize = v2f(20, 40);
@@ -28,9 +28,11 @@ void Player::init()
     m_collider.onLanding([this](HexAngle hexAngle){
         m_stateMachine.pushLanding();
     });
+
+
 }
 
-void Player::update() 
+void Player::d_update() 
 {
     m_stateMachine.update();
 
@@ -50,8 +52,11 @@ void Player::update()
     dv_anim.tick();
 }
 
-void Player::draw(Camera& cam) 
+void Player::d_draw(Camera& cam) 
 {
+    
+    
+
     // Animation angle
     if (animAngle == 360)
         animAngle = 0;

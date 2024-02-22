@@ -58,7 +58,7 @@ class EntityComponent {
 public: 
     EntityComponent(T* component) : m_component(component) {}
 
-    bool isExists() { return m_component != nullptr; }
+    bool exists() { return m_component != nullptr; }
 
     T& get() {
         if (m_component == nullptr)
@@ -104,6 +104,7 @@ struct EntityType {
     bool         isHarmful  = false;
 };
 
+#define DO_NOTHING_BY_DEFAULT
 class Entity
 {
     public:
@@ -111,62 +112,121 @@ class Entity
         Entity(v2f _pos);
 
         // Basic methods
-        virtual void init()             {}
-        virtual void update()           { dv_anim.tick(); }
-        virtual void draw(Camera& cam)  { cam.draw(dv_anim, dv_pos); }
+        virtual void init()             { DO_NOTHING_BY_DEFAULT }
+        virtual void update()           { DO_NOTHING_BY_DEFAULT }
+        virtual void draw(Camera& cam)  { DO_NOTHING_BY_DEFAULT }
 
         // Required
         virtual EntityType type() { return EntityType(EntityTypeID::DEPRECATED); }
 
-        // Componenets
+        // Componenets ( Which can be optional by EntityComponent wrapper )
         virtual EntityComponent<v2f>            cposition()   { return EntityComponent<v2f>::Empty();            }
         virtual EntityComponent<v2f>            cspeed()      { return EntityComponent<v2f>::Empty();            }
         virtual EntityComponent<EntityHitBox>   chitbox()     { return EntityComponent<EntityHitBox>::Empty();   }
         virtual EntityComponent<EntitySolidBox> csolidBox()   { return EntityComponent<EntitySolidBox>::Empty(); }
 
         // Events
-        virtual void onDestroy()   {}
-        virtual void onOutOfView() {}
+        virtual void onDestroy()   { DO_NOTHING_BY_DEFAULT }
+        virtual void onOutOfView() { DO_NOTHING_BY_DEFAULT }
 
         // Deprecated
+        virtual void d_update()           { dv_anim.tick(); }
+        virtual void d_draw(Camera& cam)  { cam.draw(dv_anim, dv_pos); }
         virtual void d_reactingToOthers(std::list<Entity*>& entities) { return; }
-
-        void d_setPos(v2f pos) { this->dv_pos = pos; }
-        v2f d_getPos()         { return dv_pos; }
-
-        void d_goToStartPos()       { dv_pos = dv_startPos; }
-        v2f d_getStartPos()    { return dv_startPos; }
-        
-        void d_setHitBoxSize(v2f _size)  { dv_hitBoxSize = _size; };
-        v2f d_getHitBoxSize()            { return dv_hitBoxSize;  };
-
-        bool d_entMeeting(Entity& ent, v2i meetSize);
-
+        void         d_setPos(v2f pos) { this->dv_pos = pos; }
+        v2f          d_getPos()         { return dv_pos; }
+        void         d_goToStartPos()       { dv_pos = dv_startPos; }
+        v2f          d_getStartPos()    { return dv_startPos; }
+        void         d_setHitBoxSize(v2f _size)  { dv_hitBoxSize = _size; };
+        v2f          d_getHitBoxSize()            { return dv_hitBoxSize;  };
+        bool         d_entMeeting(Entity& ent, v2i meetSize);
         virtual void d_destroy() { dv_living = false; }
-
-		uint8_t d_getType()   { return dv_type; }
-
-        bool d_isSolid()      { return dv_solid; }
-        bool d_isPlatform()   { return dv_platform; }
-        bool d_isPlatPushUp() { return dv_platPushUp; }
-        bool d_isLiving()     { return dv_living; };
-
-        bool d_isInCamera(Camera& cam);
-        
-        bool d_collisionRight(Entity& ent, uint32_t shiftY = 0);
-        bool d_collisionLeft(Entity& ent, uint32_t shiftY = 0);
-        bool d_collisionTop(Entity& ent, uint32_t shiftY = 0);
-        bool d_collisionBottom(Entity& ent, uint32_t shiftY = 0);
-        bool d_collisionBottomPlatform(Entity& ent, uint32_t shiftY = 0);
-        bool d_collisionMain(Entity& ent, uint32_t shiftY = 0);
+		uint8_t      d_getType()   { return dv_type; }
+        bool         d_isSolid()      { return dv_solid; }
+        bool         d_isPlatform()   { return dv_platform; }
+        bool         d_isPlatPushUp() { return dv_platPushUp; }
+        bool         d_isLiving()     { return dv_living; };
+        bool         d_isInCamera(Camera& cam);
+        bool         d_collisionRight(Entity& ent, uint32_t shiftY = 0);
+        bool         d_collisionLeft(Entity& ent, uint32_t shiftY = 0);
+        bool         d_collisionTop(Entity& ent, uint32_t shiftY = 0);
+        bool         d_collisionBottom(Entity& ent, uint32_t shiftY = 0);
+        bool         d_collisionBottomPlatform(Entity& ent, uint32_t shiftY = 0);
+        bool         d_collisionMain(Entity& ent, uint32_t shiftY = 0);
     protected:
-		uint8_t dv_type = TYPE_UNKNOWN;
-        bool dv_solid = false;
-        bool dv_platform = false;
-        bool dv_platPushUp = true;
-        bool dv_living = true;
-        v2f dv_pos;
-        v2f dv_startPos;
-        v2f dv_hitBoxSize = v2f(16, 16);
+        // Deprecated variables
+		uint8_t dv_type         = TYPE_UNKNOWN;
+        bool    dv_solid        = false;
+        bool    dv_platform     = false;
+        bool    dv_platPushUp   = true;
+        bool    dv_living       = true;
+        v2f     dv_pos;
+        v2f     dv_startPos;
+        v2f     dv_hitBoxSize = v2f(16, 16);
         AnimMgr dv_anim;
+};
+#undef NOTHING
+
+class EntityPool {
+public:
+    EntityPool(Camera& camera) : m_camera(camera) {}
+
+    void add(Entity* entity) {
+        m_pool.push_back(entity);
+        entity->init();
+    }
+
+    void destroyEntity(Entity* entity) {
+        m_pool.remove(entity);
+        m_entitiesToDestroy.push_back(entity);
+    }
+
+    void update() {
+        for (auto& it : m_pool) {
+            if (!isEntityInsideView(*it)) continue;
+            
+            it->update();
+
+            if (!isEntityInsideView(*it))
+                it->onOutOfView();
+        }
+
+        for (auto& it : m_entitiesToDestroy) {
+            it->onDestroy();
+            delete it;
+        }
+
+        m_entitiesToDestroy.clear();
+    }
+
+    void draw() {
+        for (auto& it : m_pool) {
+            it->draw(m_camera);
+        }
+    }
+
+private:    
+    std::list<Entity*> m_pool;
+    std::list<Entity*> m_entitiesToDestroy;
+
+    Camera& m_camera;
+
+private:
+    bool isEntityInsideView(Entity& entity) {
+        if (entity.type().id == EntityTypeID::DEPRECATED)
+            return entity.d_isInCamera(m_camera);
+
+        if (!entity.chitbox().exists())
+            return true;
+
+        const int DEACT_DELTA = 224;
+
+        auto& hitbox = entity.chitbox().get();
+        auto  viewPos = m_camera.getPos();
+
+        return (hitbox.getLeft()   > viewPos.x - DEACT_DELTA) &&
+               (hitbox.getRight()  < viewPos.x + DEACT_DELTA) && 
+               (hitbox.getTop()    > viewPos.y - DEACT_DELTA) &&
+               (hitbox.getBottom() < viewPos.y + DEACT_DELTA);
+    }
 };

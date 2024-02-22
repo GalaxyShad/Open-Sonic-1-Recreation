@@ -28,7 +28,7 @@ void Spring::doAnim()
 	animTimer = SPRING_ANIM_TIMER;
 }
 
-void Spring::update()
+void Spring::d_update()
 {
 	if (animTimer > 0) {
 		animTimer--;
@@ -40,7 +40,7 @@ void Spring::update()
 	}
 }
 
-void Spring::draw(Camera& cam) {
+void Spring::d_draw(Camera& cam) {
 	switch (rot) {
 		case R_UP: cam.draw(dv_anim, dv_pos, 0); break;
 		case R_RIGHT: cam.draw(dv_anim, dv_pos, 90); break;

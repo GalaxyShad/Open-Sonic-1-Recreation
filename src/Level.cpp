@@ -149,6 +149,8 @@ void Level::update() {
 
     updateLevelSpecific();
 
+	//m_entityPool.update();
+
     for (it = m_entities.begin(); it != m_entities.end();) {
 		Entity* ent = *it;
 		if (!ent->d_isLiving()) {
@@ -160,8 +162,10 @@ void Level::update() {
 	}
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
+	
 		if ((*it)->d_isInCamera(cam) || (*it)->d_getType() == TYPE_PLAYER) {
-			(*it)->update();
+			
+			(*it)->d_update();
 			(*it)->d_reactingToOthers(m_entities);
 			if ((*it)->d_getType() == TYPE_PLAYER) {
 				Player* pl = (Player*)(*it);
@@ -253,9 +257,12 @@ void Level::draw() {
 	m_terrainDrawer.draw();
 
 	// Entities
+	// m_entityPool.draw();
+
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
-		if ((*it)->d_isInCamera(cam))
-			(*it)->draw(cam);
+		if ((*it)->d_isInCamera(cam)) {
+			(*it)->d_draw(cam);
+		}
 	}
 
 	drawHud();

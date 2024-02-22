@@ -10,8 +10,8 @@ class Spring : public Entity
 		Spring(v2f _pos, bool _red = false, Rotation rotation = R_UP) : 
 			Entity(_pos), red(_red), rot(rotation) {};
         void init();
-		void update();
-		void draw(Camera& cam);
+		void d_update();
+		void d_draw(Camera& cam);
 		void doAnim();
 		bool isRed() { return red; }
 		Rotation getRotation() { return rot; }

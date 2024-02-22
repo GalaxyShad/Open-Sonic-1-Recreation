@@ -16,7 +16,7 @@ void Bullet::init() {
     }
 }
 
-void Bullet::update()
+void Bullet::d_update()
 {
     if (dv_anim.getCurFrame() >= 127)
         dv_anim.set(126, 127, 0.2f);
@@ -30,7 +30,7 @@ void Bullet::update()
     dv_anim.tick();
 }
 
-void Bullet::draw(Camera &cam)
+void Bullet::d_draw(Camera &cam)
 {
     bool flip = false;
     if (dir == 1)
@@ -48,13 +48,13 @@ void EnMotobug::init()
     dv_anim.set(134, 137, 0.2f);
 }
 
-void EnMotobug::update()
+void EnMotobug::d_update()
 {
     dv_pos.x += MOTOBUG_SPD * dir;
     dv_anim.tick();
 }
 
-void EnMotobug::draw(Camera &cam)
+void EnMotobug::d_draw(Camera &cam)
 {
     bool flip = false;
     if (dir == 1)
@@ -97,7 +97,7 @@ void EnCrab::init()
     dv_anim.set(113, 115, 0.2, true);
 }
 
-void EnCrab::update()
+void EnCrab::d_update()
 {
     if (moveTimer == 0)
     {
@@ -211,7 +211,7 @@ void EnBuzz::init()
     dv_anim.set(117, 117, 0);
 }
 
-void EnBuzz::update()
+void EnBuzz::d_update()
 {
     if (moveTimer <= 0)
     {
@@ -281,7 +281,7 @@ void EnBuzz::d_reactingToOthers(std::list<Entity *> &entities)
     }
 }
 
-void EnBuzz::draw(Camera &cam)
+void EnBuzz::d_draw(Camera &cam)
 {
     v2f wPos;
 
@@ -313,7 +313,7 @@ void EnChopper::init()
     dv_anim.set(111, 112, 0.2f);
 }
 
-void EnChopper::update()
+void EnChopper::d_update()
 {
     dv_pos.y += ysp;
 

@@ -13,9 +13,9 @@ class EnMotobug : public Enemy
     public:
         EnMotobug(v2f _pos) : Enemy(_pos) {}
         void init();
-        void update();
+        void d_update();
         void trnCollision(Terrain& trn);
-        void draw(Camera& cam);
+        void d_draw(Camera& cam);
     private:
         int dir =-1;
 };
@@ -25,7 +25,7 @@ class EnChopper : public Enemy
     public:
         EnChopper(v2f _pos) : Enemy(_pos) {}
         void init();
-        void update();
+        void d_update();
     private:
         float ysp = 0;
 };
@@ -35,7 +35,7 @@ class EnCrab : public Enemy
     public:
         EnCrab(v2f _pos, std::list<Entity*>& _entities) : Enemy(_pos) {entities = &_entities;}
         void init();
-        void update();
+        void d_update();
         void trnCollision(Terrain& trn);
     private:
         float xsp = CRAB_SPD;
@@ -51,8 +51,8 @@ class EnBuzz : public Enemy
     public:
         EnBuzz(v2f _pos) : Enemy(_pos) {}
         void init();
-        void update();
-        void draw(Camera& cam);
+        void d_update();
+        void d_draw(Camera& cam);
         void d_reactingToOthers(std::list<Entity*>& entities);
     private:
         float xsp = BUZZ_SPD;
@@ -73,8 +73,8 @@ class Bullet: public Entity
                     init();
                 }
         void init();
-        void update();
-        void draw(Camera& cam);
+        void d_update();
+        void d_draw(Camera& cam);
     private:
         float ysp = 0;
         float xsp = 0;

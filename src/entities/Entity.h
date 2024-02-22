@@ -31,14 +31,104 @@ enum Types {
     TYPE_PARTICLE
 };
 
+class EntityHitBox {
+public:
+    EntityHitBox(v2f& position, v2i radius) : m_radius(radius), m_position(position) {}
+
+    v2f getPosition() const { return m_position; }
+    v2i getRadius() const { return m_radius; }
+
+    float getLeft()   const { return m_position.x - (float)m_radius.x; }
+    float getTop()    const { return m_position.y - (float)m_radius.y; }
+    float getRight()  const { return m_position.x + (float)m_radius.x; }
+    float getBottom() const { return m_position.y + (float)m_radius.y; }
+
+    bool isOverlappingWith(const EntityHitBox& other) const {
+        return (getLeft() < other.getRight()  && getRight() > other.getLeft() &&
+                getTop()  > other.getBottom() && getBottom() < other.getTop());
+    }
+    
+private:
+    v2f& m_position;
+    v2i  m_radius;
+};
+
+template<typename T>
+class EntityComponent {
+public: 
+    EntityComponent(T* component) : m_component(component) {}
+
+    bool isExists() { return m_component != nullptr; }
+
+    T& get() {
+        if (m_component == nullptr)
+            printf("Component does not exists");
+
+        return *m_component;
+    }
+
+    static EntityComponent Empty() {
+        return EntityComponent<T>(nullptr);
+    }
+private:
+    T* m_component;
+};
+
+class EntitySolidBox {}; // TODO
+
+enum class EntityTypeID {
+    DEPRECATED,
+    PLAYER,
+    RING,
+    SPRING,
+    MONITOR,
+    SIGN_POST,
+    LAYER_SWITCH,
+    ENEMY,
+    EN_MOTOBUG,
+    BRIDGE,
+    BRIDGE_CNTRL,
+    GHZ_SLP_PLATFORM,
+    PLATFORM,
+    BULLET,
+    SPIKES,
+    STUBE_CNTRL,
+    PARTICLE,
+};
+
+struct EntityType {
+    EntityType(EntityTypeID id) : id(id) {}
+
+    EntityTypeID id;
+    bool         isEnemy    = false;
+    bool         isHarmful  = false;
+};
+
 class Entity
 {
     public:
         Entity() {}
         Entity(v2f _pos);
-        virtual void init() { return; }
-        virtual void update();
-        virtual void draw(Camera& cam);
+
+        // Basic methods
+        virtual void init()             {}
+        virtual void update()           { dv_anim.tick(); }
+        virtual void draw(Camera& cam)  { cam.draw(dv_anim, dv_pos); }
+
+        // Required
+        virtual EntityType type() { return EntityType(EntityTypeID::DEPRECATED); }
+
+        // Componenets
+        virtual EntityComponent<v2f>            cposition()   { return EntityComponent<v2f>::Empty();            }
+        virtual EntityComponent<v2f>            cspeed()      { return EntityComponent<v2f>::Empty();            }
+        virtual EntityComponent<EntityHitBox>   chitbox()     { return EntityComponent<EntityHitBox>::Empty();   }
+        virtual EntityComponent<EntitySolidBox> csolidBox()   { return EntityComponent<EntitySolidBox>::Empty(); }
+
+        // Events
+        virtual void onDestroy()   {}
+        virtual void onOutOfView() {}
+
+        // Deprecated
         virtual void d_reactingToOthers(std::list<Entity*>& entities) { return; }
 
         void d_setPos(v2f pos) { this->dv_pos = pos; }

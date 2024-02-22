@@ -17,7 +17,7 @@ class Ring : public Entity
         }
         Ring(v2f _pos, uint8_t count, uint8_t dir, std::list<Entity*>& ent);
         ~Ring();
-        void create();
+        void init();
         void update();
         bool isBounce() { return bouncing; }
         void draw(Camera& cam);

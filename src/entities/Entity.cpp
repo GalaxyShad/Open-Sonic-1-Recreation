@@ -2,117 +2,117 @@
 
 Entity::Entity(v2f _pos)
 {
-    pos = _pos;
-    startPos = _pos;
+    dv_pos = _pos;
+    dv_startPos = _pos;
 }
 
 void Entity::update()
 {
-	anim.tick();
+	dv_anim.tick();
 }
 
 
-bool Entity::collisionRight(Entity& ent, uint32_t shiftY)
+bool Entity::d_collisionRight(Entity& ent, uint32_t shiftY)
 {
-    if (!living) return false;
+    if (!dv_living) return false;
 
-    for(int i = 4; i < hitBoxSize.y-4; i++) {
-        float xx = pos.x + hitBoxSize.x / 2 + 1;
-        float yy = (pos.y - hitBoxSize.y / 2) + i + shiftY;
-        if ((yy > ent.pos.y - ent.hitBoxSize.y / 2) && (yy < ent.pos.y + ent.hitBoxSize.y / 2) &&
-            (xx > ent.pos.x - ent.hitBoxSize.x / 2) && (xx < ent.pos.x + ent.hitBoxSize.x / 2))
+    for(int i = 4; i < dv_hitBoxSize.y-4; i++) {
+        float xx = dv_pos.x + dv_hitBoxSize.x / 2 + 1;
+        float yy = (dv_pos.y - dv_hitBoxSize.y / 2) + i + shiftY;
+        if ((yy > ent.dv_pos.y - ent.dv_hitBoxSize.y / 2) && (yy < ent.dv_pos.y + ent.dv_hitBoxSize.y / 2) &&
+            (xx > ent.dv_pos.x - ent.dv_hitBoxSize.x / 2) && (xx < ent.dv_pos.x + ent.dv_hitBoxSize.x / 2))
                 return true;
     }
     return false;
 }
 
-bool Entity::collisionLeft(Entity& ent, uint32_t shiftY)
+bool Entity::d_collisionLeft(Entity& ent, uint32_t shiftY)
 {
-    if (!living) return false;
+    if (!dv_living) return false;
 
-    for(int i = 4; i < hitBoxSize.y-4; i++) {
-        float xx = pos.x - hitBoxSize.x / 2 - 1;
-        float yy = (pos.y - hitBoxSize.y / 2) + i + shiftY;
-        if ((yy > ent.pos.y - ent.hitBoxSize.y / 2) && (yy < ent.pos.y + ent.hitBoxSize.y / 2) &&
-            (xx > ent.pos.x - ent.hitBoxSize.x / 2) && (xx < ent.pos.x + ent.hitBoxSize.x / 2))
+    for(int i = 4; i < dv_hitBoxSize.y-4; i++) {
+        float xx = dv_pos.x - dv_hitBoxSize.x / 2 - 1;
+        float yy = (dv_pos.y - dv_hitBoxSize.y / 2) + i + shiftY;
+        if ((yy > ent.dv_pos.y - ent.dv_hitBoxSize.y / 2) && (yy < ent.dv_pos.y + ent.dv_hitBoxSize.y / 2) &&
+            (xx > ent.dv_pos.x - ent.dv_hitBoxSize.x / 2) && (xx < ent.dv_pos.x + ent.dv_hitBoxSize.x / 2))
                 return true;
     }
     return false;
 }
 
-bool Entity::collisionTop(Entity& ent, uint32_t shiftY)
+bool Entity::d_collisionTop(Entity& ent, uint32_t shiftY)
 {
-    if (!living) return false;
+    if (!dv_living) return false;
 
-    for(int i = 0; i < hitBoxSize.x - 8; i++) {
-        float xx = (pos.x - hitBoxSize.x / 2) + i;
-        float yy = pos.y - hitBoxSize.y / 2 + shiftY;
-        if ((yy > ent.pos.y - ent.hitBoxSize.y / 2) && (yy < ent.pos.y + ent.hitBoxSize.y / 2) &&
-            (xx > ent.pos.x - ent.hitBoxSize.x / 2) && (xx < ent.pos.x + ent.hitBoxSize.x / 2))
+    for(int i = 0; i < dv_hitBoxSize.x - 8; i++) {
+        float xx = (dv_pos.x - dv_hitBoxSize.x / 2) + i;
+        float yy = dv_pos.y - dv_hitBoxSize.y / 2 + shiftY;
+        if ((yy > ent.dv_pos.y - ent.dv_hitBoxSize.y / 2) && (yy < ent.dv_pos.y + ent.dv_hitBoxSize.y / 2) &&
+            (xx > ent.dv_pos.x - ent.dv_hitBoxSize.x / 2) && (xx < ent.dv_pos.x + ent.dv_hitBoxSize.x / 2))
                 return true;
     }
     return false;
 }
 
-bool Entity::collisionBottom(Entity& ent, uint32_t shiftY)
+bool Entity::d_collisionBottom(Entity& ent, uint32_t shiftY)
 {
-    if (!living) return false;
+    if (!dv_living) return false;
 
-    for(int i = 2; i < hitBoxSize.x - 2; i++) {
-        float xx = (pos.x - hitBoxSize.x / 2) + i;
-        float yy = pos.y + hitBoxSize.y / 2 + shiftY;
-        if ((yy > ent.pos.y - ent.hitBoxSize.y / 2) && (yy < ent.pos.y + ent.hitBoxSize.y / 2) &&
-            (xx > ent.pos.x - ent.hitBoxSize.x / 2) && (xx < ent.pos.x + ent.hitBoxSize.x / 2))
+    for(int i = 2; i < dv_hitBoxSize.x - 2; i++) {
+        float xx = (dv_pos.x - dv_hitBoxSize.x / 2) + i;
+        float yy = dv_pos.y + dv_hitBoxSize.y / 2 + shiftY;
+        if ((yy > ent.dv_pos.y - ent.dv_hitBoxSize.y / 2) && (yy < ent.dv_pos.y + ent.dv_hitBoxSize.y / 2) &&
+            (xx > ent.dv_pos.x - ent.dv_hitBoxSize.x / 2) && (xx < ent.dv_pos.x + ent.dv_hitBoxSize.x / 2))
                 return true;
     }
     return false;
 }
 
 
-bool Entity::collisionBottomPlatform(Entity& ent, uint32_t shiftY)
+bool Entity::d_collisionBottomPlatform(Entity& ent, uint32_t shiftY)
 {
-    if (!living) return false;
+    if (!dv_living) return false;
 
-    for(int i = 2; i < hitBoxSize.x - 2; i++) {
-        float xx = (pos.x - hitBoxSize.x / 2) + i;
+    for(int i = 2; i < dv_hitBoxSize.x - 2; i++) {
+        float xx = (dv_pos.x - dv_hitBoxSize.x / 2) + i;
         for (int j = 0; j < shiftY; j++) {
-            float yy = pos.y + hitBoxSize.y / 2 + j;
-            if ((yy > ent.pos.y - ent.hitBoxSize.y / 2) && (yy < ent.pos.y + ent.hitBoxSize.y / 2) &&
-                (xx > ent.pos.x - ent.hitBoxSize.x / 2) && (xx < ent.pos.x + ent.hitBoxSize.x / 2))
+            float yy = dv_pos.y + dv_hitBoxSize.y / 2 + j;
+            if ((yy > ent.dv_pos.y - ent.dv_hitBoxSize.y / 2) && (yy < ent.dv_pos.y + ent.dv_hitBoxSize.y / 2) &&
+                (xx > ent.dv_pos.x - ent.dv_hitBoxSize.x / 2) && (xx < ent.dv_pos.x + ent.dv_hitBoxSize.x / 2))
                     return true;
         }
     }
     return false;
 }
 
-bool Entity::collisionMain(Entity& ent, uint32_t shiftY)
+bool Entity::d_collisionMain(Entity& ent, uint32_t shiftY)
 {
-    if (!living) return false;
+    if (!dv_living) return false;
 
-    if (collisionLeft(ent, shiftY) || collisionRight(ent, shiftY) || 
-		collisionTop(ent, shiftY) || collisionBottom(ent, shiftY))
+    if (d_collisionLeft(ent, shiftY) || d_collisionRight(ent, shiftY) || 
+		d_collisionTop(ent, shiftY) || d_collisionBottom(ent, shiftY))
         return true;
     else
         return false;
 }
 
 void Entity::draw(Camera& cam) {
-    cam.draw(anim, pos);
+    cam.draw(dv_anim, dv_pos);
 }
 
 
-bool Entity::isInCamera(Camera& cam)
+bool Entity::d_isInCamera(Camera& cam)
 {
     float rectR, rectL, rectT, rectB;
     #define DEACT_DELTA  224
 
-    rectR = (pos.x + hitBoxSize.x / 2);
-    rectL = (pos.x - hitBoxSize.x / 2);
-    rectT = (pos.y - hitBoxSize.y / 2);
-    rectB = (pos.y + hitBoxSize.y / 2);
+    rectR = (dv_pos.x + dv_hitBoxSize.x / 2);
+    rectL = (dv_pos.x - dv_hitBoxSize.x / 2);
+    rectT = (dv_pos.y - dv_hitBoxSize.y / 2);
+    rectB = (dv_pos.y + dv_hitBoxSize.y / 2);
 
-    if ( (startPos.x >= cam.getPos().x - DEACT_DELTA) && (startPos.x <= cam.getPos().x + cam.getSize().width + DEACT_DELTA) &&
-         (startPos.y >= cam.getPos().y - DEACT_DELTA) && (startPos.y <= cam.getPos().y + cam.getSize().height + DEACT_DELTA))
+    if ( (dv_startPos.x >= cam.getPos().x - DEACT_DELTA) && (dv_startPos.x <= cam.getPos().x + cam.getSize().width + DEACT_DELTA) &&
+         (dv_startPos.y >= cam.getPos().y - DEACT_DELTA) && (dv_startPos.y <= cam.getPos().y + cam.getSize().height + DEACT_DELTA))
         return true;
 
     if ( (rectR < cam.getPos().x - DEACT_DELTA) || (rectL > cam.getPos().x + cam.getSize().width + DEACT_DELTA) ||
@@ -122,17 +122,17 @@ bool Entity::isInCamera(Camera& cam)
         return true;
 }
 
-bool Entity::entMeeting(Entity& ent, v2i meetSize)
+bool Entity::d_entMeeting(Entity& ent, v2i meetSize)
 {
     float enRectR, enRectL, enRectT, enRectB;
 
-    enRectR = (ent.getPos().x + hitBoxSize.x / 2);
-    enRectL = (ent.getPos().x - hitBoxSize.x / 2);
-    enRectT = (ent.getPos().y - hitBoxSize.y / 2);
-    enRectB = (ent.getPos().y + hitBoxSize.y / 2);
+    enRectR = (ent.d_getPos().x + dv_hitBoxSize.x / 2);
+    enRectL = (ent.d_getPos().x - dv_hitBoxSize.x / 2);
+    enRectT = (ent.d_getPos().y - dv_hitBoxSize.y / 2);
+    enRectB = (ent.d_getPos().y + dv_hitBoxSize.y / 2);
 
-    if ( (enRectR < pos.x - meetSize.x) || (enRectL > pos.x + meetSize.x) ||
-         (enRectB < pos.y - meetSize.y) || (enRectT > pos.y + meetSize.y))
+    if ( (enRectR < dv_pos.x - meetSize.x) || (enRectL > dv_pos.x + meetSize.x) ||
+         (enRectB < dv_pos.y - meetSize.y) || (enRectT > dv_pos.y + meetSize.y))
         return false;
     else
         return true;

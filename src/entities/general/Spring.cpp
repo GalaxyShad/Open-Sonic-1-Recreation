@@ -1,30 +1,30 @@
 #include "Spring.h"
 
-void Spring::create()
+void Spring::init()
 {
-	type = TYPE_SPRING;
-    solid = true;
+	dv_type = TYPE_SPRING;
+    dv_solid = true;
 
 	if (rot == R_UP || rot == R_DOWN)
-		hitBoxSize = v2f(28, 16);
+		dv_hitBoxSize = v2f(28, 16);
 	else {
-		platform = true;
-		hitBoxSize = v2f(16, 28);
+		dv_platform = true;
+		dv_hitBoxSize = v2f(16, 28);
 	}
 
-	anim.create(TEX_OBJECTS);
+	dv_anim.create(TEX_OBJECTS);
 	if (red)
-		anim.set(65, 65, 0.0);
+		dv_anim.set(65, 65, 0.0);
 	else
-		anim.set(67, 67, 0.0);
+		dv_anim.set(67, 67, 0.0);
 }
 
 void Spring::doAnim()
 {
 	if (red)
-		anim.set(66, 66, 0);
+		dv_anim.set(66, 66, 0);
 	else
-		anim.set(68, 68, 0);
+		dv_anim.set(68, 68, 0);
 	animTimer = SPRING_ANIM_TIMER;
 }
 
@@ -34,18 +34,18 @@ void Spring::update()
 		animTimer--;
 	} else {
 		if (red)
-			anim.set(65, 65, 0);
+			dv_anim.set(65, 65, 0);
 		else
-			anim.set(67, 67, 0);
+			dv_anim.set(67, 67, 0);
 	}
 }
 
 void Spring::draw(Camera& cam) {
 	switch (rot) {
-		case R_UP: cam.draw(anim, pos, 0); break;
-		case R_RIGHT: cam.draw(anim, pos, 90); break;
-		case R_DOWN: cam.draw(anim, pos, 180); break;
-		case R_LEFT: cam.draw(anim, pos, 270); break;
+		case R_UP: cam.draw(dv_anim, dv_pos, 0); break;
+		case R_RIGHT: cam.draw(dv_anim, dv_pos, 90); break;
+		case R_DOWN: cam.draw(dv_anim, dv_pos, 180); break;
+		case R_LEFT: cam.draw(dv_anim, dv_pos, 270); break;
 	}
 }
 

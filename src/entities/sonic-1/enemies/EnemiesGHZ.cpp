@@ -1,16 +1,16 @@
 #include "EnemiesGHZ.h"
 
 // Bullet
-void Bullet::create() {
-    hitBoxSize = v2f(14, 14);
-    type = TYPE_BULLET;
-    anim.create(TEX_OBJECTS);
+void Bullet::init() {
+    dv_hitBoxSize = v2f(14, 14);
+    dv_type = TYPE_BULLET;
+    dv_anim.create(TEX_OBJECTS);
     if (mode == 0) {
-        anim.set(123, 127, 0.2f);
+        dv_anim.set(123, 127, 0.2f);
         xsp = 2 * dir;
         ysp = 2;
     } else {
-        anim.set(126, 127, 0.2f);
+        dv_anim.set(126, 127, 0.2f);
         ysp = -4;
         xsp = 1 * dir;
     }
@@ -18,16 +18,16 @@ void Bullet::create() {
 
 void Bullet::update()
 {
-    if (anim.getCurFrame() >= 127)
-        anim.set(126, 127, 0.2f);
+    if (dv_anim.getCurFrame() >= 127)
+        dv_anim.set(126, 127, 0.2f);
 
-    pos.x += xsp;
-    pos.y += ysp;
+    dv_pos.x += xsp;
+    dv_pos.y += ysp;
 
     if (mode != 0) 
         ysp += grv;
 
-    anim.tick();
+    dv_anim.tick();
 }
 
 void Bullet::draw(Camera &cam)
@@ -36,22 +36,22 @@ void Bullet::draw(Camera &cam)
     if (dir == 1)
         flip = true;
 
-    cam.draw(anim, pos, 0.0, flip);
+    cam.draw(dv_anim, dv_pos, 0.0, flip);
 }
 
 // Motobug
-void EnMotobug::create()
+void EnMotobug::init()
 {
-    hitBoxSize = v2f(42, 34);
-    type = TYPE_ENEMY;
-    anim.create(TEX_OBJECTS);
-    anim.set(134, 137, 0.2f);
+    dv_hitBoxSize = v2f(42, 34);
+    dv_type = TYPE_ENEMY;
+    dv_anim.create(TEX_OBJECTS);
+    dv_anim.set(134, 137, 0.2f);
 }
 
 void EnMotobug::update()
 {
-    pos.x += MOTOBUG_SPD * dir;
-    anim.tick();
+    dv_pos.x += MOTOBUG_SPD * dir;
+    dv_anim.tick();
 }
 
 void EnMotobug::draw(Camera &cam)
@@ -60,7 +60,7 @@ void EnMotobug::draw(Camera &cam)
     if (dir == 1)
         flip = true;
 
-    cam.draw(anim, pos, 0.0, flip);
+    cam.draw(dv_anim, dv_pos, 0.0, flip);
 }
 
 void EnMotobug::trnCollision(Terrain &trn)
@@ -68,19 +68,19 @@ void EnMotobug::trnCollision(Terrain &trn)
     // Ground collision
     for (int i = 0; i < 30; i++)
     {
-        v2i sensorPos = v2i(pos.x, pos.y + i);
+        v2i sensorPos = v2i(dv_pos.x, dv_pos.y + i);
         if ((trn.getTileVerHeight(sensorPos) != 0) &&
                 (trn.getTileType(sensorPos) != TILE_LBR) &&
                 (trn.getTileType(sensorPos) != TILE_EMPTY))
         {
-            int tilePosY = int((pos.y + i) / 16) * 16;
-            pos.y = tilePosY + 16 - trn.getTileVerHeight(sensorPos) - 14;
+            int tilePosY = int((dv_pos.y + i) / 16) * 16;
+            dv_pos.y = tilePosY + 16 - trn.getTileVerHeight(sensorPos) - 14;
             break;
         }
     }
 
-    v2i lSensorPos = v2i(pos.x - 17, pos.y + 20);
-    v2i rSensorPos = v2i(pos.x + 17, pos.y + 20);
+    v2i lSensorPos = v2i(dv_pos.x - 17, dv_pos.y + 20);
+    v2i rSensorPos = v2i(dv_pos.x + 17, dv_pos.y + 20);
     if ((trn.getTileType(lSensorPos) == TILE_EMPTY && dir == -1) ||
             (trn.getTileType(rSensorPos) == TILE_EMPTY && dir == 1))
     {
@@ -89,19 +89,19 @@ void EnMotobug::trnCollision(Terrain &trn)
 }
 
 // Crab
-void EnCrab::create()
+void EnCrab::init()
 {
-    hitBoxSize = v2f(42, 30);
-    type = TYPE_ENEMY;
-    anim.create(TEX_OBJECTS);
-    anim.set(113, 115, 0.2, true);
+    dv_hitBoxSize = v2f(42, 30);
+    dv_type = TYPE_ENEMY;
+    dv_anim.create(TEX_OBJECTS);
+    dv_anim.set(113, 115, 0.2, true);
 }
 
 void EnCrab::update()
 {
     if (moveTimer == 0)
     {
-        anim.set(113, 115, 0.1, true);
+        dv_anim.set(113, 115, 0.1, true);
         if (faceRight)
             xsp = CRAB_SPD;
         else
@@ -113,42 +113,42 @@ void EnCrab::update()
         xsp = 0.0;
         if (moveTimer >= 25)
         {
-            anim.set(113, 113, 0);
+            dv_anim.set(113, 113, 0);
             bulFlag = false;
         }
         else
         {
-            anim.set(116, 116, 0);
+            dv_anim.set(116, 116, 0);
             if (!bulFlag)
             {
-                entities->push_back(new Bullet(v2f(pos.x - 18, pos.y - 8), 1, -1));
-                entities->push_back(new Bullet(v2f(pos.x + 18, pos.y - 8), 1, 1));
+                entities->push_back(new Bullet(v2f(dv_pos.x - 18, dv_pos.y - 8), 1, -1));
+                entities->push_back(new Bullet(v2f(dv_pos.x + 18, dv_pos.y - 8), 1, 1));
                 bulFlag = true;
             }
         }
     }
 
-    if (pos.x > startPos.x + 72)
+    if (dv_pos.x > dv_startPos.x + 72)
     {
         moveTimer = 50;
         faceRight = false;
         xsp *= -1;
     }
-    if (pos.x < startPos.x - 72)
+    if (dv_pos.x < dv_startPos.x - 72)
     {
         moveTimer = 50;
         faceRight = true;
         xsp *= -1;
     }
 
-    pos.x += xsp;
-    anim.tick();
+    dv_pos.x += xsp;
+    dv_anim.tick();
 }
 
 void EnCrab::trnCollision(Terrain &trn)
 {
-    v2i lSensorPos = v2i(pos.x - 17, pos.y);
-    v2i rSensorPos = v2i(pos.x + 17, pos.y);
+    v2i lSensorPos = v2i(dv_pos.x - 17, dv_pos.y);
+    v2i rSensorPos = v2i(dv_pos.x + 17, dv_pos.y);
 
     // Wall collision
     if ((trn.getTileHorHeight(lSensorPos) != 0) &&
@@ -167,8 +167,8 @@ void EnCrab::trnCollision(Terrain &trn)
     }
 
     // Turn around if no ground
-    lSensorPos = v2i(pos.x - 17, pos.y + 24);
-    rSensorPos = v2i(pos.x + 17, pos.y + 24);
+    lSensorPos = v2i(dv_pos.x - 17, dv_pos.y + 24);
+    rSensorPos = v2i(dv_pos.x + 17, dv_pos.y + 24);
     if ((trn.getTileType(lSensorPos) == TILE_EMPTY && xsp < 0.0) ||
             (trn.getTileType(rSensorPos) == TILE_EMPTY && xsp > 0.0))
     {
@@ -180,8 +180,8 @@ void EnCrab::trnCollision(Terrain &trn)
     // Ground Collision
     for (int i = 0; i < 50; i++)
     {
-        lSensorPos = v2i(pos.x - 15, pos.y + i);
-        rSensorPos = v2i(pos.x + 15, pos.y + i);
+        lSensorPos = v2i(dv_pos.x - 15, dv_pos.y + i);
+        rSensorPos = v2i(dv_pos.x + 15, dv_pos.y + i);
         if (((trn.getTileVerHeight(lSensorPos) != 0) &&
                  (trn.getTileType(lSensorPos) != TILE_LBR) &&
                  (trn.getTileType(lSensorPos) != TILE_EMPTY)) ||
@@ -190,25 +190,25 @@ void EnCrab::trnCollision(Terrain &trn)
                  (trn.getTileType(rSensorPos) != TILE_EMPTY)))
         {
 
-            int tilePosY = int((pos.y + i) / 16) * 16;
+            int tilePosY = int((dv_pos.y + i) / 16) * 16;
 
             int height = std::max(trn.getTileVerHeight(lSensorPos), trn.getTileVerHeight(rSensorPos));
-            pos.y = tilePosY + 16 - height - 15;
+            dv_pos.y = tilePosY + 16 - height - 15;
             break;
         }
     }
 }
 
 // BUZZ
-void EnBuzz::create()
+void EnBuzz::init()
 {
-    hitBoxSize = v2f(48, 24);
+    dv_hitBoxSize = v2f(48, 24);
     moveTimer = 192;
-    type = TYPE_ENEMY;
-    anim.create(TEX_OBJECTS);
+    dv_type = TYPE_ENEMY;
+    dv_anim.create(TEX_OBJECTS);
     animWings.create(TEX_OBJECTS);
     animWings.set(119, 120, 0.75);
-    anim.set(117, 117, 0);
+    dv_anim.set(117, 117, 0);
 }
 
 void EnBuzz::update()
@@ -221,12 +221,12 @@ void EnBuzz::update()
             xsp = 0.0;
             if (idleTimer <= 34 && fired)
             {
-                anim.set(118, 118, 0);
+                dv_anim.set(118, 118, 0);
             }
         }
         else
         {
-            anim.set(117, 117, 0);
+            dv_anim.set(117, 117, 0);
             if (moveTimer == 0)
                 fired = false;
             if (!fired)
@@ -249,20 +249,20 @@ void EnBuzz::update()
         idleTimer = 0;
     }
 
-    pos.x += xsp;
-    anim.tick();
+    dv_pos.x += xsp;
+    dv_anim.tick();
     animWings.tick();
 }
 
-void EnBuzz::reactingToOthers(std::list<Entity *> &entities)
+void EnBuzz::d_reactingToOthers(std::list<Entity *> &entities)
 {
     // Player Detection
     std::list<Entity *>::iterator it;
     for (it = entities.begin(); it != entities.end(); it++)
     {
-        if ((*it)->getType() == TYPE_PLAYER)
+        if ((*it)->d_getType() == TYPE_PLAYER)
         {
-            if (entMeeting(*(*it), v2i(48, 96)) && !fired)
+            if (d_entMeeting(*(*it), v2i(48, 96)) && !fired)
             {
                 moveTimer = -1;
                 idleTimer = 48;
@@ -275,9 +275,9 @@ void EnBuzz::reactingToOthers(std::list<Entity *> &entities)
     if (fired && idleTimer == 24)
     {
         if (!faceRight)
-            entities.push_back(new Bullet(v2f(pos.x - 17, pos.y + 23), 0, -1));
+            entities.push_back(new Bullet(v2f(dv_pos.x - 17, dv_pos.y + 23), 0, -1));
         else
-            entities.push_back(new Bullet(v2f(pos.x + 17, pos.y + 23), 0, 1));
+            entities.push_back(new Bullet(v2f(dv_pos.x + 17, dv_pos.y + 23), 0, 1));
     }
 }
 
@@ -287,39 +287,39 @@ void EnBuzz::draw(Camera &cam)
 
     if (faceRight)
     {
-        if (int(anim.getCurFrame()) == 118)
-            wPos = v2f(pos.x - 2, pos.y - 12);
+        if (int(dv_anim.getCurFrame()) == 118)
+            wPos = v2f(dv_pos.x - 2, dv_pos.y - 12);
         else
-            wPos = v2f(pos.x + 4, pos.y - 9);
+            wPos = v2f(dv_pos.x + 4, dv_pos.y - 9);
     }
     else
     {
-        if (int(anim.getCurFrame()) == 118)
-            wPos = v2f(pos.x + 2, pos.y - 12);
+        if (int(dv_anim.getCurFrame()) == 118)
+            wPos = v2f(dv_pos.x + 2, dv_pos.y - 12);
         else
-            wPos = v2f(pos.x - 4, pos.y - 9);
+            wPos = v2f(dv_pos.x - 4, dv_pos.y - 9);
     }
 
     cam.draw(animWings, wPos, 0.0, faceRight);
-    cam.draw(anim, pos, 0.0, faceRight);
+    cam.draw(dv_anim, dv_pos, 0.0, faceRight);
 }
 
 // Chopper
-void EnChopper::create()
+void EnChopper::init()
 {
-    hitBoxSize = v2f(26, 34);
-    type = TYPE_ENEMY;
-    anim.create(TEX_OBJECTS);
-    anim.set(111, 112, 0.2f);
+    dv_hitBoxSize = v2f(26, 34);
+    dv_type = TYPE_ENEMY;
+    dv_anim.create(TEX_OBJECTS);
+    dv_anim.set(111, 112, 0.2f);
 }
 
 void EnChopper::update()
 {
-    pos.y += ysp;
+    dv_pos.y += ysp;
 
-    if (pos.y >= startPos.y - 24)
+    if (dv_pos.y >= dv_startPos.y - 24)
         ysp = -7;
     ysp += 0.09375;
 
-    anim.tick();
+    dv_anim.tick();
 }

@@ -20,45 +20,45 @@ Ring::Ring(v2f _pos, uint8_t count, uint8_t dir, std::list<Entity*>& ent) : Enti
 	}
 }
 
-void Ring::create()
+void Ring::init()
 {
-	hitBoxSize = v2f(16, 16);
-	type = TYPE_RING;
-	anim.create(TEX_OBJECTS);
+	dv_hitBoxSize = v2f(16, 16);
+	dv_type = TYPE_RING;
+	dv_anim.create(TEX_OBJECTS);
 
 }
 
 void Ring::update()
 {
 	if (!bouncing) return;
-	pos.y += ysp;
-	pos.x += xsp;
+	dv_pos.y += ysp;
+	dv_pos.x += xsp;
 	ysp += 0.09375;
 
-	Tile tile = (*trn).getTile(v2i(pos.x, pos.y+8));
+	Tile tile = (*trn).getTile(v2i(dv_pos.x, dv_pos.y+8));
 	if (tile.type != TILE_EMPTY && ysp >= 0) {
-		if (pos.y+8 >= tile.pos.y + 16 - tile.verHeight[int(pos.x) - tile.pos.x])
+		if (dv_pos.y+8 >= tile.pos.y + 16 - tile.verHeight[int(dv_pos.x) - tile.pos.x])
 			ysp *= -0.75;
 	}
 
 	if (liveTimer > 0)
 		liveTimer--;
 	else 
-		destroy();
+		d_destroy();
 
 }
 
 void Ring::animate(int frame)
 {
 	if (!bouncing)
-	 	anim.set(frame, frame, 0.0);
+	 	dv_anim.set(frame, frame, 0.0);
 	else 
-		anim.set(frame, frame, (256 - liveTimer) / 64);
+		dv_anim.set(frame, frame, (256 - liveTimer) / 64);
 }
 
 void Ring::draw(Camera& cam)
 {
-	cam.draw(anim, pos);
+	cam.draw(dv_anim, dv_pos);
 }
 
 Ring::~Ring()

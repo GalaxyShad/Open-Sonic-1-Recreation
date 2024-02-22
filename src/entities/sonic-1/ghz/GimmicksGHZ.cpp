@@ -1,13 +1,13 @@
 #include "GimmicksGHZ.h"
 
-void GimGHZ_Stone::create() 
+void GimGHZ_Stone::init() 
 {
-    hitBoxSize = v2f(32.0, 32.0);
-    type = TYPE_UNKNOWN;
-	anim.create(TEX_GHZ_GIMM);
-    anim.set(0, 0, 0);
-    solid = true;
-    platform = true;
+    dv_hitBoxSize = v2f(32.0, 32.0);
+    dv_type = TYPE_UNKNOWN;
+	dv_anim.create(TEX_GHZ_GIMM);
+    dv_anim.set(0, 0, 0);
+    dv_solid = true;
+    dv_platform = true;
 }
 
 GimGHZ_BridgeController::GimGHZ_BridgeController(v2f _pos, uint8_t count, std::list<Entity*>& ent) : Entity(_pos)
@@ -30,10 +30,10 @@ GimGHZ_BridgeController::GimGHZ_BridgeController(v2f _pos, uint8_t count, std::l
     }
 }
 
-void GimGHZ_BridgeController::create() 
+void GimGHZ_BridgeController::init() 
 {
-    hitBoxSize = v2f(16.0, 16.0);
-    type = TYPE_UNKNOWN;
+    dv_hitBoxSize = v2f(16.0, 16.0);
+    dv_type = TYPE_UNKNOWN;
 }
 
 void GimGHZ_BridgeController::update() 
@@ -62,39 +62,39 @@ void GimGHZ_BridgeController::update()
             LogDistance = log_difference / float((segmentsCount - curSegment) + 1);
             
         float xx, yy;
-        xx = (*segments[i]).getStartPos().x;
-        yy = (*segments[i]).getStartPos().y;
+        xx = (*segments[i]).d_getStartPos().x;
+        yy = (*segments[i]).d_getStartPos().y;
 
         float logY = yy + ((*segments[curSegment]).maxDepression * sinf(radians(float(angle) * (1.0 - LogDistance))));
-        (*segments[i]).setPos(v2f(xx, logY));
+        (*segments[i]).d_setPos(v2f(xx, logY));
     }
 }
 
-void GimGHZ_Bridge::create() 
+void GimGHZ_Bridge::init() 
 {
-    hitBoxSize = v2f(16.0, 16.0);
-    type = TYPE_BRIDGE;
-	anim.create(TEX_GHZ_GIMM);
-    anim.set(2, 2, 0);
-    platform = true;
-    platPushUp = false;
+    dv_hitBoxSize = v2f(16.0, 16.0);
+    dv_type = TYPE_BRIDGE;
+	dv_anim.create(TEX_GHZ_GIMM);
+    dv_anim.set(2, 2, 0);
+    dv_platform = true;
+    dv_platPushUp = false;
 }
 
 float GimGHZ_Bridge::getY() 
 {
      
     float LogDistance = 1.0 / float((count - number) + 1);
-    return startPos.y + float(maxDepression * sinf(radians(90.0 * (1.0 - LogDistance))));
+    return dv_startPos.y + float(maxDepression * sinf(radians(90.0 * (1.0 - LogDistance))));
 }
 
-void GimGHZ_SlpPlatform::create() 
+void GimGHZ_SlpPlatform::init() 
 {
     deathTimer = -1;
-    hitBoxSize = v2f(96.0, 84.0);
-    type = TYPE_GHZ_SLP_PLATFORM;
-	anim.create(TEX_GHZ_GIMM);
-    anim.set(1, 1, 0);
-    platPushUp = false;
+    dv_hitBoxSize = v2f(96.0, 84.0);
+    dv_type = TYPE_GHZ_SLP_PLATFORM;
+	dv_anim.create(TEX_GHZ_GIMM);
+    dv_anim.set(1, 1, 0);
+    dv_platPushUp = false;
 }
 
 void GimGHZ_SlpPlatform::update() { 
@@ -102,8 +102,8 @@ void GimGHZ_SlpPlatform::update() {
         if (deathTimer != 0) {
             deathTimer--;
         } else {
-            living = false;
-            v2f _p = pos;
+            dv_living = false;
+            v2f _p = dv_pos;
 
             if (!isLeft) {
                 _p.x -= 48; _p.y -= 56;
@@ -120,13 +120,13 @@ void GimGHZ_SlpPlatform::update() {
     }
 }
 
-void GimGHZ_Platform::create() 
+void GimGHZ_Platform::init() 
 {
-    hitBoxSize = v2f(64.0, 26.0);
-    type = TYPE_PLATFORM;
-	anim.create(TEX_GHZ_GIMM);
-    anim.set(3, 3, 0);
-    platform = true;
+    dv_hitBoxSize = v2f(64.0, 26.0);
+    dv_type = TYPE_PLATFORM;
+	dv_anim.create(TEX_GHZ_GIMM);
+    dv_anim.set(3, 3, 0);
+    dv_platform = true;
     angle = 0;
 
     xsp = 0;
@@ -142,9 +142,9 @@ void GimGHZ_Platform::update()
         if (fallTimer > 0) {
             fallTimer--;
         } else {
-            platform = false;
+            dv_platform = false;
             ysp += 0.09375;
-            pos.y += ysp;
+            dv_pos.y += ysp;
         }
     }
 
@@ -158,8 +158,8 @@ void GimGHZ_Platform::update()
         case 3: ysp = cosf(radians(angle)) * spd; break;
     }
 
-    pos.x += xsp;
-    pos.y += ysp;
+    dv_pos.x += xsp;
+    dv_pos.y += ysp;
 
     angle += 1;
     if (angle >= 360)

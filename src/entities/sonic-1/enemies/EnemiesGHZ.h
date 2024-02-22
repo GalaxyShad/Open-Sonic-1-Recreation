@@ -12,7 +12,7 @@ class EnMotobug : public Enemy
 {
     public:
         EnMotobug(v2f _pos) : Enemy(_pos) {}
-        void create();
+        void init();
         void update();
         void trnCollision(Terrain& trn);
         void draw(Camera& cam);
@@ -24,7 +24,7 @@ class EnChopper : public Enemy
 {
     public:
         EnChopper(v2f _pos) : Enemy(_pos) {}
-        void create();
+        void init();
         void update();
     private:
         float ysp = 0;
@@ -34,7 +34,7 @@ class EnCrab : public Enemy
 {
     public:
         EnCrab(v2f _pos, std::list<Entity*>& _entities) : Enemy(_pos) {entities = &_entities;}
-        void create();
+        void init();
         void update();
         void trnCollision(Terrain& trn);
     private:
@@ -50,10 +50,10 @@ class EnBuzz : public Enemy
 {
     public:
         EnBuzz(v2f _pos) : Enemy(_pos) {}
-        void create();
+        void init();
         void update();
         void draw(Camera& cam);
-        void reactingToOthers(std::list<Entity*>& entities);
+        void d_reactingToOthers(std::list<Entity*>& entities);
     private:
         float xsp = BUZZ_SPD;
         int moveTimer = 0;
@@ -70,9 +70,9 @@ class Bullet: public Entity
         Bullet(v2f _pos, uint8_t _mode, int _dir = -1) : Entity(_pos) {
                     mode = _mode; 
                     dir = _dir;
-                    create();
+                    init();
                 }
-        void create();
+        void init();
         void update();
         void draw(Camera& cam);
     private:

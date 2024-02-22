@@ -3,6 +3,6 @@
 
 class Sfx : public Entity {
     public:
-        Sfx(v2f _pos, AnimMgr _anim) : Entity(_pos) {anim = _anim;}
+        Sfx(v2f _pos, AnimMgr _anim) : Entity(_pos) {dv_anim = _anim;}
         void update();
 };

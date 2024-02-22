@@ -9,7 +9,7 @@ class Spring : public Entity
 		enum Rotation {R_UP, R_RIGHT, R_DOWN, R_LEFT};
 		Spring(v2f _pos, bool _red = false, Rotation rotation = R_UP) : 
 			Entity(_pos), red(_red), rot(rotation) {};
-        void create();
+        void init();
 		void update();
 		void draw(Camera& cam);
 		void doAnim();

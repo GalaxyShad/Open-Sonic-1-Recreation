@@ -36,47 +36,47 @@ class Entity
     public:
         Entity() {}
         Entity(v2f _pos);
-        virtual void create() { return; }
+        virtual void init() { return; }
         virtual void update();
         virtual void draw(Camera& cam);
-        virtual void reactingToOthers(std::list<Entity*>& entities) { return; }
+        virtual void d_reactingToOthers(std::list<Entity*>& entities) { return; }
 
-        void setPos(v2f pos) { this->pos = pos; }
-        v2f getPos()         { return pos; }
+        void d_setPos(v2f pos) { this->dv_pos = pos; }
+        v2f d_getPos()         { return dv_pos; }
 
-        void goToStartPos()       { pos = startPos; }
-        v2f getStartPos()    { return startPos; }
+        void d_goToStartPos()       { dv_pos = dv_startPos; }
+        v2f d_getStartPos()    { return dv_startPos; }
         
-        void setHitBoxSize(v2f _size)  { hitBoxSize = _size; };
-        v2f getHitBoxSize()            { return hitBoxSize;  };
+        void d_setHitBoxSize(v2f _size)  { dv_hitBoxSize = _size; };
+        v2f d_getHitBoxSize()            { return dv_hitBoxSize;  };
 
-        bool entMeeting(Entity& ent, v2i meetSize);
+        bool d_entMeeting(Entity& ent, v2i meetSize);
 
-        virtual void destroy() { living = false; }
+        virtual void d_destroy() { dv_living = false; }
 
-		uint8_t getType()   { return type; }
+		uint8_t d_getType()   { return dv_type; }
 
-        bool isSolid()      { return solid; }
-        bool isPlatform()   { return platform; }
-        bool isPlatPushUp() { return platPushUp; }
-        bool isLiving()     { return living; };
+        bool d_isSolid()      { return dv_solid; }
+        bool d_isPlatform()   { return dv_platform; }
+        bool d_isPlatPushUp() { return dv_platPushUp; }
+        bool d_isLiving()     { return dv_living; };
 
-        bool isInCamera(Camera& cam);
+        bool d_isInCamera(Camera& cam);
         
-        bool collisionRight(Entity& ent, uint32_t shiftY = 0);
-        bool collisionLeft(Entity& ent, uint32_t shiftY = 0);
-        bool collisionTop(Entity& ent, uint32_t shiftY = 0);
-        bool collisionBottom(Entity& ent, uint32_t shiftY = 0);
-        bool collisionBottomPlatform(Entity& ent, uint32_t shiftY = 0);
-        bool collisionMain(Entity& ent, uint32_t shiftY = 0);
+        bool d_collisionRight(Entity& ent, uint32_t shiftY = 0);
+        bool d_collisionLeft(Entity& ent, uint32_t shiftY = 0);
+        bool d_collisionTop(Entity& ent, uint32_t shiftY = 0);
+        bool d_collisionBottom(Entity& ent, uint32_t shiftY = 0);
+        bool d_collisionBottomPlatform(Entity& ent, uint32_t shiftY = 0);
+        bool d_collisionMain(Entity& ent, uint32_t shiftY = 0);
     protected:
-		uint8_t type = TYPE_UNKNOWN;
-        bool solid = false;
-        bool platform = false;
-        bool platPushUp = true;
-        bool living = true;
-        v2f pos;
-        v2f startPos;
-        v2f hitBoxSize = v2f(16, 16);
-        AnimMgr anim;
+		uint8_t dv_type = TYPE_UNKNOWN;
+        bool dv_solid = false;
+        bool dv_platform = false;
+        bool dv_platPushUp = true;
+        bool dv_living = true;
+        v2f dv_pos;
+        v2f dv_startPos;
+        v2f dv_hitBoxSize = v2f(16, 16);
+        AnimMgr dv_anim;
 };

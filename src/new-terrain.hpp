@@ -287,6 +287,8 @@ public:
 
     int getHeight() const { return m_height; }
 
+    v2i getSizeInPixels() const { return v2i(m_width * getChunksRadiusPixels(), m_height * getChunksRadiusPixels()); }
+
     bool isWarpEnabled() { return m_warp; }
 
     bool isLayeringChunk(int x, int y) const {

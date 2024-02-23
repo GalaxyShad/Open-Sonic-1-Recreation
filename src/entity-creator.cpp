@@ -20,7 +20,7 @@ Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     if ((res = createOther(entPlacement)))   return res;
 
     // Placeholder
-    return new Ring(v2f(entPlacement.x, entPlacement.y));
+    return new Ring(v2f(entPlacement.x, entPlacement.y), m_terrain);
 }
 
 Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
@@ -28,10 +28,17 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_RING): {
-            uint8_t count = (eplc.additionalArgs & 0x0F) + 1;
-            uint8_t direction = ((eplc.additionalArgs & 0xF0) >> 4) - 1;
+            uint8_t count = (eplc.additionalArgs & 0x0F);
+            uint8_t direction = ((eplc.additionalArgs & 0xF0) >> 4);
 
-            return new Ring(position, count, direction, m_entityList);
+            return Ring::CreateRow(
+                m_entityList, 
+                m_terrain, 
+                position, 
+                count + 1, 
+                (-direction+1) * 90.0f, 
+                8
+            );
         }
         
         case (ObjectID_S1::S1_MONITOR): {

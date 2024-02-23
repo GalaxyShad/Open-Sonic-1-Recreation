@@ -66,6 +66,10 @@ class GimGHZ_Platform : public Entity
         int getDir() {return dir;}
         float getSpd() { return xsp; }
 
+        void onOutOfView() override {
+            init();            
+        }
+
         bool isCanFall()  { return canFall; }
         bool isFalling()  { return falling; }
         void setFalling(bool flag) { if (falling != flag) {falling = flag; fallTimer = 10;} }

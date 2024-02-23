@@ -45,7 +45,7 @@ using namespace gmath;
 class Player : public Entity
 {
     public:
-		Player(v2f _pos, terrain::Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) 
+		Player(v2f _pos, std::list<Entity*>& entities, Camera& cam, terrain::Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) 
             : Entity(_pos)
             , input(input)
             , audio(audio)
@@ -53,20 +53,25 @@ class Player : public Entity
             , score(score) 
             , m_collider(dv_pos, spd, gsp, _trn)
             , m_stateMachine(m_props)
+            , cam(cam)
+            , entities(entities)
         { };
         void init() override;
-        void terrainCollision(Camera& cam);
-		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);
         void d_update() override;
         void d_draw(Camera& cam) override;
-		void moveCam(Camera& cam);
         bool isEndLv() {return endLv;}
         bool isDied() { return dead; }
     private:
+		void moveCam(Camera& cam);
+        void terrainCollision(Camera& cam);
+		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);
+
         PlayerCollider m_collider;
         PlayerStateMachine m_stateMachine;
 
+        std::list<Entity*>& entities;
 
+        Camera& cam;
         IInputMgr& input;
         Audio& audio;
 

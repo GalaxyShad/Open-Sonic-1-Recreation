@@ -28,6 +28,10 @@ class Ring : public Entity {
     void d_draw(Camera &cam);
     void animate(int frame);
 
+    void onOutOfView() override {
+      if (isBounce()) { /* TODO destroy */ }
+    }
+
   private:
     bool bouncing = false;
     float xsp = 0;

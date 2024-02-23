@@ -50,6 +50,10 @@ void Player::d_update()
     gameplay();
     animation();
     dv_anim.tick();
+
+    terrainCollision(cam);
+    moveCam(cam);
+    entitiesCollision(entities, cam);
 }
 
 void Player::d_draw(Camera& cam) 

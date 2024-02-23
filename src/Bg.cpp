@@ -6,10 +6,10 @@ void Bg::create(uint8_t _from, uint8_t _len) {
     chunkCur = chunkFrom;
 };
 
-void Bg::draw(Camera& cam, Terrain& trn) {
+void Bg::draw(Camera& cam) {
     tick++;
     for (int i = 0; i < layers.size(); i++)
-        drawLayer(i, cam, trn);
+        drawLayer(i, cam);
 }
 
 void Bg::addLayer(int start, int end, float scrollRatio, float spd) {
@@ -19,7 +19,7 @@ void Bg::addLayer(int start, int end, float scrollRatio, float spd) {
     layers.push_back(BgLayer(start, end, scrollRatio, spd));
 }
 
-void Bg::drawLayer(int layerInd, Camera& cam, Terrain& trn) {
+void Bg::drawLayer(int layerInd, Camera& cam) {
     if (layerInd < 0)
         return;
 

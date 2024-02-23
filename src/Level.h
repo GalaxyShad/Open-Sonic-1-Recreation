@@ -8,7 +8,6 @@
 #include "entities/_index.hpp"
 
 #include "Camera.h"
-#include "Terrain.h"
 #include "Bg.h"
 #include "LevelInformer.h"
 
@@ -23,8 +22,6 @@ enum class GameType {
     SONIC_2,
     SONIC_3K,
 };
-
-
 
 class Level {
 public:
@@ -55,7 +52,6 @@ public:
         , m_playerStartPosition(playerStartPosition)
         , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
         , bg(m_terrainDrawer)
-        , trn(m_terrain)
     {}
     void create();
     void free();
@@ -89,7 +85,6 @@ private:
     terrain::TerrainDrawer m_terrainDrawer;
     Bg bg;
 
-    Terrain trn;
     Camera cam;
 
 
@@ -116,6 +111,7 @@ private:
     void drawHud();
     void createZoneSpecific();
     void updateLevelSpecific();
-
+    
+    void createSonic1LayeringObjects();
 
 };

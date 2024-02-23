@@ -6,7 +6,7 @@
 
 void Level::create() {
 	if (m_gameType == GameType::SONIC_1) {
-		trn.createLayeringObjs(m_entities);
+		createSonic1LayeringObjects();
 	}
 
 	lvInformer = new LevelInformer(m_zoneName.c_str(), m_act, m_screen, m_audio, LevelInformer::T_TITLE_CARD);
@@ -247,6 +247,23 @@ void Level::updateLevelSpecific()
             else
                 cam.setBottomBorder(1536);
             break;
+        }
+    }
+}
+
+void Level::createSonic1LayeringObjects() {
+    auto& layout = m_terrain.getLayout();
+    
+    for (int i = 0; i < layout.getHeight(); i++) {
+        for (int j = 0; j < layout.getWidth(); j++) {
+            if (!layout.isLayeringChunk(j, i)) continue;
+
+            int x = j * layout.getChunksRadiusPixels();
+            int y = i * layout.getChunksRadiusPixels();
+
+            m_entities.push_back(new LayerSwitcher(v2f(x+128, y+32), v2f(16, 64), 2));
+            m_entities.push_back(new LayerSwitcher(v2f(x-8, y+128), v2f(16, 256), 0));
+            m_entities.push_back(new LayerSwitcher(v2f(x+264, y+128), v2f(16, 256), 1));
         }
     }
 }

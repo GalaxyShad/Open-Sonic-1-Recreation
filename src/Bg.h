@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Camera.h"
-#include "Terrain.h"
 #include "terrain-drawer.hpp"
 
 struct BgLayer {
@@ -22,7 +21,7 @@ class Bg {
         Bg(terrain::TerrainDrawer& terrainDrawer) : m_terrainDrawer(terrainDrawer) {}
 
         void create(uint8_t _from, uint8_t _len);
-        void draw(Camera& cam, Terrain& trn);
+        void draw(Camera& cam);
         void addLayer(int start, int end, float scrollRatio, float spd = 0.0);
     private:
         terrain::TerrainDrawer& m_terrainDrawer;
@@ -33,6 +32,6 @@ class Bg {
         int tick = 0;
         std::vector<BgLayer> layers;
 
-        void drawLayer(int layer, Camera& cam, Terrain& trn);
+        void drawLayer(int layer, Camera& cam);
 
 };

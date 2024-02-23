@@ -1,6 +1,5 @@
 #pragma once
 #include "../Entity.h"
-#include "Terrain.h"
 #include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "entities/Entity.h"
-#include "Terrain.h"
+#include "../Entity.h"
 
 #include <iostream>
 using namespace std;

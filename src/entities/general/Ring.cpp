@@ -21,35 +21,31 @@ Ring* Ring::CreateRow(std::list<Entity *> &ent, terrain::Terrain &_trn,
 }
 
 void Ring::init() {
-    dv_hitBoxSize = v2f(16, 16);
-    dv_type = TYPE_RING;
-    dv_anim.create(TEX_OBJECTS);
+    m_anim.create(TEX_OBJECTS);
+    m_anim.set(80, 80, 0.0);
 }
 
-void Ring::d_update() {
-    if (!bouncing)
+void Ring::update() {
+    float frame = 80 + fmod(GameLoopTicker::instance().getTickFloat() / 10, 4);
+
+    m_anim.set(frame, frame, (m_bouncing) ? ((256 - m_liveTimer) / 64) : 0.0);
+
+    if (!m_bouncing)
         return;
 
-    m_gndSensor.setPosition(v2f(dv_pos.x, dv_pos.y + 16));
+    m_pos.x += m_spd.x;
+    m_pos.y += m_spd.y;
+    
+    m_spd.y += 0.09375;
 
-    dv_pos.y += ysp;
-    dv_pos.x += xsp;
-    ysp += 0.09375;
-
+    m_gndSensor.setPosition(v2f(m_pos.x, m_pos.y + 16));
     if (m_gndSensor.getDistance() <= 0)
-        ysp *= -0.75;
+        m_spd.y *= -0.75;
 
-    if (liveTimer > 0)
-        liveTimer--;
-    else
-        d_destroy();
+    if (m_liveTimer > 0)
+        m_liveTimer--;
 }
 
-void Ring::animate(int frame) {
-    if (!bouncing)
-        dv_anim.set(frame, frame, 0.0);
-    else
-        dv_anim.set(frame, frame, (256 - liveTimer) / 64);
+void Ring::draw(Camera &cam) { 
+    cam.draw(m_anim, m_pos); 
 }
-
-void Ring::d_draw(Camera &cam) { cam.draw(dv_anim, dv_pos); }

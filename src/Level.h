@@ -3,6 +3,7 @@
 #include <list>
 
 #include "entities/Entity.h"
+#include "game-loop-ticker.h"
 #include "terrain-loader.hpp"
 
 #include "entities/_index.hpp"
@@ -70,7 +71,6 @@ private:
     std::list<Entity*>& m_entities;
 
     // EntityPool  m_entityPool;
-
     GameType    m_gameType;
     std::string m_zoneName;
     std::string m_zoneNameShort;

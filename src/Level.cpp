@@ -1,6 +1,7 @@
 #include "Level.h"
 
 #include "entity-creator.hpp"
+#include "game-loop-ticker.h"
 #include <cstdio>
 
 
@@ -29,7 +30,7 @@ void Level::create() {
 
     cam.create(cameraPos, Size(levelSize.x, levelSize.y), (m_gameType == GameType::SONIC_3K));
 
-	for (it = m_entities.begin(); it != m_entities.end(); it++)
+	for (it = m_entities.begin(); it != m_entities.end(); it++) 
 		(*it)->init();
 
 	// Level Variables
@@ -43,6 +44,9 @@ void Level::create() {
 	isFadeOut = false;
 	isFadeDeath = false;
 	fade = 0;
+
+
+	GameLoopTicker::instance().reset();
 }
 
 void Level::createZoneSpecific()
@@ -169,6 +173,8 @@ void Level::update() {
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
 	
+		(*it)->update();
+
 		if ((*it)->d_isInCamera(cam) || (*it)->d_getType() == TYPE_PLAYER) {
 			
 			(*it)->d_update();
@@ -202,6 +208,8 @@ void Level::update() {
 
 	if (!isTimeStopped)
 		time = tick / 60;
+
+	GameLoopTicker::instance().tick();
 }
 
 void Level::updateLevelSpecific()
@@ -256,6 +264,8 @@ void Level::draw() {
 	// m_entityPool.draw();
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
+		(*it)->draw(cam);
+		
 		if ((*it)->d_isInCamera(cam)) {
 			(*it)->d_draw(cam);
 		}

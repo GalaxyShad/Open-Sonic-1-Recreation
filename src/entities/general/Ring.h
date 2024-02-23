@@ -1,41 +1,48 @@
 #pragma once
 #include "../Entity.h"
+#include "AnimMgr.h"
+#include "entities/Entity.h"
+#include "game-loop-ticker.h"
 #include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
 
 class Ring : public Entity {
-  public:
-    enum Dir { DIR_RIGHT, DIR_UP, DIR_LEFT, DIR_DOWN };
-    Ring(v2f _pos, terrain::Terrain &_trn)
-        : m_gndSensor(v2f(0, 0), terrain::SensorDirection::DOWN, _trn),
-          Entity(_pos) {}
-    Ring(v2f _pos, terrain::Terrain &_trn, float _xsp, float _ysp)
-        : m_gndSensor(v2f(0, 0), terrain::SensorDirection::DOWN, _trn),
-          Entity(_pos) {
-        xsp = _xsp;
-        ysp = _ysp;
-        bouncing = true;
-        liveTimer = 256;
+public:
+    Ring(v2f pos, terrain::Terrain &trn, float xsp = 0, float ysp = 0)
+        : m_gndSensor(m_pos, terrain::SensorDirection::DOWN, trn)
+        , m_spd(xsp, ysp)
+        , m_pos(pos)
+    {
+        m_bouncing  = (xsp != 0 || ysp != 0);
+        m_liveTimer = 256;
     }
 
-    static Ring* CreateRow(std::list<Entity *> &ent, terrain::Terrain &_trn,
+    static Ring *CreateRow(std::list<Entity *> &ent, terrain::Terrain &_trn,
                            v2f startPosition, int count, float direction = 0.f,
                            float spaceBetween = 0.f);
 
-    void init();
-    void d_update();
-    bool isBounce() { return bouncing; }
-    void d_draw(Camera &cam);
-    void animate(int frame);
-
-    void onOutOfView() override {
-      if (isBounce()) { /* TODO destroy */ }
+    EntityComponent<EntityHitBox> chitbox() override {
+        return EntityComponent<EntityHitBox>(m_hitbox);
     }
 
-  private:
-    bool bouncing = false;
-    float xsp = 0;
-    float ysp = 0;
-    int liveTimer = 0;
+    void init()   override;
+    void update() override;
+    void draw(Camera &cam) override;
+
+    bool isBounce() { return m_bouncing; }
+
+    void onOutOfView() override {
+        if (isBounce()) { /* TODO destroy */
+        }
+    }
+
+private:
+    bool            m_bouncing = false;
+    v2f             m_pos;
+    v2f             m_spd = v2f(0, 0);
+    EntityHitBox    m_hitbox = EntityHitBox(m_pos, v2i(6, 6));
     terrain::Sensor m_gndSensor;
+    int             m_liveTimer = 0;
+    AnimMgr         m_anim;
+
 };

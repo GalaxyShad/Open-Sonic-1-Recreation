@@ -57,6 +57,7 @@ template<typename T>
 class EntityComponent {
 public: 
     EntityComponent(T* component) : m_component(component) {}
+    EntityComponent(T& component) : m_component(&component) {}
 
     bool exists() { return m_component != nullptr; }
 

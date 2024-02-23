@@ -56,14 +56,9 @@ class Terrain {
 
         void createLayeringObjs(std::list<Entity*>& entList);
 
-        int getTileVerHeight(v2i pos);
-        int getTileHorHeight(v2i pos);
-        float getTileAngle(v2i pos);
-        TileType getTileType(v2i pos);  
+
         Tile getTile(v2i pos);
 
-        Size getSize()  { return Size(m_terrain.getLayout().getWidth(), m_terrain.getLayout().getHeight()); }
-        void setLayer(uint8_t _layer) { layer = _layer; }
     private:
         terrain::Terrain& m_terrain;
         uint8_t layer = 0;

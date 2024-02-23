@@ -45,29 +45,6 @@ Tile Terrain::getTile(v2i pos) {
     return tile;
 }
 
-int Terrain::getTileVerHeight(v2i pos) {
-    int xx = pos.x - ((pos.x / 16) * 16); 
-
-    int height = (int)getTile(pos).verHeight[xx];
-
-    return height;
-}
-
-int Terrain::getTileHorHeight(v2i pos) {
-    int yy = pos.y - ((pos.y / 16) * 16);
-
-    int height = (int)getTile(pos).horHeight[yy];
-
-    return height;
-}
-
-TileType Terrain::getTileType(v2i pos) {
-    return getTile(pos).type;
-}
-
-float Terrain::getTileAngle(v2i pos) {
-    return getTile(pos).angle;
-}
 
 
 

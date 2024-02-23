@@ -19,9 +19,15 @@ void Level::create() {
 	Player* pl = new Player(m_playerStartPosition, m_terrain, m_input, m_audio, rings, score);
 	m_entities.push_back(pl);	
 
-    cam.create(v2f(m_playerStartPosition.x - m_screen.getSize().width / 2, 
-						m_playerStartPosition.y - m_screen.getSize().height / 2), 
-			   trn.getSize(), (m_gameType == GameType::SONIC_3K));
+	// Create camera
+	auto screenSize = m_screen.getSize();
+	auto cameraPos = v2f(
+		m_playerStartPosition.x - (float)screenSize.width  / 2, 
+		m_playerStartPosition.y - (float)screenSize.height / 2
+	);
+	auto levelSize = m_terrain.getLayout().getSizeInPixels();
+
+    cam.create(cameraPos, Size(levelSize.x, levelSize.y), (m_gameType == GameType::SONIC_3K));
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++)
 		(*it)->init();

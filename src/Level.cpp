@@ -16,7 +16,7 @@ void Level::create() {
     }
 
 	// Create player
-	Player* pl = new Player(m_playerStartPosition, m_terrain, m_input, m_audio, rings, score);
+	Player* pl = new Player(m_playerStartPosition,m_entities, cam, m_terrain, m_input, m_audio, rings, score);
 	m_entities.push_back(pl);	
 
 	// Create camera
@@ -175,9 +175,6 @@ void Level::update() {
 			(*it)->d_reactingToOthers(m_entities);
 			if ((*it)->d_getType() == TYPE_PLAYER) {
 				Player* pl = (Player*)(*it);
-				pl->terrainCollision(cam);
-				pl->entitiesCollision(m_entities, cam);
-				pl->moveCam(cam);	
 
 				if (pl->isEndLv() && !lvInformer && !isTimeStopped) {
 					isTimeStopped = true;
@@ -187,30 +184,9 @@ void Level::update() {
 
 				if (pl->isDied())
 					isFadeDeath = true;
-			} else if ((*it)->d_getType() == TYPE_RING) {
-				// Ring animation
-				Ring* ring = (Ring*)(*it);
-				ring->animate(float(ringFrame));
 			} 
-			
 		} else if ((*it)->d_isLiving()) {
-			if ((*it)->d_getType() == TYPE_PARTICLE) {
-				(*it)->d_destroy();
-			}
-
-			(*it)->d_goToStartPos();
-			if ((*it)->d_getType() == TYPE_PLATFORM) {
-				GimGHZ_Platform* plt = (GimGHZ_Platform*)(*it);
-				plt->init();
-			}
-			if ((*it)->d_getType() == TYPE_RING) {
-				Ring* ring = (Ring*)*it;
-				if (ring->isBounce())
-					ring->d_destroy();
-			}
-			if ((*it)->d_getType() == TYPE_BULLET) {
-				(*it)->d_destroy();
-			}
+			(*it)->onOutOfView();
 		}
 	}
 

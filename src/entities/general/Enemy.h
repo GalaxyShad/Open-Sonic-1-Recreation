@@ -7,6 +7,9 @@ class Enemy : public Entity
     public:
         Enemy(v2f _pos) : Entity(_pos) {}
         void setAbilityToDying(bool _canDie) { canDie = _canDie; };
+        void onOutOfView() override {
+            dv_pos = dv_startPos;
+        }
     private:
         bool canDie = true;
 };

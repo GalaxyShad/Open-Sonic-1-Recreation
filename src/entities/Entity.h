@@ -120,10 +120,11 @@ class Entity
         virtual EntityType type() { return EntityType(EntityTypeID::DEPRECATED); }
 
         // Componenets ( Which can be optional by EntityComponent wrapper )
+        virtual EntityComponent<v2f>            cradius()     { return EntityComponent<v2f>::Empty();            }
         virtual EntityComponent<v2f>            cposition()   { return EntityComponent<v2f>::Empty();            }
         virtual EntityComponent<v2f>            cspeed()      { return EntityComponent<v2f>::Empty();            }
         virtual EntityComponent<EntityHitBox>   chitbox()     { return EntityComponent<EntityHitBox>::Empty();   }
-        virtual EntityComponent<EntitySolidBox> csolidBox()   { return EntityComponent<EntitySolidBox>::Empty(); }
+        virtual EntityComponent<EntitySolidBox> csolidbox()   { return EntityComponent<EntitySolidBox>::Empty(); }
 
         // Events
         virtual void onDestroy()   { DO_NOTHING_BY_DEFAULT }

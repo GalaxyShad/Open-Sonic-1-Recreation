@@ -7,6 +7,7 @@
 
 #include "Entity.h"
 
+#include "entities/Entity.h"
 #include "new-terrain.hpp"
 #include "player-collider.hpp"
 #include "player-state-base.hpp"
@@ -56,12 +57,20 @@ class Player : public Entity
             , cam(cam)
             , entities(entities)
         { };
+
+        ENTITY_EXPOSE_HITBOX(m_hitbox)
+
+        EntityTypeID type() override { return EntityTypeID::PLAYER; }
+
+        void tuduring() { printf("Tuduringl\n"); }
         void init() override;
         void d_update() override;
         void d_draw(Camera& cam) override;
         bool isEndLv() {return endLv;}
         bool isDied() { return dead; }
     private:
+        EntityHitBox m_hitbox = EntityHitBox(dv_pos, v2i(8, 16));
+
 		void moveCam(Camera& cam);
         void terrainCollision(Camera& cam);
 		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);

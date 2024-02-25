@@ -2,6 +2,7 @@
 #include "../Entity.h"
 #include "AnimMgr.h"
 #include "entities/Entity.h"
+#include "entities/Player.h"
 #include "game-loop-ticker.h"
 #include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
@@ -21,9 +22,7 @@ public:
                            v2f startPosition, int count, float direction = 0.f,
                            float spaceBetween = 0.f);
 
-    EntityComponent<EntityHitBox> chitbox() override {
-        return EntityComponent<EntityHitBox>(m_hitbox);
-    }
+    ENTITY_EXPOSE_HITBOX(m_hitbox)
 
     void init()   override;
     void update() override;
@@ -35,6 +34,8 @@ public:
         if (isBounce()) { /* TODO destroy */
         }
     }
+
+    void onHitboxCollision(Entity &entity) override;
 
 private:
     bool            m_bouncing = false;

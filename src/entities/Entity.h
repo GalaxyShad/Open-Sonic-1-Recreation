@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <vector>
 
 #define TEX_OBJECTS 0
 #define TEX_GHZ_GIMM 1
@@ -45,7 +46,15 @@ public:
 
     bool isOverlappingWith(const EntityHitBox& other) const {
         return (getLeft() < other.getRight()  && getRight() > other.getLeft() &&
-                getTop()  > other.getBottom() && getBottom() < other.getTop());
+                getTop()  < other.getBottom() && getBottom() > other.getTop());
+    }
+
+    void draw(Camera& cam) {
+        cam.getScr().drawRadiusRectange(
+            v2f(m_position.x - cam.getPos().x, m_position.y - cam.getPos().y), 
+            m_radius, 
+            0xFFFF00AA
+        );
     }
     
 private:
@@ -97,13 +106,27 @@ enum class EntityTypeID {
     PARTICLE,
 };
 
-struct EntityType {
-    EntityType(EntityTypeID id) : id(id) {}
+static const int ENTITY_TAG_COUNT = 2;
 
-    EntityTypeID id;
-    bool         isEnemy    = false;
-    bool         isHarmful  = false;
+enum class EntityTag {
+    ENEMY,
+    HARMFUL
 };
+
+class EntityTags {
+public:
+    EntityTags& add(EntityTag tag) { m_tags[(int)tag] = true; return *this; }
+    bool has(EntityTag tag) const  { return m_tags[(int)tag]; }
+
+    static const EntityTags& Empty() {
+        static EntityTags tags;
+        return tags;
+    }
+private:
+    bool m_tags[ENTITY_TAG_COUNT] = { false };
+};
+
+
 
 #define DO_NOTHING_BY_DEFAULT
 class Entity
@@ -118,7 +141,8 @@ class Entity
         virtual void draw(Camera& cam)  { DO_NOTHING_BY_DEFAULT }
 
         // Required
-        virtual EntityType type() { return EntityType(EntityTypeID::DEPRECATED); }
+        virtual EntityTypeID      type() { return EntityTypeID::DEPRECATED; }
+        virtual const EntityTags& tags() { return EntityTags::Empty();      } 
 
         // Componenets ( Which can be optional by EntityComponent wrapper )
         virtual EntityComponent<v2f>            cradius()     { return EntityComponent<v2f>::Empty();            }
@@ -127,9 +151,23 @@ class Entity
         virtual EntityComponent<EntityHitBox>   chitbox()     { return EntityComponent<EntityHitBox>::Empty();   }
         virtual EntityComponent<EntitySolidBox> csolidbox()   { return EntityComponent<EntitySolidBox>::Empty(); }
 
+        #define EXPOSE_TEMPLATE__(classname, methodname, propertyname) \
+            EntityComponent<classname> methodname() override \
+            { return EntityComponent<classname>(propertyname); }
+
+        #define ENTITY_EXPOSE_RADIUS(propertyname)      EXPOSE_TEMPLATE__(v2f, cradius, propertyname)
+        #define ENTITY_EXPOSE_POSITION(propertyname)    EXPOSE_TEMPLATE__(v2f, cposition, propertyname)
+        #define ENTITY_EXPOSE_SPEED(propertyname)       EXPOSE_TEMPLATE__(v2f, cspeed propertyname)
+        #define ENTITY_EXPOSE_HITBOX(propertyname)      EXPOSE_TEMPLATE__(EntityHitBox, chitbox, propertyname)
+        #define ENTITY_EXPOSE_SOLIDBOX(propertyname)    EXPOSE_TEMPLATE__(EntitySolidBox, csolidbox, propertyname)
+    
         // Events
-        virtual void onDestroy()   { DO_NOTHING_BY_DEFAULT }
-        virtual void onOutOfView() { DO_NOTHING_BY_DEFAULT }
+        virtual void onDestroy()                       { DO_NOTHING_BY_DEFAULT }
+        virtual void onOutOfView()                     { DO_NOTHING_BY_DEFAULT }
+        virtual void onHitboxCollision(Entity& entity) { DO_NOTHING_BY_DEFAULT }
+
+        template <typename T>
+        T& castTo() { return *((T*)this); }
 
         // Deprecated
         virtual void d_update()           { dv_anim.tick(); }
@@ -168,6 +206,9 @@ class Entity
         AnimMgr dv_anim;
 };
 #undef NOTHING
+
+
+
 
 class EntityPool {
 public:
@@ -215,7 +256,7 @@ private:
 
 private:
     bool isEntityInsideView(Entity& entity) {
-        if (entity.type().id == EntityTypeID::DEPRECATED)
+        if (entity.type() == EntityTypeID::DEPRECATED)
             return entity.d_isInCamera(m_camera);
 
         if (!entity.chitbox().exists())

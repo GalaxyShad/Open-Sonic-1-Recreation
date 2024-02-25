@@ -1,5 +1,6 @@
 #include "Ring.h"
 #include "core/GameMath.h"
+#include "entities/Player.h"
 #include "entities/general/Ring.h"
 
 Ring* Ring::CreateRow(std::list<Entity *> &ent, terrain::Terrain &_trn, 
@@ -48,4 +49,13 @@ void Ring::update() {
 
 void Ring::draw(Camera &cam) { 
     cam.draw(m_anim, m_pos); 
+}
+
+void Ring::onHitboxCollision(Entity &entity) {
+    if (entity.type() != EntityTypeID::PLAYER)
+        return;
+
+    auto& pl = entity.castTo<Player>();
+
+    pl.tuduring();    
 }

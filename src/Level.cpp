@@ -175,6 +175,21 @@ void Level::update() {
 	
 		(*it)->update();
 
+		if ((*it)->chitbox().exists()) {
+			auto& hb = (*it)->chitbox().get();
+			
+			for (auto& e : m_entities) {
+				if (!e->d_isInCamera(cam))
+					continue;
+
+				if (e->chitbox().exists() && hb.isOverlappingWith(e->chitbox().get())) {
+					(*it)->onHitboxCollision(*e);
+				}
+			}
+		}
+
+		
+
 		if ((*it)->d_isInCamera(cam) || (*it)->d_getType() == TYPE_PLAYER) {
 			
 			(*it)->d_update();
@@ -265,6 +280,9 @@ void Level::draw() {
 
 	for (it = m_entities.begin(); it != m_entities.end(); it++) {
 		(*it)->draw(cam);
+
+		if ((*it)->chitbox().exists())
+			(*it)->chitbox().get().draw(cam);
 		
 		if ((*it)->d_isInCamera(cam)) {
 			(*it)->d_draw(cam);

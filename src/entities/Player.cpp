@@ -7,6 +7,14 @@
 #include "player-state-normal.hpp"
 #include "player-state-jump.hpp"
 
+void Player::onHitboxCollision(Entity &entity) {
+    if (entity.type() == EntityTypeID::RING) {
+        rings++;
+        audio.playSound(SND_RING);
+        m_entityPool.destroy(entity);
+    }
+}
+
 // === public === //
 void Player::init()
 {
@@ -272,20 +280,6 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     break;
 			}
 		}
-		// Collision Ring
-		if (ent.d_getType() == TYPE_RING) {
-			Ring* ring = (Ring*)it;
-			if (d_collisionMain(*ring) && ringTimer == 0) {
-				ring->d_destroy();
-                AnimMgr rSfx;
-                rSfx.create(TEX_OBJECTS);
-                rSfx.set(84, 87, 0.5);
-                rings++;
-                entities.push_back(new Sfx(v2f(ring->d_getPos().x, ring->d_getPos().y), rSfx));
-
-                audio.playSound(SND_RING);
-			}
-		}
 
         if (ent.d_getType() == TYPE_SPIKES) {
             if (d_collisionBottom(*it, 2)) {
@@ -307,10 +301,10 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     } 
                     en->d_destroy();
 
-                    AnimMgr rSfx;
-                    rSfx.create(TEX_OBJECTS);
-                    rSfx.set(95, 99, 0.125);
-                    entities.push_back(new Sfx(v2f(en->d_getPos().x, en->d_getPos().y), rSfx));
+                    // AnimMgr rSfx;
+                    // rSfx.create(TEX_OBJECTS);
+                    // rSfx.set(95, 99, 0.125);
+                    // entities.push_back(new SingleAnimationEffect(v2f(en->d_getPos().x, en->d_getPos().y), rSfx));
 
                     enemyCombo++;
                     switch(enemyCombo) {
@@ -357,7 +351,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                 AnimMgr rSfx;
                 rSfx.create(TEX_OBJECTS);
                 rSfx.set(95, 99, 0.125);
-                entities.push_back(new Sfx(m->d_getPos(), rSfx));
+                // entities.push_back(new SingleAnimationEffect(m->d_getPos(), rSfx));
 
                 entities.push_back(new MonitorIcon(m->d_getPos(), m->getItem()));
 

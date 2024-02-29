@@ -2,8 +2,9 @@
 #include "core/GameMath.h"
 #include "entities/Player.h"
 #include "entities/general/Ring.h"
+#include "entity-pool.hpp"
 
-Ring* Ring::CreateRow(std::list<Entity *> &ent, terrain::Terrain &_trn, 
+Ring* Ring::CreateRow(EntityPool& entityPool, terrain::Terrain &_trn, 
 	v2f startPosition, int count, float direction, float spaceBetween
 ) {
 	float sina = sin(radians(direction));
@@ -12,13 +13,13 @@ Ring* Ring::CreateRow(std::list<Entity *> &ent, terrain::Terrain &_trn,
     auto ringPos = startPosition;
 
     for (int i = 0; i < count - 1; i++) {
-		ent.push_back(new Ring(ringPos, _trn));
+        entityPool.create(new Ring(ringPos, entityPool, _trn));
 
         ringPos.x += (16 + spaceBetween) * cosa;
         ringPos.y += (16 + spaceBetween) * sina;
 	}
 
-    return new Ring(ringPos, _trn);
+    return new Ring(ringPos, entityPool, _trn);
 }
 
 void Ring::init() {

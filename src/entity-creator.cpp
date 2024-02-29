@@ -20,7 +20,7 @@ Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     if ((res = createOther(entPlacement)))   return res;
 
     // Placeholder
-    return new Ring(v2f(entPlacement.x, entPlacement.y), m_terrain);
+    return new Ring(v2f(entPlacement.x, entPlacement.y), m_entityList, m_terrain);
 }
 
 Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
@@ -66,7 +66,7 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
 
         case (ObjectID_S1::S1_SPIKES): 
             // if ((eplc.additionalArgs & 0b00010000) == 0)
-            return new Spikes(position, eplc.additionalArgs, m_entityList);
+            return new Spikes(position, eplc.additionalArgs, m_entityList.legacy_rawPool());
 
         case (ObjectID_S1::S1_EGG_PRISON): 
             return new SignPost(position);
@@ -92,7 +92,7 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
             return new EnChopper(position);
 
         case (ObjectID_S1::S1_CRABMEAT): 
-            return new EnCrab(position, m_entityList, m_terrain);
+            return new EnCrab(position, m_entityList.legacy_rawPool(), m_terrain);
         
         case (ObjectID_S1::S1_BUZZ_BOMBER): 
             return new EnBuzz(position);
@@ -107,7 +107,7 @@ Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_GHZ_BRIDGE):  
-            return new GimGHZ_BridgeController(position, eplc.additionalArgs, m_entityList);
+            return new GimGHZ_BridgeController(position, eplc.additionalArgs, m_entityList.legacy_rawPool());
         
         case (ObjectID_S1::S1_PLATFORMS_GHZ_SLZ_SYZ): 
             switch (eplc.additionalArgs & 0x0F) {
@@ -128,7 +128,7 @@ Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
             }
             
         case (ObjectID_S1::S1_COLLAPSING_LEDGE_FROM_GHZ): 
-            return new GimGHZ_SlpPlatform(position, m_entityList, (bool)eplc.additionalArgs);
+            return new GimGHZ_SlpPlatform(position, m_entityList.legacy_rawPool(), (bool)eplc.additionalArgs);
         
         case (ObjectID_S1::S1_ZONE_SCENERY_OBJECT): 
             return new GimGhz_BridgeColumn(position, (bool)eplc.flipHorizontal);

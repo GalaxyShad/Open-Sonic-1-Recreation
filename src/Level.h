@@ -1,8 +1,11 @@
 #pragma once
 
 #include <list>
+#include <vector>
 
 #include "entities/Entity.h"
+#include "entity-creator.hpp"
+#include "entity-placement.hpp"
 #include "entity-pool.hpp"
 #include "game-loop-ticker.h"
 #include "terrain-loader.hpp"
@@ -29,7 +32,7 @@ class Level {
 public:
     Level(
         terrain::Terrain& terrain,
-        std::list<Entity*>& entities,
+        std::vector<EntityPlacement>& entities,
         GameType gameType,
         Screen& scr, 
         IInputMgr& input, 
@@ -42,7 +45,7 @@ public:
     ) 
         : m_terrain(terrain)
         , cam(scr)
-        , m_entityPool(cam, entities)
+        , m_entityPool(cam)
         , m_screen(scr)
         , m_input(input)
         , m_audio(audio) 
@@ -53,7 +56,13 @@ public:
         , m_playerStartPosition(playerStartPosition)
         , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
         , bg(m_terrainDrawer)
-    {}
+    {
+        EntityCreatorSonic1 ec(m_entityPool, m_terrain);
+        
+        for (auto& plc : entities) {
+            m_entityPool.create(ec.create(plc));
+        }
+    }
     void create();
     void free();
 

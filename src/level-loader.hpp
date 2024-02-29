@@ -4,6 +4,8 @@
 
 #include "Level.h"
 
+#include "entity-placement.hpp"
+#include "entity-pool.hpp"
 #include "terrain-loader.hpp"
 
 #include "zone-enums-sonic1.hpp"
@@ -39,7 +41,7 @@ private:
     
     v2f m_playerStartPosition;
 
-    std::list<Entity*> m_entities;
+    std::vector<EntityPlacement> m_entityPlacementList;
 private:
     void reset();
 

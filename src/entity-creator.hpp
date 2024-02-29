@@ -2,6 +2,7 @@
 
 #include "entities/Entity.h"
 #include "entity-placement.hpp"
+#include "entity-pool.hpp"
 #include "new-terrain.hpp"
 
 #include <list>
@@ -13,15 +14,15 @@ public:
 
 class EntityCreatorSonic1 : public IEntityCreator {
 public:
-    EntityCreatorSonic1(std::list<Entity*>& entityList, terrain::Terrain& terrain) 
-        : m_entityList(entityList)
+    EntityCreatorSonic1(EntityPool& entityPool, terrain::Terrain& terrain) 
+        : m_entityList(entityPool)
         , m_terrain(terrain)
     {} 
 
     Entity* create(EntityPlacement entPlacement);
 
 private:
-    std::list<Entity*>& m_entityList;
+    EntityPool& m_entityList;
     terrain::Terrain& m_terrain;
 
     Entity* createEnemies(EntityPlacement eplc);

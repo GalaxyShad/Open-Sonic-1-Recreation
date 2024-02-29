@@ -117,9 +117,7 @@ void EntityPool::cleanup() {
     for (auto &it : m_entitiesToDestroy) {
         m_pool.remove(it);
         it->onDestroy();
-        printf("cha cha\n");
         delete it;
-        printf("chi chi\n");
     }
 
     m_entitiesToDestroy.clear();

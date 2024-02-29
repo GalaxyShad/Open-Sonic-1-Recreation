@@ -36,6 +36,8 @@ class EnemyScore : public Entity {
             tick++;
         }
 
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+
     private:
         Points points;
         int tick;

@@ -13,6 +13,8 @@ class LayerSwitcher : public Entity
         { 
         }
         uint8_t getMode() { return mode; };
+
+        EntityTypeID type() override { return EntityTypeID::LAYER_SWITCH; }
     private:
         uint8_t mode;
 };

@@ -122,7 +122,7 @@ class Entity
         virtual void draw(Camera& cam)  { DO_NOTHING_BY_DEFAULT }
 
         // Required
-        virtual EntityTypeID      type() { return EntityTypeID::DEPRECATED; }
+        virtual EntityTypeID      type() = 0;
         virtual const EntityTags& tags() { return EntityTags::Empty();      } 
 
         // Componenets ( Which can be optional by EntityComponent wrapper )

@@ -17,6 +17,7 @@ class EnMotobug : public Enemy {
     void init();
     void d_update();
     void d_draw(Camera &cam);
+    EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
   private:
     terrain::Sensor m_sensor;
@@ -30,6 +31,7 @@ class EnChopper : public Enemy {
     EnChopper(v2f _pos) : Enemy(_pos) {}
     void init();
     void d_update();
+    EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
   private:
     float ysp = 0;
@@ -43,6 +45,7 @@ class EnCrab : public Enemy {
     }
     void init();
     void d_update();
+    EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
   private:
     void trnCollision();
@@ -63,6 +66,7 @@ class EnBuzz : public Enemy {
     void d_update();
     void d_draw(Camera &cam);
     void d_reactingToOthers(std::list<Entity *> &entities);
+    EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
   private:
     float xsp = BUZZ_SPD;
@@ -84,6 +88,7 @@ class Bullet : public Entity {
     void init();
     void d_update();
     void d_draw(Camera &cam);
+    EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
   private:
     float ysp = 0;

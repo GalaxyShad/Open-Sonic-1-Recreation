@@ -27,6 +27,9 @@ class Spikes : public Entity
 
             // living = false;
         }
+
+        EntityTypeID type() override { return EntityTypeID::SPIKES; }
+
         void init() { 
             dv_solid = true; 
             dv_platform = true;

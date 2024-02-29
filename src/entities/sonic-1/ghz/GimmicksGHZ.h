@@ -12,6 +12,7 @@ class GimGHZ_Stone : public Entity
 {
     public: GimGHZ_Stone(v2f _pos) : Entity(_pos) {}
             void init();
+            EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 };
 
 class GimGHZ_Bridge : public Entity
@@ -26,6 +27,8 @@ class GimGHZ_Bridge : public Entity
             int maxDepression = 0;
             int number = 0;
             int count = 0;
+
+            EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
             bool active = false;
 };
@@ -36,6 +39,7 @@ class GimGHZ_BridgeController : public Entity
             void init();
             void d_update();
             void d_draw(Camera& cam) {}
+            EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
             GimGHZ_Bridge** segments;
             int segmentsCount;
@@ -52,6 +56,7 @@ class GimGhz_BridgeColumn : public Entity {
             dv_anim.set(7, 7, 0);
         }
         void d_draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0, flip); }
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
         bool flip = false;
 };
@@ -73,6 +78,8 @@ class GimGHZ_Platform : public Entity
         bool isCanFall()  { return canFall; }
         bool isFalling()  { return falling; }
         void setFalling(bool flag) { if (falling != flag) {falling = flag; fallTimer = 10;} }
+
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
         enum {DIR_RIGHT, DIR_LEFT, DIR_UP, DIR_DOWN};
     private:
@@ -98,6 +105,8 @@ class GimGHZ_SlpPlatform : public Entity {
         void d_draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0.0, isLeft); }
         void d_destroy() { if (deathTimer < 0) deathTimer = 32; } 
         
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+
         int getHeight(int x) 
         { 
             if (!isLeft) {
@@ -149,6 +158,7 @@ class GimGHZ_SlpPlatformPart : public Entity {
                         16, 16), 
                 dv_pos, v2i(0,0), 0.0, left);
         }
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
         int partIndex;
         int timer;
@@ -167,6 +177,8 @@ class GimGHZ_Wall : public Entity
             dv_anim.set(4 + ty, 4 + ty, 0);
             //solid = true;
         };
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+
     private: 
         int ty = 0;
 };
@@ -185,6 +197,8 @@ class GimGHZ_STube : public Entity
             // 0x4440+0x4440*mode); 
          }
         uint8_t getMode() {return mode; };
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+
     private:
         uint8_t mode;
 };
@@ -206,6 +220,8 @@ class SignPost : public Entity
             cam.draw(animPost, v2f(dv_pos.x, dv_pos.y+24));
             cam.draw(dv_anim, v2f(dv_pos.x, dv_pos.y));
         }
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+
         void setAnim(bool spin) {
             if (animCount < 10) {
                 if (dv_anim.getCurFrame() >= 108)

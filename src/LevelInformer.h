@@ -7,7 +7,7 @@
 
 class TitleCardSonic1 : public Entity {
   public:
-    TitleCardSonic1(const std::string& zonename, int act, float screenWidth,
+    TitleCardSonic1(const std::string &zonename, int act, float screenWidth,
                     EntityPool &entityPool)
         : m_act(act), m_zonename(zonename), m_entityPool(entityPool) {
         m_textActX = screenWidth;
@@ -15,6 +15,8 @@ class TitleCardSonic1 : public Entity {
         m_textTopX = 0;
         m_textBottomX = 0;
     };
+
+    EntityTypeID type() override { return EntityTypeID::LEVEL_INFORMER; }
 
     void draw(Camera &cam) override {
         auto &scr = cam.getScr();
@@ -67,8 +69,9 @@ class TitleCardSonic1 : public Entity {
             break;
         }
 
-        scr.drawText(2, m_zonename.c_str(),
-                     v2f(m_textTopX - scr.getTextWidth(2, m_zonename.c_str()), 72));
+        scr.drawText(
+            2, m_zonename.c_str(),
+            v2f(m_textTopX - scr.getTextWidth(2, m_zonename.c_str()), 72));
         scr.drawText(2, "ZONE",
                      v2f(m_textBottomX - scr.getTextWidth(2, "ZONE"), 92));
 
@@ -79,7 +82,7 @@ class TitleCardSonic1 : public Entity {
 
   private:
     EntityPool &m_entityPool;
-    const std::string& m_zonename;
+    const std::string &m_zonename;
     int m_act;
     int m_tick = 0;
 

@@ -15,6 +15,7 @@ class Spring : public Entity
 		void doAnim();
 		bool isRed() { return red; }
 		Rotation getRotation() { return rot; }
+		EntityTypeID type() override { return EntityTypeID::SPRING; }
 	private:
 		int animTimer = SPRING_ANIM_TIMER;
 		bool red = false;

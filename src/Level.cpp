@@ -17,8 +17,7 @@ void Level::create() {
     }
 
 	// Create player
-	Player* pl = new Player(m_playerStartPosition,m_entities, cam, m_terrain, m_input, m_audio, rings, score);
-	m_entities.push_back(pl);	
+	m_entityPool.create(new Player(m_playerStartPosition, m_entityPool.legacy_rawPool(), cam, m_terrain, m_input, m_audio, rings, score));	
 
 	// Create camera
 	auto screenSize = m_screen.getSize();
@@ -30,8 +29,7 @@ void Level::create() {
 
     cam.create(cameraPos, Size(levelSize.x, levelSize.y), (m_gameType == GameType::SONIC_3K));
 
-	for (it = m_entities.begin(); it != m_entities.end(); it++) 
-		(*it)->init();
+	m_entityPool.init();
 
 	// Level Variables
 	ringFrame = 80.0; // Using for same animation to all rings
@@ -111,9 +109,9 @@ void Level::createZoneSpecific()
                 int y = i * layout.getChunksRadiusPixels();
 
                 if (chunkId == 0x1F)
-                    m_entities.push_back(new GimGHZ_STube(v2f(x + 8 + 8, y + 112), 0));
+                    m_entityPool.create(new GimGHZ_STube(v2f(x + 8 + 8, y + 112), 0));
                 else if (chunkId == 0x20)
-                    m_entities.push_back(new GimGHZ_STube(v2f(x + 248 - 8, y + 112), 1));
+                    m_entityPool.create(new GimGHZ_STube(v2f(x + 248 - 8, y + 112), 1));
             }
     }
 }
@@ -159,59 +157,7 @@ void Level::update() {
 
     updateLevelSpecific();
 
-	//m_entityPool.update();
-
-    for (it = m_entities.begin(); it != m_entities.end();) {
-		Entity* ent = *it;
-		if (!ent->d_isLiving()) {
-			it = m_entities.erase(it);
-			delete ent;
-		} else {
-			it++;
-		}
-	}
-
-	for (it = m_entities.begin(); it != m_entities.end(); it++) {
-	
-		(*it)->update();
-
-		if ((*it)->chitbox().exists()) {
-			auto& hb = (*it)->chitbox().get();
-			
-			for (auto& e : m_entities) {
-				if (!e->d_isInCamera(cam))
-					continue;
-
-				if (e->chitbox().exists() && hb.isOverlappingWith(e->chitbox().get())) {
-					(*it)->onHitboxCollision(*e);
-				}
-			}
-		}
-
-		
-
-		if ((*it)->d_isInCamera(cam) || (*it)->d_getType() == TYPE_PLAYER) {
-			
-			(*it)->d_update();
-			(*it)->d_reactingToOthers(m_entities);
-			if ((*it)->d_getType() == TYPE_PLAYER) {
-				Player* pl = (Player*)(*it);
-
-				if (pl->isEndLv() && !lvInformer && !isTimeStopped) {
-					isTimeStopped = true;
-					lvInformer = new LevelInformer("err", m_act, m_screen, m_audio, 
-						LevelInformer::T_ROUND_CLEAR, &score, rings, time );
-				}
-
-				if (pl->isDied())
-					isFadeDeath = true;
-			} 
-		} else if ((*it)->d_isLiving()) {
-			(*it)->onOutOfView();
-		}
-	}
-
-	
+	m_entityPool.update();
 
 	// Ring animation
 	ringFrame += 0.125;
@@ -260,9 +206,9 @@ void Level::createSonic1LayeringObjects() {
             int x = j * layout.getChunksRadiusPixels();
             int y = i * layout.getChunksRadiusPixels();
 
-            m_entities.push_back(new LayerSwitcher(v2f(x+128, y+32), v2f(16, 64), 2));
-            m_entities.push_back(new LayerSwitcher(v2f(x-8, y+128), v2f(16, 256), 0));
-            m_entities.push_back(new LayerSwitcher(v2f(x+264, y+128), v2f(16, 256), 1));
+            m_entityPool.create(new LayerSwitcher(v2f(x+128, y+32), v2f(16, 64), 2));
+            m_entityPool.create(new LayerSwitcher(v2f(x-8, y+128), v2f(16, 256), 0));
+            m_entityPool.create(new LayerSwitcher(v2f(x+264, y+128), v2f(16, 256), 1));
         }
     }
 }
@@ -276,18 +222,9 @@ void Level::draw() {
 	m_terrainDrawer.draw();
 
 	// Entities
-	// m_entityPool.draw();
+	m_entityPool.draw();
 
-	for (it = m_entities.begin(); it != m_entities.end(); it++) {
-		(*it)->draw(cam);
-
-		if ((*it)->chitbox().exists())
-			(*it)->chitbox().get().draw(cam);
-		
-		if ((*it)->d_isInCamera(cam)) {
-			(*it)->d_draw(cam);
-		}
-	}
+	
 
 	drawHud();
 

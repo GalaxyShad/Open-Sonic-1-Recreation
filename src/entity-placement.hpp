@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-#include "entities/entity-interfaces.hpp"
-
 struct EntityPlacement {
     uint16_t x;
     uint16_t y;

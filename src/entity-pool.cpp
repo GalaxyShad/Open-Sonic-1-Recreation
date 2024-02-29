@@ -14,7 +14,6 @@ void EntityPool::create(Entity *entity) {
 }
 
 void EntityPool::destroy(Entity &entity) {
-    m_pool.remove(&entity);
     m_entitiesToDestroy.push_back(&entity);
 }
 
@@ -116,8 +115,11 @@ void EntityPool::legacyCleanup() {
 
 void EntityPool::cleanup() {
     for (auto &it : m_entitiesToDestroy) {
+        m_pool.remove(it);
         it->onDestroy();
+        printf("cha cha\n");
         delete it;
+        printf("chi chi\n");
     }
 
     m_entitiesToDestroy.clear();

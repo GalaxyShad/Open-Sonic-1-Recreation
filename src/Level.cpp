@@ -1,5 +1,6 @@
 #include "Level.h"
 
+#include "LevelInformer.h"
 #include "entity-creator.hpp"
 #include "game-loop-ticker.h"
 #include <cstdio>
@@ -10,7 +11,7 @@ void Level::create() {
 		createSonic1LayeringObjects();
 	}
 
-	lvInformer = new LevelInformer(m_zoneName.c_str(), m_act, m_screen, m_audio, LevelInformer::T_TITLE_CARD);
+	m_entityPool.create(new TitleCardSonic1(m_zoneName, m_act, m_screen.getSize().width, m_entityPool));
 
 	if (m_gameType == GameType::SONIC_1) {
         createZoneSpecific();
@@ -159,11 +160,6 @@ void Level::update() {
 
 	m_entityPool.update();
 
-	// Ring animation
-	ringFrame += 0.125;
-	if (ringFrame >= 84)
-		ringFrame = 80;
-
 	// Time count
 	tick++;
 
@@ -241,7 +237,7 @@ void Level::draw() {
 }
 
 void Level::drawHud() {
-	m_screen.drawTextureRect(2, irect(1, 60, 40, 16), v2f(16, 8));
+	m_screen.drawTextureRect(2, irect(1, 60, 40, 16),  v2f(16, 8));
 	m_screen.drawTextureRect(2, irect(42, 60, 32, 16), v2f(16, 24));
 	m_screen.drawTextureRect(2, irect(75, 60, 40, 16), v2f(16, 40));
 

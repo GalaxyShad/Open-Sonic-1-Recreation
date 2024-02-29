@@ -28,6 +28,8 @@ public:
     void update() override;
     void draw(Camera &cam) override;
 
+    EntityTypeID type() override { return EntityTypeID::RING; }
+
     bool isBounce() { return m_bouncing; }
 
     void onOutOfView() override {

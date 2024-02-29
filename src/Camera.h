@@ -32,6 +32,7 @@ class Camera : public IDrawer {
 			      bool verFlip=false) override;
 		
         v2f getPos()           { return pos; }
+        v2f getCenterPosition()     { return v2f(pos.x + (float)size.width / 2, pos.y + (float)size.height / 2);}
 		void setPos(v2f _pos)  { pos = _pos; }
 
         Size getSize() { return size; }

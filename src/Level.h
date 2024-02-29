@@ -3,6 +3,7 @@
 #include <list>
 
 #include "entities/Entity.h"
+#include "entity-pool.hpp"
 #include "game-loop-ticker.h"
 #include "terrain-loader.hpp"
 
@@ -40,9 +41,8 @@ public:
         terrain::Store<terrain::Tile>& storeTile
     ) 
         : m_terrain(terrain)
-        , m_entities(entities)
         , cam(scr)
-        // , m_entityPool(cam)
+        , m_entityPool(cam, entities)
         , m_screen(scr)
         , m_input(input)
         , m_audio(audio) 
@@ -68,9 +68,8 @@ public:
 
 private:
     terrain::Terrain &m_terrain;
-    std::list<Entity*>& m_entities;
 
-    // EntityPool  m_entityPool;
+    EntityPool  m_entityPool;
     GameType    m_gameType;
     std::string m_zoneName;
     std::string m_zoneNameShort;

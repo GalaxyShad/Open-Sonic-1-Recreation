@@ -8,6 +8,7 @@
 #include "Entity.h"
 
 #include "entities/Entity.h"
+#include "entity-pool.hpp"
 #include "new-terrain.hpp"
 #include "player-collider.hpp"
 #include "player-state-base.hpp"
@@ -46,8 +47,9 @@ using namespace gmath;
 class Player : public Entity
 {
     public:
-		Player(v2f _pos, std::list<Entity*>& entities, Camera& cam, terrain::Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) 
+		Player(v2f _pos, std::list<Entity*>& entities, EntityPool& entityPool, Camera& cam, terrain::Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) 
             : Entity(_pos)
+            , m_entityPool(entityPool)
             , input(input)
             , audio(audio)
             , rings(rings)
@@ -61,6 +63,8 @@ class Player : public Entity
         ENTITY_EXPOSE_HITBOX(m_hitbox)
 
         EntityTypeID type() override { return EntityTypeID::PLAYER; }
+
+        void onHitboxCollision(Entity &entity) override;
 
         void tuduring() { printf("Tuduringl\n"); }
         void init() override;
@@ -79,6 +83,7 @@ class Player : public Entity
         PlayerStateMachine m_stateMachine;
 
         std::list<Entity*>& entities;
+        EntityPool& m_entityPool;
 
         Camera& cam;
         IInputMgr& input;

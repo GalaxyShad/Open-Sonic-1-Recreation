@@ -11,11 +11,6 @@ class LayerSwitcher : public Entity
         void d_update() {}
         void d_draw(Camera& cam) 
         { 
-            // cam.getScr().drawRectangle(
-            // Vector2f(pos.x - cam.getPos().x - hitBoxSize.x/2, 
-            //             pos.y - cam.getPos().y - hitBoxSize.y/2), 
-            // Size(hitBoxSize.x, hitBoxSize.y), 
-            // 0x4440+0x4440*mode); 
         }
         uint8_t getMode() { return mode; };
     private:

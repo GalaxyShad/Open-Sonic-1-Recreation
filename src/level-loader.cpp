@@ -24,7 +24,7 @@ Level* LevelLoader::loadFromSonic1(ZoneSonic1 zone, int act) {
     sonic1LoadObjects(sAct);
 
     return new Level(
-        *m_terrain, m_entities, GameType::SONIC_1, 
+        *m_terrain, m_entityPlacementList, GameType::SONIC_1, 
         m_screen, m_input, m_audio, 
         sZone, sZoneShort, act, 
         m_playerStartPosition, *m_storeTiles.get());
@@ -73,17 +73,14 @@ Level* LevelLoader::loadFromSonic3K(ZoneSonic3K zone, int act) {
     m_screen.loadTextureFromFile("content/levels/sonic3/ICZ/texture.png", LEVEL_TEXTURE_ID);
 
     return new Level(
-        *m_terrain, m_entities, GameType::SONIC_3K, 
+        *m_terrain, m_entityPlacementList, GameType::SONIC_3K, 
         m_screen, m_input, m_audio, 
         sZone, sZoneShort, act, 
         m_playerStartPosition, *m_storeTiles.get());
 }
 
 void LevelLoader::reset() {
-    for (auto it = m_entities.begin(); it != m_entities.end();) {
-		delete *it;
-		it = m_entities.erase(it);
-	}
+    m_entityPlacementList.clear();
 
 	m_storeTiles.release();
 	m_storeBlocks.release();
@@ -165,13 +162,10 @@ void LevelLoader::sonic1LoadObjects(std::string &sZoneAct) {
         return;
     }
 
-	EntityCreatorSonic1 entCreator(m_entities, *m_terrain);
     uint8_t buff[6];
 
     while (file.read(reinterpret_cast<char*>(buff), sizeof(buff))) {
-        Entity* entity = entCreator.create(EntityPlacement::fromSonic1(buff));
-
-        m_entities.push_back(entity);
+        m_entityPlacementList.push_back(EntityPlacement::fromSonic1(buff));
     }
 
     file.close();

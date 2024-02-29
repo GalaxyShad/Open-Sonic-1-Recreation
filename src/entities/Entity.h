@@ -9,6 +9,7 @@
 
 #include "../FramesMappings.h"
 #include "Camera.h"
+#include "entity-types.hpp"
 
 #include "../core/_index.hpp"
 
@@ -85,26 +86,6 @@ private:
 };
 
 class EntitySolidBox {}; // TODO
-
-enum class EntityTypeID {
-    DEPRECATED,
-    PLAYER,
-    RING,
-    SPRING,
-    MONITOR,
-    SIGN_POST,
-    LAYER_SWITCH,
-    ENEMY,
-    EN_MOTOBUG,
-    BRIDGE,
-    BRIDGE_CNTRL,
-    GHZ_SLP_PLATFORM,
-    PLATFORM,
-    BULLET,
-    SPIKES,
-    STUBE_CNTRL,
-    PARTICLE,
-};
 
 static const int ENTITY_TAG_COUNT = 2;
 

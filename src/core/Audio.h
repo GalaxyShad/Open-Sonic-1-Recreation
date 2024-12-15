@@ -112,6 +112,6 @@ class Audio {
         std::map<uint8_t, std::string> musics;
         std::list<sf::Sound*> sounds;
         sf::Music mus;
-        float volumeSnd = 50.f, volumeMus = 50.f;
+        float volumeSnd = 05.f, volumeMus = 05.f;
 
 };

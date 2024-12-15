@@ -145,8 +145,8 @@ enum class ObjectID_S1 {
     S1_CHAOS_EMERALDS_ON_THE_TRY_AGAIN_SCREEN,
 };
 
-static const char* ObjectID_S1ToString(ObjectID_S1 id) {
-    static const char* str[] = {
+static const char *ObjectID_S1ToString(ObjectID_S1 id) {
+    static const char *str[] = {
         "NONE",
         "S1_SONIC",
         "S1_UNK_ID02",

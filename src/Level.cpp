@@ -216,14 +216,6 @@ void Level::draw() {
     if (lvInformer && isTimeStopped)
         lvInformer->draw();
 
-    if (fade != 0xFF) {
-        sf::RenderWindow &wnd = m_screen.getSfmlWindow();
-        sf::RectangleShape rs(
-            sf::Vector2f(m_screen.getSize().width, m_screen.getSize().height));
-        rs.setFillColor(sf::Color(0, 0, 0, 0xFF - fade));
-        wnd.draw(rs);
-    }
-
     if (lvInformer && !isTimeStopped)
         lvInformer->draw();
 }

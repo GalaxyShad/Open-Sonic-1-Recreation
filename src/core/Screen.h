@@ -50,14 +50,8 @@ class IScreen {
     virtual void clear() = 0;
     virtual void render() = 0;
 
-    virtual void setPalRow(uint8_t row, const uint16_t *colors,
-                           uint8_t len = 16, uint8_t from = 0) = 0;
-    virtual uint16_t getPalColor(uint8_t row, uint8_t index) = 0;
-
-    virtual uint16_t getBgColor() = 0;
     virtual void setBgColor(uint16_t color) = 0;
 
-    virtual void setSize(Size size) = 0;
     virtual Size getSize() = 0;
 
     virtual void drawTextureRect(uint8_t texId, irect texRect, v2f pos = {0, 0},
@@ -72,30 +66,25 @@ class IScreen {
                              uint16_t height, uint8_t palRow, uint8_t key,
                              const Frame *frames = nullptr,
                              uint16_t framesLen = 0) = 0;
-    virtual void freeTexture(uint8_t key) = 0;
 };
 
 #define PAL_MAX_ROWS 4
 #define PAL_MAX_COLUMNS 16
 
+#include "SfmlArtist.h"
+#include "TextureStore.h"
+
 class Screen : public IScreen {
   public:
+    explicit Screen(SfmlArtist &artist,
+                    resource_store::TextureStore &textureStore);
     void init(Size size, int frameLock);
     void clear();
     void render();
 
-    void setPalRow(uint8_t row, const uint16_t *colors, uint8_t len = 16,
-                   uint8_t from = 0);
-    uint16_t getPalColor(uint8_t row, uint8_t index) {
-        return (row < PAL_MAX_ROWS && index < PAL_MAX_COLUMNS) ? pal[row][index]
-                                                               : 0;
-    }
+    void setBgColor(uint16_t color) {}
 
-    uint16_t getBgColor() { return bgColor; }
-    void setBgColor(uint16_t color) { bgColor = color; }
-
-    void setSize(Size size) { this->size = size; }
-    Size getSize() { return size; }
+    Size getSize() { return Size(427, 240); }
 
     void drawTextureRect(uint8_t texId, irect texRect, v2f pos = {0, 0},
                          v2i offset = {0, 0}, float angle = 0.0,
@@ -103,9 +92,6 @@ class Screen : public IScreen {
     void drawTextureRect(uint8_t texId, Frame frame, v2f pos = {0, 0},
                          float angle = 0.0, bool horFlip = false,
                          bool verFlip = false);
-
-    void drawRectangle(v2f pos, Size rsize = Size(16, 16),
-                       uint16_t color = 0xFFFF);
 
     const Texture *getTexture(uint8_t texture) {
         return textures.count(texture) ? textures[texture] : nullptr;
@@ -118,9 +104,6 @@ class Screen : public IScreen {
                              const Frame *frames = nullptr,
                              uint16_t framesLen = 0, uint16_t width = 0,
                              uint16_t height = 0);
-    void freeTexture(uint8_t key);
-
-    void drawPal(v2f pos);
 
     void addFont(uint8_t key, const char *alphabet, uint8_t interval,
                  uint8_t tex, irect startRect, uint16_t rectDivSpace = 0,
@@ -128,9 +111,7 @@ class Screen : public IScreen {
     void drawText(uint8_t fontKey, const char *str, v2f pos = v2f(0, 0));
     uint16_t getTextWidth(uint8_t fontKey, const char *str);
 
-    void setBrightness(uint8_t _brightness) { brightness = _brightness; }
-
-    sf::RenderWindow &getSfmlWindow() { return wnd; }
+    sf::RenderWindow &getSfmlWindow() { return artist_.sfmlRenderWindow(); }
 
     void drawRadiusRectange(v2f pos, v2i radius, uint32_t color) {
         sf::RectangleShape rs;
@@ -140,7 +121,8 @@ class Screen : public IScreen {
         rs.setSize(sf::Vector2f(radius.x * 2, radius.y * 2));
         rs.setFillColor(sf::Color(color));
 
-        wnd.draw(rs);
+//        artist_.sfmlRenderWindow().draw(rs);
+//        wnd.draw(rs);
     }
 
   private:
@@ -168,16 +150,14 @@ class Screen : public IScreen {
             0xc600,
             0xec00,
         }};
+
+    std::map<uint8_t, unsigned long> sfTextures;
     std::map<uint8_t, Texture *> textures;
-    std::map<uint8_t, sf::Texture *> sfTextures;
+
     std::map<uint8_t, Font> fonts;
 
-    Size size;
-    uint8_t brightness = 0xFF;
-
-    sf::RenderWindow wnd;
-    uint16_t bgColor = 0x00000000;
-
-    uint32_t color16to32RGBA(uint16_t src);
     uint32_t color16to32ABGR(uint16_t src);
+
+    SfmlArtist& artist_;
+    resource_store::TextureStore& textureStore_;
 };

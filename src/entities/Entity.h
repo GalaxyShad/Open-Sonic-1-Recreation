@@ -108,7 +108,6 @@ private:
 };
 
 
-
 #define DO_NOTHING_BY_DEFAULT
 class Entity
 {

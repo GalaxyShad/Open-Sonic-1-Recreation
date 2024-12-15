@@ -86,8 +86,7 @@ void LevelLoader::reset() {
 	m_storeBlocks.release();
 	m_storeChunks.release();
 	m_layout.release();
-
-    m_screen.freeTexture(LEVEL_TEXTURE_ID);
+        
 
 	delete m_terrain;
 }
@@ -158,7 +157,7 @@ void LevelLoader::sonic1LoadObjects(std::string &sZoneAct) {
 
     std::ifstream file(sObjPos, std::ios::binary);
 	if (!file) {
-        std::cout << "File load error" << std::endl;
+        std::cout << "File loadFromFile error" << std::endl;
         return;
     }
 

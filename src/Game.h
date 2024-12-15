@@ -14,8 +14,9 @@ class IGame {
 };
 
 class Game: public IGame {
-    public: 
-        void init();
+    public:
+      Game(Screen& screen) : scr(screen) {}
+    void init();
         void update();
         bool isRunning();
     private:
@@ -23,7 +24,7 @@ class Game: public IGame {
         enum ScreenScale {SS_NORMAL, SS_X2, SS_X3, SS_FULL_SCREEN};
 
         Audio audio;
-        Screen scr;
+        Screen& scr;
         Keyboard keyboard;
 
         LevelLoader m_levelLoader = LevelLoader(scr, keyboard, audio);
@@ -46,9 +47,6 @@ class Game: public IGame {
             "lz1", "lz2", "lz3",
             "slz1", "slz2", "slz3",
             "sbz1", "sbz2", "icz1"
-        };
-        const char* strZones[6] = { 
-            "GHZ", "MZ", "SYZ", "LZ", "SLZ", "SBZ" 
         };
 
         void loadLevel(int index);

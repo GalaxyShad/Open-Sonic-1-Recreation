@@ -4,103 +4,50 @@
 #include <math.h>
 
 void Screen::init(Size size, int frameLock) {
-    this->size = size;
-    wnd.create(sf::VideoMode(size.width, size.height), "Test");
-    wnd.setFramerateLimit(frameLock);
 }
 
 void Screen::clear() {
-    wnd.clear(sf::Color(color16to32RGBA(bgColor)));
+        artist_.renderClear();
 }
 
-void Screen::render() {
-    if (brightness < 0xFF) {
-        sf::RectangleShape rs(sf::Vector2f(size.width, size.height));
-        rs.setFillColor(sf::Color(0, 0, 0, 0xFF-brightness));
-        wnd.draw(rs);
-    }
-    wnd.display();
+void Screen::render() { artist_.renderLoop(); }
+
+void Screen::drawTextureRect(uint8_t texId, irect texRect, v2f pos, v2i offset,
+                             float angle, bool horFlip, bool verFlip) {
+
+    auto &tex = textureStore_.get(sfTextures[texId]);
+
+    artist_.drawSprite({.texture = tex,
+                        .rect = {.x = (float)texRect.left,
+                                 .y = (float)texRect.top,
+                                 .width = (float)texRect.width,
+                                 .height = (float)texRect.height},
+                        .offset = {.x = (float)offset.x, .y = (float)offset.y}},
+                       artist_api::Vector2D<float>{.x = pos.x, .y = pos.y},
+                       artist_api::Artist::TransformProps{
+                           .angle = angle,
+                           .flipHorizontal = horFlip,
+                           .flipVertical = verFlip,
+                       });
 }
 
-void Screen::setPalRow(uint8_t row, const uint16_t* colors, 
-                       uint8_t len, uint8_t from) {
+void Screen::drawTextureRect(uint8_t texId, Frame frame, v2f pos, float angle,
+                             bool horFlip, bool verFlip) {
 
-    if (!colors || row >= PAL_MAX_ROWS || 
-        len >= PAL_MAX_COLUMNS || from >= PAL_MAX_COLUMNS)
-            return; 
-
-    memcpy(pal + ((row*PAL_MAX_COLUMNS+from)*2), 
-           colors,
-           len*2);
+    drawTextureRect(texId, frame.rect, pos, frame.offset, angle, horFlip,
+                    verFlip);
 }
 
-void Screen::drawTextureRect(uint8_t texId,
-                     irect texRect, v2f pos, 
-                     v2i offset, float angle, 
-                     bool horFlip, bool verFlip) {
-    
-
-    if (!sfTextures.count(texId) ||
-        pos.x-offset.x > size.width || pos.y-offset.y > size.height ||
-        pos.x+offset.x+texRect.width < 0 || pos.y+offset.y+texRect.height < 0)
-            return;
-
-    sf::Sprite spr(*sfTextures[texId]);
-    spr.setTextureRect(sf::IntRect(texRect.left + texRect.width*horFlip, 
-                                   texRect.top + texRect.height*verFlip,
-                                   texRect.width*(horFlip ? -1 : 1),
-                                   texRect.height*(verFlip ? -1 : 1)));
-    spr.setPosition(pos.x, pos.y);
-    spr.setOrigin(
-        (!horFlip || !offset.x) ? offset.x : texRect.width-offset.x, 
-        (!verFlip || !offset.y) ? offset.y : texRect.height-offset.y
-    );
-    spr.setRotation(angle);
-
-    wnd.draw(spr);
-}
-
-void Screen::drawTextureRect(uint8_t texId,
-                     Frame frame, v2f pos, float angle, 
-                     bool horFlip, bool verFlip) {
-    
-    drawTextureRect(
-        texId, 
-        frame.rect,
-        pos,
-        frame.offset,
-        angle,
-        horFlip,
-        verFlip
-    );            
-}
-
-void Screen::drawRectangle(v2f pos, Size rsize, uint16_t color) {
-    if (pos.x + rsize.width < 0 || pos.y + rsize.height < 0 || 
-        pos.x > size.width ||
-        pos.y > size.height)
-            return;
-
-    sf::RectangleShape rs(sf::Vector2f(rsize.width, rsize.height));
-    rs.setPosition(sf::Vector2f(pos.x, pos.y));
-    rs.setFillColor(sf::Color(color16to32RGBA(color)));
-
-    wnd.draw(rs);
-}
-
-void Screen::loadTexture(const uint8_t* src, 
-                         uint16_t width, uint16_t height, 
-                         uint8_t palRow,
-                         uint8_t key,
-                         const Frame* frames,
+void Screen::loadTexture(const uint8_t *src, uint16_t width, uint16_t height,
+                         uint8_t palRow, uint8_t key, const Frame *frames,
                          uint16_t framesLen) {
-    
+
     if (!src || palRow >= PAL_MAX_ROWS) {
         std::cout << "[ERR] bad texture " << (int)key << std::endl;
         return;
     }
 
-    Texture* tex = new Texture;
+    Texture *tex = new Texture;
     if (!tex)
         std::cout << "failed to create texture" << std::endl;
 
@@ -108,66 +55,63 @@ void Screen::loadTexture(const uint8_t* src,
     tex->framesLen = 0;
     tex->indexes = nullptr;
     tex->palRow = 0;
-    tex->size = Size(0,0);
+    tex->size = Size(0, 0);
 
     tex->size = Size(width, height);
     tex->palRow = palRow;
-    tex->indexes = new uint8_t[width*height];
+    tex->indexes = new uint8_t[width * height];
     if (!tex->indexes)
-        std::cout << "failed to load texture indexes" << std::endl;
+        std::cout << "failed to loadFromFile texture indexes" << std::endl;
 
-    memcpy(tex->indexes, src, width*height);
+    memcpy(tex->indexes, src, width * height);
 
     if (frames) {
         tex->frames = new Frame[framesLen];
         if (!tex->frames)
-            std::cout << "failed to load texture frames" << std::endl;
+            std::cout << "failed to loadFromFile texture frames" << std::endl;
 
         tex->framesLen = framesLen;
-        memcpy(tex->frames, frames, tex->framesLen*sizeof(Frame));
+        memcpy(tex->frames, frames, tex->framesLen * sizeof(Frame));
     }
 
-    textures[key] = tex; 
+    textures[key] = tex;
 
     // Texture* texture = textures[key];
     int w, h;
     w = tex->size.width;
     h = tex->size.height;
 
-    uint32_t* pixels = new uint32_t[w * h];
-    if (!pixels) 
+    uint32_t *pixels = new uint32_t[w * h];
+    if (!pixels)
         std::cout << "[ERR] out of memory!" << std::endl;
 
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
-            uint8_t index  = tex->indexes[i * w + j];
+            uint8_t index = tex->indexes[i * w + j];
 
-            uint8_t row    = index / 16;
+            uint8_t row = index / 16;
             uint8_t column = index % 16 + (row ? 1 : -1);
-            
-            if (column >= 16)   column = 0;
-            if (row >= 4)       row = 0; 
-            
-            if (index) 
-                pixels[i*w+j] = color16to32ABGR(pal[row][column]);
+
+            if (column >= 16)
+                column = 0;
+            if (row >= 4)
+                row = 0;
+
+            if (index)
+                pixels[i * w + j] = color16to32ABGR(pal[row][column]);
             else
-                pixels[i*w+j] = 0x00000000;
+                pixels[i * w + j] = 0x00000000;
         }
     }
 
-    sf::Texture* sfTexture = new sf::Texture();
-    sfTexture->create(w, h);
-    sfTexture->update((uint8_t*)pixels);
+    std::vector<uint8_t> v(pixels, pixels + w * h * sizeof(uint32_t));
 
-    sfTextures[key] = sfTexture;
+    sfTextures[key] = textureStore_.loadFromPixelBuffer(v, w);;
 }
 
-void Screen::loadTextureFromFile(const char* filename, 
-                                 uint8_t key,
-                                 const Frame* frames,
-                                 uint16_t framesLen,
+void Screen::loadTextureFromFile(const char *filename, uint8_t key,
+                                 const Frame *frames, uint16_t framesLen,
                                  uint16_t width, uint16_t height) {
-    
     Texture* tex = new Texture;
     if (!tex)
         std::cout << "failed to create texture" << std::endl;
@@ -187,47 +131,11 @@ void Screen::loadTextureFromFile(const char* filename,
         memcpy(tex->frames, frames, tex->framesLen*sizeof(Frame));
     }
 
-    textures[key] = tex; 
+    textures[key] = tex;
 
-    int w, h;
-    w = tex->size.width;
-    h = tex->size.height;
-
-    sf::Texture* sfTexture = new sf::Texture();
-    sfTexture->loadFromFile(filename);
-
-    tex->size = Size(sfTexture->getSize().x, sfTexture->getSize().y);
-
-    sfTextures[key] = sfTexture;
+    sfTextures[key] = textureStore_.loadFromFile(filename);
 }
 
-void Screen::freeTexture(uint8_t key) {
-    if (!textures.count(key))
-        return;
-
-    Texture* tex = textures[key];
-    if (tex->indexes) delete tex->indexes;
-    if (tex->frames && tex->framesLen) delete tex->frames;
-    tex->framesLen = 0;
-    tex->palRow = 0;
-    tex->size = Size(0, 0);
-    delete tex;
-    sf::Texture* sfTex = sfTextures[key];
-    delete sfTex;
-    textures.erase(key);
-    sfTextures.erase(key);
-}
-
-uint32_t Screen::color16to32RGBA(uint16_t src) {
-    uint8_t r, g, b;
-    r = ((src & 0xF000) >> 8) & 0xF0;
-    g = ((src & 0x0F00) >> 4) & 0xF0;
-    b = ((src & 0x00F0) >> 0) & 0xF0;
-
-    uint32_t dst = 0x000000FF | (b << 8) | (g << 16) | (r << 24);
-    
-    return dst;
-}
 
 uint32_t Screen::color16to32ABGR(uint16_t src) {
     uint8_t r, g, b;
@@ -236,24 +144,15 @@ uint32_t Screen::color16to32ABGR(uint16_t src) {
     b = ((src & 0x00F0) >> 0) & 0xF0;
 
     uint32_t dst = 0xFF000000 | (r) | (g << 8) | (b << 16);
-    
+
     return dst;
 }
 
-void Screen::drawPal(v2f pos) {
-
-    for (int i = 0; i < PAL_MAX_ROWS; i++)
-        for (int j = 0; j < PAL_MAX_COLUMNS; j++) {
-            sf::RectangleShape rs(sf::Vector2f(16, 16));
-            rs.setFillColor(sf::Color(color16to32RGBA(pal[i][j])));
-            rs.setPosition(pos.x+16*j, pos.y+16*i);
-            wnd.draw(rs);
-        }
-}
-
-void Screen::addFont(uint8_t key, const char* alphabet, uint8_t interval, 
-                     uint8_t tex, irect startRect, uint16_t rectDivSpace, const uint16_t* widths) {
-    if (!alphabet) return;
+void Screen::addFont(uint8_t key, const char *alphabet, uint8_t interval,
+                     uint8_t tex, irect startRect, uint16_t rectDivSpace,
+                     const uint16_t *widths) {
+    if (!alphabet)
+        return;
 
     Font font;
     font.interval = interval;
@@ -280,16 +179,14 @@ void Screen::addFont(uint8_t key, const char* alphabet, uint8_t interval,
     fonts[key] = font;
 }
 
-
-void Screen::drawText(uint8_t fontKey, const char* str, v2f pos) {
-    if (!fonts.count(fontKey)) return;
-
-    if ((pos.x < 0) || (pos.y < 0) || (pos.x >= wnd.getDefaultView().getSize().x) || (pos.y >= wnd.getDefaultView().getSize().y)) 
+void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {
+    if (!fonts.count(fontKey))
         return;
 
     Font font = fonts[fontKey];
     irect letterRect = font.startRect;
-    sf::Texture* texFont = sfTextures[font.tex];
+
+    auto& texFont = textureStore_.get(sfTextures[font.tex]);
 
     v2f letterPos = pos;
 
@@ -312,12 +209,17 @@ void Screen::drawText(uint8_t fontKey, const char* str, v2f pos) {
         }
 
         if (c != ' ') {
-            sf::Sprite sLetter(*texFont);
-            sLetter.setPosition(letterPos.x, letterPos.y);
-            sLetter.setTextureRect(sf::IntRect(letterRect.left, letterRect.top, 
-                                               letterRect.width, letterRect.height));
+            artist_api::Sprite spr = {
+                .texture = texFont,
+                .rect = {
+                    (float)letterRect.left,
+                    (float)letterRect.top,
+                    (float)letterRect.width,
+                    (float)letterRect.height
+                }
+            };
 
-            wnd.draw(sLetter);
+            artist_.drawSprite(spr, {.x = letterPos.x, .y = letterPos.y });
         } else {
             letterRect = font.startRect;
         }
@@ -326,8 +228,9 @@ void Screen::drawText(uint8_t fontKey, const char* str, v2f pos) {
     }
 }
 
-uint16_t Screen::getTextWidth(uint8_t fontKey, const char* str) {
-    if (!fonts.count(fontKey)) return 0;
+uint16_t Screen::getTextWidth(uint8_t fontKey, const char *str) {
+    if (!fonts.count(fontKey))
+        return 0;
 
     Font font = fonts[fontKey];
     irect letterRect = font.startRect;
@@ -350,7 +253,7 @@ uint16_t Screen::getTextWidth(uint8_t fontKey, const char* str) {
             continue;
         }
 
-        if (c == ' ') 
+        if (c == ' ')
             letterRect = font.startRect;
 
         x += letterRect.width + font.interval;
@@ -359,7 +262,5 @@ uint16_t Screen::getTextWidth(uint8_t fontKey, const char* str) {
     return x;
 }
 
-
-
-
-
+Screen::Screen(SfmlArtist &artist, resource_store::TextureStore &textureStore)
+    : artist_(artist), textureStore_(textureStore) {}

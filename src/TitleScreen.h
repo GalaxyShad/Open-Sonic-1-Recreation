@@ -37,7 +37,7 @@ class TitleScreen {
             menuCursor = 0;
         }
         ~TitleScreen() {
-            scr.freeTexture(254);
+
         }
 
         void startPress() { needToPressStart = false; }

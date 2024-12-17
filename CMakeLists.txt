@@ -25,6 +25,15 @@ add_executable(os1r ${SOURCES}
         src/core/TextureStore.h
         src/core/SfmlTextureStore.cpp
         src/core/SfmlTextureStore.h
+        src/core/GameEnvironment.h
+        src/core/SfmlGameEnviroment.cpp
+        src/core/SfmlGameEnvironment.h
+        src/core/Scene.h
+        src/core/SceneDirector.cpp
+        src/core/SceneDirector.h
+        src/entities/TitleMenuEntity.cpp
+        src/entities/TitleMenuEntity.h
+        src/entities/EntityContext.h
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

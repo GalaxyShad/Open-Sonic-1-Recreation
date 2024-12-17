@@ -61,11 +61,6 @@ class IScreen {
     virtual void drawTextureRect(uint8_t texId, Frame frame, v2f pos = {0, 0},
                                  float angle = 0.0, bool horFlip = false,
                                  bool verFlip = false) = 0;
-
-    virtual void loadTexture(const uint8_t *src, uint16_t width,
-                             uint16_t height, uint8_t palRow, uint8_t key,
-                             const Frame *frames = nullptr,
-                             uint16_t framesLen = 0) = 0;
 };
 
 #define PAL_MAX_ROWS 4
@@ -97,9 +92,6 @@ class Screen : public IScreen {
         return textures.count(texture) ? textures[texture] : nullptr;
     }
 
-    void loadTexture(const uint8_t *src, uint16_t width, uint16_t height,
-                     uint8_t palRow, uint8_t key, const Frame *frames = nullptr,
-                     uint16_t framesLen = 0);
     void loadTextureFromFile(const char *filename, uint8_t key,
                              const Frame *frames = nullptr,
                              uint16_t framesLen = 0, uint16_t width = 0,
@@ -126,37 +118,10 @@ class Screen : public IScreen {
     }
 
   private:
-    uint16_t pal[PAL_MAX_ROWS][PAL_MAX_COLUMNS] = {
-        {0x0000, 0x2280, 0x44a0, 0x66c0, 0x88e0, 0xeee0, 0xaaa0, 0x8880, 0x4440,
-         0xea80, 0xa640, 0xe000, 0x8000, 0x4000, 0xee00, 0x0000},
-        {0x0000, 0x2420, 0x4640, 0x6860, 0x8c80, 0xeee0, 0xaaa0, 0x8880, 0x4440,
-         0xae80, 0xa640, 0xee00, 0x8800, 0x4400, 0xe000, 0x0000},
-        {0x2000, 0xeee0, 0x6200, 0x8400, 0xc600, 0xe800, 0xec00, 0x68a0, 0x68e0,
-         0x8ae0, 0xace0, 0x0400, 0x0600, 0x4a00, 0x8e00, 0x0000},
-        {
-            0x20a0,
-            0x24c0,
-            0x68e0,
-            0xace0,
-            0xcee0,
-            0xeee0,
-            0xcae0,
-            0xa8e0,
-            0x86e0,
-            0x8e00,
-            0x4a00,
-            0x2000,
-            0x6200,
-            0xc600,
-            0xec00,
-        }};
-
     std::map<uint8_t, unsigned long> sfTextures;
     std::map<uint8_t, Texture *> textures;
 
     std::map<uint8_t, Font> fonts;
-
-    uint32_t color16to32ABGR(uint16_t src);
 
     SfmlArtist& artist_;
     resource_store::TextureStore& textureStore_;

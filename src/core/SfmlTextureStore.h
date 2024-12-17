@@ -15,7 +15,7 @@ class SfmlTextureStore : public resource_store::TextureStore {
 
   private:
     std::vector<SfmlTexture> textureList_;
-    long id_;
+    long id_ = 0;
 };
 
 #endif // OS1R_SFMLTEXTURESTORE_H

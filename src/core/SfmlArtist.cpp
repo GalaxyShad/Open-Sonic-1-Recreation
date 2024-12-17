@@ -1,9 +1,8 @@
 #include "SfmlArtist.h"
 
-SfmlArtist::SfmlArtist() {
-    renderWindow_.create(sf::VideoMode(427, 240),
-                         "Open Sonic 1 Engine / SFML DRAWER");
-    renderWindow_.setFramerateLimit(60);
+SfmlArtist::SfmlArtist(sf::RenderWindow &renderWindow)
+    : renderWindow_(renderWindow) {
+    
 }
 
 void SfmlArtist::drawTextureRect(const artist_api::Texture &texture,
@@ -39,16 +38,10 @@ void SfmlArtist::drawSprite(const artist_api::Sprite &sprite,
     renderWindow_.draw(sfmlSprite);
 }
 
-void SfmlArtist::renderLoop() {
-    sf::Event event;
-    while (renderWindow_.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-            renderWindow_.close();
-    }
-
+void SfmlArtist::render() {
     renderWindow_.display();
 }
+
 void SfmlArtist::renderClear() {
     renderWindow_.clear();
 }

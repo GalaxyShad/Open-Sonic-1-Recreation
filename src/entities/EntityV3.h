@@ -3,13 +3,9 @@
 
 #include <vector>
 
+#include "EntityContext.h"
+
 namespace entity_v3 {
-
-class InitContext {};
-
-class DrawContext {};
-
-class UpdateContext {};
 
 using TagID = unsigned long;
 using EntityID = unsigned long;

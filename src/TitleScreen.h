@@ -29,15 +29,11 @@ class TitleScreen {
 
             pos = v2f((float)scr.getSize().width / 2, (float)scr.getSize().height / 2);
 
-            tick = 0;
             yAnimShift = 8;
             needToPressStart = true;
 
             menuItemsCount = 0;
             menuCursor = 0;
-        }
-        ~TitleScreen() {
-
         }
 
         void startPress() { needToPressStart = false; }
@@ -63,8 +59,6 @@ class TitleScreen {
                     anim.set(0, 5, 0.125);
             }
 
-            tick++;
-
             if (anim.getLastFrame() == 5 && anim.getCurFrame() >= 5.75)
                 anim.set(6, 7, 0.125);
 
@@ -73,9 +67,7 @@ class TitleScreen {
             cam.draw(anim, v2f(pos.x, pos.y + yAnimShift));
             scr.drawTextureRect(254, irect(0, 83, 256, 74), v2f(pos.x-128, pos.y - 12));
 
-            if (needToPressStart && tick % 40 < 20)
-                scr.drawTextureRect(254, irect(56, 158, 144, 8), v2f(pos.x-72, pos.y + 64));
-            else if (!needToPressStart) {
+            if (!needToPressStart) {
                 for (int i = 0; i < menuItemsCount; i++) {
                     uint16_t w = scr.getTextWidth(0, menuItems[i]);
 
@@ -94,7 +86,6 @@ class TitleScreen {
         AnimMgr anim;
         v2f pos;
 
-        int tick;
         float yAnimShift;
 
         bool needToPressStart;

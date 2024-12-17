@@ -10,7 +10,7 @@ void Screen::clear() {
         artist_.renderClear();
 }
 
-void Screen::render() { artist_.renderLoop(); }
+void Screen::render() { artist_.render(); }
 
 void Screen::drawTextureRect(uint8_t texId, irect texRect, v2f pos, v2i offset,
                              float angle, bool horFlip, bool verFlip) {
@@ -38,76 +38,6 @@ void Screen::drawTextureRect(uint8_t texId, Frame frame, v2f pos, float angle,
                     verFlip);
 }
 
-void Screen::loadTexture(const uint8_t *src, uint16_t width, uint16_t height,
-                         uint8_t palRow, uint8_t key, const Frame *frames,
-                         uint16_t framesLen) {
-
-    if (!src || palRow >= PAL_MAX_ROWS) {
-        std::cout << "[ERR] bad texture " << (int)key << std::endl;
-        return;
-    }
-
-    Texture *tex = new Texture;
-    if (!tex)
-        std::cout << "failed to create texture" << std::endl;
-
-    tex->frames = nullptr;
-    tex->framesLen = 0;
-    tex->indexes = nullptr;
-    tex->palRow = 0;
-    tex->size = Size(0, 0);
-
-    tex->size = Size(width, height);
-    tex->palRow = palRow;
-    tex->indexes = new uint8_t[width * height];
-    if (!tex->indexes)
-        std::cout << "failed to loadFromFile texture indexes" << std::endl;
-
-    memcpy(tex->indexes, src, width * height);
-
-    if (frames) {
-        tex->frames = new Frame[framesLen];
-        if (!tex->frames)
-            std::cout << "failed to loadFromFile texture frames" << std::endl;
-
-        tex->framesLen = framesLen;
-        memcpy(tex->frames, frames, tex->framesLen * sizeof(Frame));
-    }
-
-    textures[key] = tex;
-
-    // Texture* texture = textures[key];
-    int w, h;
-    w = tex->size.width;
-    h = tex->size.height;
-
-    uint32_t *pixels = new uint32_t[w * h];
-    if (!pixels)
-        std::cout << "[ERR] out of memory!" << std::endl;
-
-    for (int i = 0; i < h; i++) {
-        for (int j = 0; j < w; j++) {
-            uint8_t index = tex->indexes[i * w + j];
-
-            uint8_t row = index / 16;
-            uint8_t column = index % 16 + (row ? 1 : -1);
-
-            if (column >= 16)
-                column = 0;
-            if (row >= 4)
-                row = 0;
-
-            if (index)
-                pixels[i * w + j] = color16to32ABGR(pal[row][column]);
-            else
-                pixels[i * w + j] = 0x00000000;
-        }
-    }
-
-    std::vector<uint8_t> v(pixels, pixels + w * h * sizeof(uint32_t));
-
-    sfTextures[key] = textureStore_.loadFromPixelBuffer(v, w);;
-}
 
 void Screen::loadTextureFromFile(const char *filename, uint8_t key,
                                  const Frame *frames, uint16_t framesLen,
@@ -134,18 +64,6 @@ void Screen::loadTextureFromFile(const char *filename, uint8_t key,
     textures[key] = tex;
 
     sfTextures[key] = textureStore_.loadFromFile(filename);
-}
-
-
-uint32_t Screen::color16to32ABGR(uint16_t src) {
-    uint8_t r, g, b;
-    r = ((src & 0xF000) >> 8) & 0xF0;
-    g = ((src & 0x0F00) >> 4) & 0xF0;
-    b = ((src & 0x00F0) >> 0) & 0xF0;
-
-    uint32_t dst = 0xFF000000 | (r) | (g << 8) | (b << 16);
-
-    return dst;
 }
 
 void Screen::addFont(uint8_t key, const char *alphabet, uint8_t interval,

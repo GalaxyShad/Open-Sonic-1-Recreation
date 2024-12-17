@@ -1,7 +1,7 @@
 #ifndef OS1R_ARTISTSTRUCTS_H
 #define OS1R_ARTISTSTRUCTS_H
 
-#include "IStorableResource.h"
+#include "core/game_enviroment/IStorableResource.h"
 
 namespace artist_api {
 struct Texture : public IStorableResource {

@@ -63,8 +63,8 @@ public:
 #define PAL_MAX_ROWS 4
 #define PAL_MAX_COLUMNS 16
 
-#include "ResourceStore.h"
-#include "SfmlArtist.h"
+#include "core/game_enviroment/ResourceStore.h"
+#include "sfml_game_environment/SfmlArtist.h"
 
 class Screen : public IScreen {
 public:

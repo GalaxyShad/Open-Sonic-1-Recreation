@@ -19,27 +19,27 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 add_executable(os1r ${SOURCES}
         src/entities/EntityV3.h
-        src/core/Artist.h
-        src/core/SfmlArtist.h
-        src/core/SfmlArtist.cpp
-        src/core/TextureLoader.h
-        src/core/SfmlTextureLoader.cpp
-        src/core/SfmlTextureLoader.h
-        src/core/GameEnvironment.h
-        src/core/SfmlGameEnviroment.cpp
-        src/core/SfmlGameEnvironment.h
-        src/core/Scene.h
-        src/core/SceneDirector.cpp
-        src/core/SceneDirector.h
+        src/core/game_enviroment/artist/Artist.h
+        src/sfml_game_environment/SfmlArtist.h
+        src/sfml_game_environment/SfmlArtist.cpp
+        src/core/game_enviroment/artist/TextureLoader.h
+        src/sfml_game_environment/SfmlTextureLoader.cpp
+        src/sfml_game_environment/SfmlTextureLoader.h
+        src/core/game_enviroment/GameEnvironment.h
+        src/sfml_game_environment/SfmlGameEnviroment.cpp
+        src/sfml_game_environment/SfmlGameEnvironment.h
+        src/core/game_enviroment/Scene.h
+        src/core/game_enviroment/SceneDirector.cpp
+        src/core/game_enviroment/SceneDirector.h
         src/entities/TitleMenuEntity.cpp
         src/entities/TitleMenuEntity.h
         src/entities/EntityContext.h
-        src/core/SpriteFont.cpp
-        src/core/SpriteFont.h
-        src/core/ArtistStructs.h
-        src/core/ResourceStore.cpp
-        src/core/ResourceStore.h
-        src/core/IStorableResource.h
+        src/core/game_enviroment/artist/SpriteFont.cpp
+        src/core/game_enviroment/artist/SpriteFont.h
+        src/core/game_enviroment/artist/ArtistStructs.h
+        src/core/game_enviroment/ResourceStore.cpp
+        src/core/game_enviroment/ResourceStore.h
+        src/core/game_enviroment/IStorableResource.h
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

@@ -1,7 +1,7 @@
 #ifndef OS1R_SCENE_H
 #define OS1R_SCENE_H
 
-#include "Artist.h"
+#include "core/game_enviroment/artist/Artist.h"
 
 struct Scene {
     virtual void onStart() = 0;

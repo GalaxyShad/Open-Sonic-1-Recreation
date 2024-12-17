@@ -1,5 +1,5 @@
 #include "Screen.h"
-#include "SfmlTextureLoader.h"
+#include "sfml_game_environment/SfmlTextureLoader.h"
 
 #include <iostream>
 #include <math.h>

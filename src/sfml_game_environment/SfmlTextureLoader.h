@@ -1,9 +1,9 @@
 #ifndef OS1R_SFMLTEXTURELOADER_H
 #define OS1R_SFMLTEXTURELOADER_H
 
-#include "Screen.h"
 #include "SfmlArtist.h"
-#include "TextureLoader.h"
+#include "core/Screen.h"
+#include "core/game_enviroment/artist/TextureLoader.h"
 
 class SfmlTextureLoader : public resource_store::TextureLoader {
 public:

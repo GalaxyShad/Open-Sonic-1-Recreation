@@ -1,9 +1,9 @@
 
 #include "Game.h"
 
-#include "core/ResourceStore.h"
+#include "core/game_enviroment/ResourceStore.h"
 
-#include "core/SfmlGameEnvironment.h"
+#include "sfml_game_environment/SfmlGameEnvironment.h"
 
 int main() {
     SfmlGameEnvironment env;

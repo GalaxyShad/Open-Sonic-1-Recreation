@@ -1,13 +1,13 @@
 #pragma once
 
 #include "core/Geometry.h"
-#include "core/InputMgr.h"
+#include "core/game_enviroment/InputMgr.h"
 #include "player-collider.hpp"
 #include "player-state-base.hpp"
+#include <assert.h>
 #include <cstddef>
 #include <functional>
 #include <vector>
-#include <assert.h>
 
 enum class PlayerStateID {
     NORMAL,

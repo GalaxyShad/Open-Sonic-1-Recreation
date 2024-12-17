@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "core/Geometry.h"
-#include "core/InputMgr.h"
+#include "core/game_enviroment/InputMgr.h"
 
 class PlayerMover {
 public:

@@ -1,9 +1,9 @@
 #ifndef OS1R_ENTITYCONTEXT_H
 #define OS1R_ENTITYCONTEXT_H
 
-#include "core/Artist.h"
 #include "core/Screen.h"
-#include "core/InputMgr.h"
+#include "core/game_enviroment/InputMgr.h"
+#include "core/game_enviroment/artist/Artist.h"
 
 namespace entity_v3 {
 

@@ -5,7 +5,7 @@
 #include "Level.h"
 #include "TitleScreen.h"
 #include "level-loader.hpp"
-#include "core/SfmlGameEnvironment.h"
+#include "sfml_game_environment/SfmlGameEnvironment.h"
 
 #include "entities/TitleMenuEntity.h"
 

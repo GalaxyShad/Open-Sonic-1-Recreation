@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML/Window.hpp>
+#include "SFML/Window.hpp"
 
 enum class InputKey : int {
     LEFT,

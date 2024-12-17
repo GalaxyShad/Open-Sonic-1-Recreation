@@ -4,7 +4,7 @@
 #include "EntityV3.h"
 
 #include "TitleScreen.h"
-#include "core/GameEnvironment.h"
+#include "core/game_enviroment/GameEnvironment.h"
 
 #include <format>
 #include <functional>

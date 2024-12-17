@@ -1,12 +1,12 @@
 #ifndef OS1R_SFMLGAMEENVIRONMENT_H
 #define OS1R_SFMLGAMEENVIRONMENT_H
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
-#include "GameEnvironment.h"
-#include "InputMgr.h"
 #include "SfmlArtist.h"
 #include "SfmlTextureLoader.h"
+#include "core/game_enviroment/GameEnvironment.h"
+#include "core/game_enviroment/InputMgr.h"
 
 class SfmlGameEnvironment : public GameEnvironment {
 private:

@@ -1,9 +1,9 @@
 #ifndef TITLESCREEN_H
 #define TITLESCREEN_H
 
-#include "core/InputMgr.h"
-#include "Camera.h"
 #include "Bg.h"
+#include "Camera.h"
+#include "core/game_enviroment/InputMgr.h"
 
 const Frame framesTitleSonic[] = {
     Frame(257, 0, 72, 88),

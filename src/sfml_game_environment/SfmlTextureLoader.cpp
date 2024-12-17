@@ -2,7 +2,7 @@
 
 #include <format>
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
 std::unique_ptr<artist_api::Texture>
 SfmlTextureLoader::loadFromFile(const std::string &path) {

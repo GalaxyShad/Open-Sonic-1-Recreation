@@ -1,9 +1,9 @@
 #ifndef OS1R_SFMLARTIST_H
 #define OS1R_SFMLARTIST_H
 
-#include "Artist.h"
+#include "core/game_enviroment/artist/Artist.h"
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
 struct SfmlTexture : public artist_api::Texture {
     explicit SfmlTexture(const sf::Texture &tex) : internal(tex) {}

@@ -19,7 +19,7 @@ class IGame {
 class Game : public IGame {
   public:
     Game(Screen &screen, TitleScreen &ts, SfmlGameEnvironment &env)
-        : scr(screen), titleMenuEntity_(ts), env_(env) {}
+        : scr(screen), titleMenuEntity_(ts, env), env_(env) {}
     void init();
     void update();
     void draw(artist_api::Artist& artist);

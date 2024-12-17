@@ -4,6 +4,7 @@
 #include "EntityV3.h"
 
 #include "TitleScreen.h"
+#include "core/GameEnvironment.h"
 
 #include <format>
 #include <functional>
@@ -26,7 +27,7 @@ class MenuButtonElement : public MenuElement {
     explicit MenuButtonElement(const std::string &text,
                                std::function<void()> onSelectFunction)
         : text_(text), onSelectFunction_(std::move(onSelectFunction)) {
-        hoveredText_ = std::format("* {} *", text_);
+        hoveredText_ = std::format("* {}", text_);
     }
 
     void onSelect() override { onSelectFunction_(); }
@@ -124,6 +125,8 @@ class MenuEntity : public entity_v3::Entity {
             elementList_[cursor_]->onLeft();
         if (ctx.input.isKeyPressed(InputKey::RIGHT))
             elementList_[cursor_]->onRight();
+        if (ctx.input.isKeyPressed(InputKey::SELECT))
+            elementList_[cursor_]->onSelect();
 
         if (cursor_ < 0)
             cursor_ = (int)elementList_.size() - 1;
@@ -192,8 +195,8 @@ class TitlePressStartEntity : public entity_v3::Entity {
 
 class TitleMenuEntity : public entity_v3::Entity {
   public:
-    explicit TitleMenuEntity(TitleScreen &titleScreen)
-        : titleScreen_(titleScreen), mainMenu_(mainMenuConstruct()) {}
+    explicit TitleMenuEntity(TitleScreen &titleScreen, GameEnvironment& env)
+        : titleScreen_(titleScreen), env_(env), mainMenu_(mainMenuConstruct()) {}
 
     void onUpdate(const entity_v3::UpdateContext &ctx) override {
         pressStartEntity_.onUpdate(ctx);
@@ -215,6 +218,7 @@ class TitleMenuEntity : public entity_v3::Entity {
 
   private:
     TitleScreen &titleScreen_;
+    GameEnvironment& env_;
 
     TitlePressStartEntity pressStartEntity_;
     MenuEntity mainMenu_;
@@ -226,7 +230,9 @@ class TitleMenuEntity : public entity_v3::Entity {
         res.emplace_back(new MenuButtonElement("play", []() {}));
         res.emplace_back(new MenuButtonElement("options", []() {}));
         res.emplace_back(new MenuSliderElement("volume", {}));
-        res.emplace_back(new MenuButtonElement("exit", []() {}));
+        res.emplace_back(new MenuButtonElement("exit", [this]() {
+            env_.exitGame();
+        }));
 
         return res;
     }

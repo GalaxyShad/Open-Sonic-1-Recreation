@@ -4,13 +4,11 @@
 #include <cstring>
 #include <map>
 
-
 #include "Geometry.h"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Graphics.hpp>
-
 
 struct Frame {
     Frame() {}
@@ -44,7 +42,7 @@ struct Font {
 };
 
 class IScreen {
-  public:
+public:
     virtual void init(Size size, int frameLock) = 0;
     virtual void clear() = 0;
     virtual void render() = 0;
@@ -65,13 +63,13 @@ class IScreen {
 #define PAL_MAX_ROWS 4
 #define PAL_MAX_COLUMNS 16
 
-#include "SfmlArtist.h"
 #include "ResourceStore.h"
+#include "SfmlArtist.h"
 
 class Screen : public IScreen {
-  public:
-    explicit Screen(SfmlArtist &artist,
-                    ResourceStore& store) : artist_(artist), store_(store) {}
+public:
+    explicit Screen(SfmlArtist &artist, ResourceStore &store)
+        : artist_(artist), store_(store) {}
     void init(Size size, int frameLock);
     void clear();
     void render();
@@ -112,16 +110,16 @@ class Screen : public IScreen {
         rs.setSize(sf::Vector2f(radius.x * 2, radius.y * 2));
         rs.setFillColor(sf::Color(color));
 
-//        artist_.sfmlRenderWindow().draw(rs);
-//        wnd.draw(rs);
+        //        artist_.sfmlRenderWindow().draw(rs);
+        //        wnd.draw(rs);
     }
 
-  private:
+private:
     std::map<uint8_t, ResourceID> sfTextures;
     std::map<uint8_t, Texture *> textures;
 
-    std::map<uint8_t, Font> fonts;
+    std::map<uint8_t, ResourceID> fonts;
 
-    SfmlArtist& artist_;
-    ResourceStore& store_;
+    SfmlArtist &artist_;
+    ResourceStore &store_;
 };

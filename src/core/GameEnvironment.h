@@ -9,6 +9,8 @@ struct GameEnvironment {
 
     virtual bool isRunning() = 0;
 
+    virtual void exitGame() = 0;
+
     virtual ~GameEnvironment() = default;
 };
 

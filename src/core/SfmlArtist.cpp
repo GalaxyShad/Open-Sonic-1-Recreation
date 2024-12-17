@@ -45,6 +45,47 @@ void SfmlArtist::render() {
 void SfmlArtist::renderClear() {
     renderWindow_.clear();
 }
+
 void SfmlArtist::drawText(const std::string &text,
                           artist_api::Vector2D<float> pos,
-                          const artist_api::SpriteFont &font) {}
+                          const artist_api::SpriteFont &font) {
+
+    artist_api::Vector2D<float> charPos = pos;
+
+    for (auto ch : text) {
+        if (ch == '\r') {
+            charPos.x = pos.x;
+
+            continue;
+        }
+
+        if (ch == '\n') {
+            charPos.x = pos.x;
+            charPos.y += font.lineHeight();
+
+            continue;
+        }
+
+        if (ch == ' ') {
+            charPos.x += font.spaceWidth();
+
+            continue;
+        }
+
+        if (!font.hasChar(ch)) {
+            sf::RectangleShape emptyChRect(sf::Vector2f(font.spaceWidth(), font.lineHeight()));
+            emptyChRect.setFillColor(sf::Color::White);
+            emptyChRect.setPosition(charPos.x, charPos.y);
+
+            renderWindow_.draw(emptyChRect);
+
+            continue;
+        }
+
+        auto& charSprite = font.getCharSprite(ch);
+
+        drawSprite(charSprite, charPos);
+
+        charPos.x += charSprite.rect.width;
+    }
+}

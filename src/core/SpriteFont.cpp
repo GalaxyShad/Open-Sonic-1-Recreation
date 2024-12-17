@@ -17,3 +17,10 @@ artist_api::SpriteFont::fromSpriteRow(const Texture &tex, Rect startRect,
 
     return SpriteFont(res);
 }
+artist_api::SpriteFont::SpriteFont(
+    const std::vector<std::pair<char, Sprite>> &x) : firstCharSprite(x[0].second) {
+
+    for (auto& i : x) {
+        symMap_.emplace(i.first, i.second);
+    }
+}

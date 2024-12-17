@@ -45,3 +45,6 @@ void SfmlArtist::render() {
 void SfmlArtist::renderClear() {
     renderWindow_.clear();
 }
+void SfmlArtist::drawText(const std::string &text,
+                          artist_api::Vector2D<float> pos,
+                          const artist_api::SpriteFont &font) {}

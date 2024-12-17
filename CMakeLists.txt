@@ -22,9 +22,9 @@ add_executable(os1r ${SOURCES}
         src/core/Artist.h
         src/core/SfmlArtist.h
         src/core/SfmlArtist.cpp
-        src/core/TextureStore.h
-        src/core/SfmlTextureStore.cpp
-        src/core/SfmlTextureStore.h
+        src/core/TextureLoader.h
+        src/core/SfmlTextureLoader.cpp
+        src/core/SfmlTextureLoader.h
         src/core/GameEnvironment.h
         src/core/SfmlGameEnviroment.cpp
         src/core/SfmlGameEnvironment.h
@@ -34,6 +34,12 @@ add_executable(os1r ${SOURCES}
         src/entities/TitleMenuEntity.cpp
         src/entities/TitleMenuEntity.h
         src/entities/EntityContext.h
+        src/core/SpriteFont.cpp
+        src/core/SpriteFont.h
+        src/core/ArtistStructs.h
+        src/core/ResourceStore.cpp
+        src/core/ResourceStore.h
+        src/core/IStorableResource.h
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

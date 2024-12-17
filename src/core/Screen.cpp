@@ -1,4 +1,5 @@
 #include "Screen.h"
+#include "SfmlTextureLoader.h"
 
 #include <iostream>
 #include <math.h>
@@ -15,7 +16,9 @@ void Screen::render() { artist_.render(); }
 void Screen::drawTextureRect(uint8_t texId, irect texRect, v2f pos, v2i offset,
                              float angle, bool horFlip, bool verFlip) {
 
-    auto &tex = textureStore_.get(sfTextures[texId]);
+    auto resourceId = sfTextures[texId];
+
+    auto &tex = store_.get<artist_api::Texture>(resourceId);
 
     artist_.drawSprite({.texture = tex,
                         .rect = {.x = (float)texRect.left,
@@ -43,19 +46,13 @@ void Screen::loadTextureFromFile(const char *filename, uint8_t key,
                                  const Frame *frames, uint16_t framesLen,
                                  uint16_t width, uint16_t height) {
     Texture* tex = new Texture;
-    if (!tex)
-        std::cout << "failed to create texture" << std::endl;
 
     tex->frames = nullptr;
     tex->framesLen = 0;
-    tex->indexes = nullptr;
-    tex->palRow = 0;
     tex->size = Size(0,0);
 
     if (frames) {
         tex->frames = new Frame[framesLen];
-        if (!tex->frames)
-            std::cout << "failed to load texture frames" << std::endl;
 
         tex->framesLen = framesLen;
         memcpy(tex->frames, frames, tex->framesLen*sizeof(Frame));
@@ -63,7 +60,8 @@ void Screen::loadTextureFromFile(const char *filename, uint8_t key,
 
     textures[key] = tex;
 
-    sfTextures[key] = textureStore_.loadFromFile(filename);
+    SfmlTextureLoader loader;
+    sfTextures[key] = store_.load(loader.loadFromFile(filename));
 }
 
 void Screen::addFont(uint8_t key, const char *alphabet, uint8_t interval,
@@ -104,7 +102,8 @@ void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {
     Font font = fonts[fontKey];
     irect letterRect = font.startRect;
 
-    auto& texFont = textureStore_.get(sfTextures[font.tex]);
+    auto resourceId = sfTextures[font.tex];
+    auto &texFont = store_.get<artist_api::Texture>(resourceId);
 
     v2f letterPos = pos;
 
@@ -180,5 +179,3 @@ uint16_t Screen::getTextWidth(uint8_t fontKey, const char *str) {
     return x;
 }
 
-Screen::Screen(SfmlArtist &artist, resource_store::TextureStore &textureStore)
-    : artist_(artist), textureStore_(textureStore) {}

@@ -24,6 +24,8 @@ class SfmlArtist : public artist_api::Artist {
                     artist_api::Artist::TransformProps transform = {
                         .scale = {.x = 1.f, .y = 1.f}}) override;
 
+    void drawText(const std::string &text, artist_api::Vector2D<float> pos, const artist_api::SpriteFont &font) override;
+
     void renderClear();
     void render();
 

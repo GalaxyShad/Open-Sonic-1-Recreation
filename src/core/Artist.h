@@ -1,26 +1,10 @@
 #ifndef OS1R_ARTIST_H
 #define OS1R_ARTIST_H
 
+#include "ArtistStructs.h"
+#include "SpriteFont.h"
+
 namespace artist_api {
-
-struct Texture {
-    virtual ~Texture() = default;
-};
-
-template <typename T>
-struct Vector2D {
-    T x, y;
-};
-
-struct Rect {
-    float x, y, width, height;
-};
-
-struct Sprite {
-    const Texture& texture;
-    Rect rect;
-    Vector2D<float> offset;
-};
 
 struct Artist {
     struct TransformProps {
@@ -37,6 +21,8 @@ struct Artist {
                                  TransformProps transform = {}) = 0;
 
     virtual void drawSprite(const Sprite& sprite, Vector2D<float> pos, TransformProps transform = {}) = 0;
+
+    virtual void drawText(const std::string& text, Vector2D<float> pos, const SpriteFont& font) = 0;
 
     virtual ~Artist() = default;
 };

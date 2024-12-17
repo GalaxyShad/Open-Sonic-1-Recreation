@@ -1,13 +1,17 @@
 
 #include "Game.h"
 
+#include "core/ResourceStore.h"
+
 #include "core/SfmlGameEnvironment.h"
 
 int main() {
     SfmlGameEnvironment env;
     env.init();
 
-    Screen scr(env.artist(), env.textureStore());
+    ResourceStore store;
+
+    Screen scr(env.artist(), store);
     TitleScreen titleScreen(scr);
     Game game(scr, titleScreen, env);
     game.init();

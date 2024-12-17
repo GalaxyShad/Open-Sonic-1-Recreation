@@ -11,6 +11,7 @@
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Graphics.hpp>
 
+
 struct Frame {
     Frame() {}
     Frame(irect _rect)
@@ -25,9 +26,7 @@ struct Frame {
 };
 
 struct Texture {
-    uint8_t *indexes;
     Size size;
-    uint8_t palRow;
     Frame *frames;
     uint16_t framesLen;
 };
@@ -67,12 +66,12 @@ class IScreen {
 #define PAL_MAX_COLUMNS 16
 
 #include "SfmlArtist.h"
-#include "TextureStore.h"
+#include "ResourceStore.h"
 
 class Screen : public IScreen {
   public:
     explicit Screen(SfmlArtist &artist,
-                    resource_store::TextureStore &textureStore);
+                    ResourceStore& store) : artist_(artist), store_(store) {}
     void init(Size size, int frameLock);
     void clear();
     void render();
@@ -118,11 +117,11 @@ class Screen : public IScreen {
     }
 
   private:
-    std::map<uint8_t, unsigned long> sfTextures;
+    std::map<uint8_t, ResourceID> sfTextures;
     std::map<uint8_t, Texture *> textures;
 
     std::map<uint8_t, Font> fonts;
 
     SfmlArtist& artist_;
-    resource_store::TextureStore& textureStore_;
+    ResourceStore& store_;
 };

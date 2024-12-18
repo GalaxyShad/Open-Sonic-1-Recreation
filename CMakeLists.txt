@@ -12,44 +12,119 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-# Include the source directory recursively
-
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-
 add_executable(os1r ${SOURCES}
-        src/core/game_enviroment/EntityV3.h
+        src/AnimMgr.cpp
+        src/AnimMgr.h
+        src/AudioMappings.h
+        src/Bg.cpp
+        src/Bg.h
+        src/Camera.cpp
+        src/Camera.h
+        src/core/Audio.h
+        src/core/DeprecatedGameEnv.h
+        src/core/GameMath.cpp
+        src/core/GameMath.h
         src/core/game_enviroment/artist/Artist.h
-        src/sfml_game_environment/SfmlArtist.h
-        src/sfml_game_environment/SfmlArtist.cpp
-        src/core/game_enviroment/artist/TextureLoader.h
-        src/sfml_game_environment/SfmlTextureLoader.cpp
-        src/sfml_game_environment/SfmlTextureLoader.h
-        src/core/game_enviroment/GameEnvironment.h
-        src/sfml_game_environment/SfmlGameEnviroment.cpp
-        src/sfml_game_environment/SfmlGameEnvironment.h
-        src/core/game_enviroment/Scene.h
-        src/core/game_enviroment/SceneDirector.cpp
-        src/core/game_enviroment/SceneDirector.h
-        src/entities/TitleMenuEntity.cpp
-        src/entities/TitleMenuEntity.h
-        src/core/game_enviroment/EntityContext.h
+        src/core/game_enviroment/artist/ArtistStructs.h
         src/core/game_enviroment/artist/SpriteFont.cpp
         src/core/game_enviroment/artist/SpriteFont.h
-        src/core/game_enviroment/artist/ArtistStructs.h
-        src/core/game_enviroment/ResourceStore.cpp
-        src/core/game_enviroment/ResourceStore.h
-        src/core/game_enviroment/IStorableResource.h
-        src/scenes/TitleScreenScene.cpp
-        src/scenes/TitleScreenScene.h
-        src/core/DeprecatedGameEnv.h
-        src/scenes/GameScene.cpp
-        src/scenes/GameScene.h
-        src/core/game_enviroment/SceneContext.h
-        src/core/game_enviroment/ISceneDirector.h
+        src/core/game_enviroment/artist/TextureLoader.h
+        src/core/game_enviroment/EntityContext.h
         src/core/game_enviroment/EntityPool.cpp
         src/core/game_enviroment/EntityPool.h
         src/core/game_enviroment/EntityPoolEventLoop.h
+        src/core/game_enviroment/EntityV3.h
+        src/core/game_enviroment/GameEnvironment.h
+        src/core/game_enviroment/InputMgr.h
+        src/core/game_enviroment/ISceneDirector.h
+        src/core/game_enviroment/IStorableResource.h
+        src/core/game_enviroment/ResourceStore.cpp
+        src/core/game_enviroment/ResourceStore.h
+        src/core/game_enviroment/Scene.h
+        src/core/game_enviroment/SceneContext.h
+        src/core/game_enviroment/SceneDirector.cpp
+        src/core/game_enviroment/SceneDirector.h
+        src/core/Geometry.h
+        src/core/Screen.cpp
+        src/core/Screen.h
+        src/core/_index.hpp
+        src/entities/entity-types.hpp
+        src/entities/Entity.cpp
+        src/entities/Entity.h
+        src/entities/general/Enemy.h
+        src/entities/general/LayerSwitcher.h
+        src/entities/general/Monitor.h
+        src/entities/general/Ring.cpp
+        src/entities/general/Ring.h
+        src/entities/general/Sfx.h
+        src/entities/general/Spikes.h
+        src/entities/general/Spring.cpp
+        src/entities/general/Spring.h
+        src/entities/general/_index.hpp
+        src/entities/Player.cpp
+        src/entities/Player.h
+        src/entities/sonic-1/enemies/bullet.cpp
+        src/entities/sonic-1/enemies/buzz-bomber.cpp
+        src/entities/sonic-1/enemies/chopper.cpp
+        src/entities/sonic-1/enemies/crabmeat.cpp
+        src/entities/sonic-1/enemies/EnemiesGHZ.h
+        src/entities/sonic-1/enemies/motobug.cpp
+        src/entities/sonic-1/enemies/_index.hpp
+        src/entities/sonic-1/ghz/GimmicksGHZ.cpp
+        src/entities/sonic-1/ghz/GimmicksGHZ.h
+        src/entities/sonic-1/ghz/_index.hpp
+        src/entities/sonic-1/object-ids-s1.hpp
+        src/entities/sonic-1/_index.hpp
+        src/entities/TitleMenuEntity.cpp
+        src/entities/TitleMenuEntity.h
+        src/entities/_index.hpp
+        src/entity-creator.cpp
+        src/entity-creator.hpp
+        src/entity-placement.hpp
+        src/entity-pool.cpp
+        src/entity-pool.hpp
+        src/FramesMappings.h
+        src/game-loop-ticker.h
+        src/Game.cpp
+        src/Game.h
+        src/GameSettings.h
+        src/hex-angle.hpp
+        src/level-loader.cpp
+        src/level-loader.hpp
+        src/Level.cpp
+        src/Level.h
+        src/LevelInformer.h
+        src/main.cpp
+        src/makeunique.hpp
+        src/new-terrain.cpp
+        src/new-terrain.hpp
+        src/player-collider.hpp
+        src/player-mover.hpp
+        src/player-sensor.hpp
+        src/player-state-base.hpp
+        src/player-state-jump.hpp
+        src/player-state-machine.hpp
+        src/player-state-normal.hpp
+        src/scenes/GameScene.cpp
+        src/scenes/GameScene.h
+        src/scenes/TitleScreenScene.cpp
+        src/scenes/TitleScreenScene.h
+        src/sfml_game_environment/SfmlArtist.cpp
+        src/sfml_game_environment/SfmlArtist.h
+        src/sfml_game_environment/SfmlGameEnviroment.cpp
+        src/sfml_game_environment/SfmlGameEnvironment.h
+        src/sfml_game_environment/SfmlTextureLoader.cpp
+        src/sfml_game_environment/SfmlTextureLoader.h
+        src/terrain-drawer.cpp
+        src/terrain-drawer.hpp
+        src/terrain-loader-sonic3.cpp
+        src/terrain-loader.cpp
+        src/terrain-loader.hpp
+        src/terrain-sensor.hpp
+        src/TitleScreen.h
+        src/zone-enums-sonic1.hpp
+        src/zone-enums-sonic2.hpp
+        src/zone-enums-sonic3.hpp
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

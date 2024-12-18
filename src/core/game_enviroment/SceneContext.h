@@ -4,9 +4,10 @@
 #include "core/game_enviroment/artist/Artist.h"
 #include "core/game_enviroment/InputMgr.h"
 #include "ISceneDirector.h"
+#include "EntityPool.h"
 
 struct SceneStartContext {
-
+    entity_v3::EntityPool& entityPool;
 };
 
 struct SceneUpdateContext {

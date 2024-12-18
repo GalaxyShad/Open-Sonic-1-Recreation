@@ -10,21 +10,23 @@
 class TitleScreenScene : public Scene {
 public:
     explicit TitleScreenScene(DeprecatedGameEnvironment &de)
-        : titleScreenDeprecated_(de.scr), deprEnv_(de),
-          menuEntity_(titleScreenDeprecated_) {}
+        : titleScreenDeprecated_(de.scr), deprEnv_(de) {}
+
+    void onStart(const SceneStartContext &ctx) override {
+        ctx.entityPool.instantiate(std::make_unique<TitleMenuEntity>(titleScreenDeprecated_));
+
+        deprEnv_.scr.loadTextureFromFile("content/textures/texTitleBg.png", 253);
+    }
 
     void onUpdate(const SceneUpdateContext &ctx) override {
-        menuEntity_.onUpdate(
-            {.input = ctx.input, .sceneDirector = ctx.sceneDirector});
+        
     }
 
     void onDraw(const SceneDrawContext &ctx) override {
-        menuEntity_.onDraw(
-            {.artist = ctx.artist, .deprecatedScreen = deprEnv_.scr});
+        deprEnv_.scr.drawTextureRect(253, irect(0, 0, 427, 240));
     }
 
 private:
-    TitleMenuEntity menuEntity_;
     TitleScreen titleScreenDeprecated_;
     DeprecatedGameEnvironment &deprEnv_;
 };

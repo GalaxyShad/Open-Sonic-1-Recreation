@@ -18,7 +18,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_executable(os1r ${SOURCES}
-        src/entities/EntityV3.h
+        src/core/game_enviroment/EntityV3.h
         src/core/game_enviroment/artist/Artist.h
         src/sfml_game_environment/SfmlArtist.h
         src/sfml_game_environment/SfmlArtist.cpp
@@ -33,7 +33,7 @@ add_executable(os1r ${SOURCES}
         src/core/game_enviroment/SceneDirector.h
         src/entities/TitleMenuEntity.cpp
         src/entities/TitleMenuEntity.h
-        src/entities/EntityContext.h
+        src/core/game_enviroment/EntityContext.h
         src/core/game_enviroment/artist/SpriteFont.cpp
         src/core/game_enviroment/artist/SpriteFont.h
         src/core/game_enviroment/artist/ArtistStructs.h
@@ -47,6 +47,9 @@ add_executable(os1r ${SOURCES}
         src/scenes/GameScene.h
         src/core/game_enviroment/SceneContext.h
         src/core/game_enviroment/ISceneDirector.h
+        src/core/game_enviroment/EntityPool.cpp
+        src/core/game_enviroment/EntityPool.h
+        src/core/game_enviroment/EntityPoolEventLoop.h
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

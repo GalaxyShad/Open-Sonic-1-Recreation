@@ -7,20 +7,28 @@ SceneUniqueID SceneDirector::add(std::unique_ptr<Scene> scene) {
 
     if (currentSceneId_ == -1) {
         currentSceneId_ = 0;
-        sceneList_[currentSceneId_]->onStart({});
+        sceneList_[currentSceneId_]->onStart({
+            .entityPool = entityPool_
+        });
     }
 
     return sceneList_.size() - 1;
 }
 
 void SceneDirector::go(SceneUniqueID sceneId) {
+
+
     if (currentSceneId_ != -1) {
         sceneList_[currentSceneId_]->onExit({});
     }
 
     currentSceneId_ = sceneId;
 
-    sceneList_[currentSceneId_]->onStart({});
+    entityPool_.clear();
+
+    sceneList_[currentSceneId_]->onStart({
+        .entityPool = entityPool_
+    });
 }
 
 void SceneDirector::update() {

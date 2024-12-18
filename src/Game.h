@@ -12,6 +12,7 @@
 #include "core/game_enviroment/SceneDirector.h"
 
 #include "core/DeprecatedGameEnv.h"
+#include "core/game_enviroment/EntityPoolEventLoop.h"
 
 #include "scenes/TitleScreenScene.h"
 #include "scenes/GameScene.h"
@@ -19,7 +20,7 @@
 class Game {
 public:
     Game(SfmlGameEnvironment &env, DeprecatedGameEnvironment &deprEnv)
-        : sceneDirector_(env), depEnv_(deprEnv) {
+        : sceneDirector_(env, entityPoolEventLoop_.pool()), depEnv_(deprEnv), entityPoolEventLoop_(env, deprEnv, sceneDirector_) {
         sceneDirector_.add(std::make_unique<TitleScreenScene>(deprEnv));
         sceneDirector_.add(std::make_unique<GameScene>(env, deprEnv));
     }
@@ -30,5 +31,6 @@ public:
 
 private:
     DeprecatedGameEnvironment &depEnv_;
+    entity_v3::EntityPoolEventLoop entityPoolEventLoop_;
     SceneDirector sceneDirector_;
 };

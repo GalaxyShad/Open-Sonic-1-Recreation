@@ -4,7 +4,7 @@
 #include "core/Screen.h"
 #include "core/game_enviroment/InputMgr.h"
 #include "core/game_enviroment/artist/Artist.h"
-#include "core/game_enviroment/SceneDirector.h"
+#include "core/game_enviroment/ISceneDirector.h"
 
 namespace entity_v3 {
 

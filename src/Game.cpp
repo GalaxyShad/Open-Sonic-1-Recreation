@@ -52,11 +52,13 @@ void Game::init() {
 }
 
 void Game::update() {
+    entityPoolEventLoop_.update();
     sceneDirector_.update();
 }
 
 void Game::draw(artist_api::Artist &artist) {
     sceneDirector_.draw();
+    entityPoolEventLoop_.draw();
 }
 
 bool Game::isRunning() {

@@ -1,7 +1,7 @@
 #ifndef OS1R_TITLEMENUENTITY_H
 #define OS1R_TITLEMENUENTITY_H
 
-#include "EntityV3.h"
+#include "core/game_enviroment/EntityV3.h"
 
 #include "TitleScreen.h"
 #include "core/game_enviroment/GameEnvironment.h"

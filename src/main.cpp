@@ -2,18 +2,23 @@
 #include "Game.h"
 
 #include "core/game_enviroment/ResourceStore.h"
+#include "core/DeprecatedGameEnv.h"
 
 #include "sfml_game_environment/SfmlGameEnvironment.h"
 
 int main() {
     SfmlGameEnvironment env;
     env.init();
-
     ResourceStore store;
 
-    Screen scr(env.artist(), store);
-    TitleScreen titleScreen(scr);
-    Game game(scr, titleScreen, env);
+    Screen scr(env.sfmlArtist(), store);
+    Audio audio;
+    DeprecatedGameEnvironment deprEnv = {
+        .scr = scr,
+        .audio = audio
+    };
+
+    Game game(env, deprEnv);
     game.init();
 
     while (game.isRunning()) {

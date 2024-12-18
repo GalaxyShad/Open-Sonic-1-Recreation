@@ -9,26 +9,23 @@
 
 #include "entities/TitleMenuEntity.h"
 
-class IGame {
-  public:
-    virtual void init() = 0;
-    virtual void update() = 0;
-    virtual bool isRunning() = 0;
-};
+#include "core/game_enviroment/SceneDirector.h"
 
-class Game : public IGame {
-  public:
-    Game(Screen &screen, TitleScreen &ts, SfmlGameEnvironment &env)
-        : scr(screen), titleMenuEntity_(ts, env), env_(env) {}
+#include "core/DeprecatedGameEnv.h"
+#include "scenes/TitleScreenScene.h"
+
+class Game {
+public:
+    Game(SfmlGameEnvironment &env, DeprecatedGameEnvironment &deprEnv)
+        : sceneDirector_(env), depEnv_(deprEnv) {
+        sceneDirector_.add(std::make_unique<TitleScreenScene>(deprEnv));
+    }
     void init();
     void update();
-    void draw(artist_api::Artist& artist);
+    void draw(artist_api::Artist &artist);
     bool isRunning();
 
-  private:
-    Audio audio;
-    Screen &scr;
-    SfmlGameEnvironment& env_;
-
-    TitleMenuEntity titleMenuEntity_;
+private:
+    DeprecatedGameEnvironment &depEnv_;
+    SceneDirector sceneDirector_;
 };

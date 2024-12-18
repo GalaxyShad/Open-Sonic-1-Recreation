@@ -2,12 +2,31 @@
 #define OS1R_SCENE_H
 
 #include "core/game_enviroment/artist/Artist.h"
+#include "core/game_enviroment/InputMgr.h"
+
+
 
 struct Scene {
-    virtual void onStart() = 0;
-    virtual void onUpdate() = 0;
-    virtual void onDraw(artist_api::Artist& artist) = 0;
-    virtual void onExit() = 0;
+    struct StartContext {
+
+    };
+
+    struct UpdateContext {
+        IInputMgr& input;
+    };
+
+    struct DrawContext {
+        artist_api::Artist& artist;
+    };
+
+    struct ExitContext {
+
+    };
+
+    virtual void onStart(const StartContext& ctx) {};
+    virtual void onUpdate(const UpdateContext& ctx) {};
+    virtual void onDraw(const DrawContext& ctx) {};
+    virtual void onExit(const ExitContext& ctx) {};
 
     virtual ~Scene() = default;
 };

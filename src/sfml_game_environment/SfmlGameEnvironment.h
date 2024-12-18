@@ -25,10 +25,11 @@ public:
 
     inline void exitGame() override { renderWindow_.close(); }
 
-    inline SfmlArtist &artist() { return artist_; }
-    inline SfmlTextureLoader &textureLoader() { return textureLoader_; }
-    inline SfmlInput &input() { return input_; }
+    artist_api::Artist & artist() override { return artist_; }
+    IInputMgr & input() override { return input_; }
+    resource_store::TextureLoader& textureLoader() override { return textureLoader_; }
 
+    SfmlArtist& sfmlArtist() { return artist_; }
 private:
     sf::RenderWindow renderWindow_;
     SfmlArtist artist_;

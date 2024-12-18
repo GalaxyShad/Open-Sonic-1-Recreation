@@ -195,8 +195,8 @@ class TitlePressStartEntity : public entity_v3::Entity {
 
 class TitleMenuEntity : public entity_v3::Entity {
   public:
-    explicit TitleMenuEntity(TitleScreen &titleScreen, GameEnvironment& env)
-        : titleScreen_(titleScreen), env_(env), mainMenu_(mainMenuConstruct()) {}
+    explicit TitleMenuEntity(TitleScreen &titleScreen)
+        : titleScreen_(titleScreen), mainMenu_(mainMenuConstruct()) {}
 
     void onUpdate(const entity_v3::UpdateContext &ctx) override {
         pressStartEntity_.onUpdate(ctx);
@@ -218,8 +218,6 @@ class TitleMenuEntity : public entity_v3::Entity {
 
   private:
     TitleScreen &titleScreen_;
-    GameEnvironment& env_;
-
     TitlePressStartEntity pressStartEntity_;
     MenuEntity mainMenu_;
 
@@ -231,7 +229,7 @@ class TitleMenuEntity : public entity_v3::Entity {
         res.emplace_back(new MenuButtonElement("options", []() {}));
         res.emplace_back(new MenuSliderElement("volume", {}));
         res.emplace_back(new MenuButtonElement("exit", [this]() {
-            env_.exitGame();
+
         }));
 
         return res;

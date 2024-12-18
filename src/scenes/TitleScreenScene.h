@@ -9,20 +9,24 @@
 
 class TitleScreenScene : public Scene {
 public:
-    TitleScreenScene(DeprecatedGameEnvironment& de)
-        : titleScreenDeprecated_(de.scr), deprEnv_(de),  menuEntity_(titleScreenDeprecated_) {}
+    explicit TitleScreenScene(DeprecatedGameEnvironment &de)
+        : titleScreenDeprecated_(de.scr), deprEnv_(de),
+          menuEntity_(titleScreenDeprecated_) {}
 
-    void onUpdate(const Scene::UpdateContext &ctx) override { menuEntity_.onUpdate({.input = ctx.input}); }
+    void onUpdate(const SceneUpdateContext &ctx) override {
+        menuEntity_.onUpdate(
+            {.input = ctx.input, .sceneDirector = ctx.sceneDirector});
+    }
 
-    void onDraw(const Scene::DrawContext &ctx) override {
+    void onDraw(const SceneDrawContext &ctx) override {
         menuEntity_.onDraw(
-            {.artist = ctx.artist, .deprecatedScreen = deprEnv_.scr });
+            {.artist = ctx.artist, .deprecatedScreen = deprEnv_.scr});
     }
 
 private:
     TitleMenuEntity menuEntity_;
     TitleScreen titleScreenDeprecated_;
-    DeprecatedGameEnvironment& deprEnv_;
+    DeprecatedGameEnvironment &deprEnv_;
 };
 
 #endif // OS1R_TITLESCREENSCENE_H

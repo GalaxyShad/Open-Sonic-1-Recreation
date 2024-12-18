@@ -23,7 +23,7 @@ struct MenuElement {
 };
 
 class MenuButtonElement : public MenuElement {
-  public:
+public:
     explicit MenuButtonElement(const std::string &text,
                                std::function<void()> onSelectFunction)
         : text_(text), onSelectFunction_(std::move(onSelectFunction)) {
@@ -38,7 +38,7 @@ class MenuButtonElement : public MenuElement {
         return isHovered_ ? hoveredText_ : text_;
     }
 
-  private:
+private:
     std::function<void()> onSelectFunction_;
     std::string text_;
     std::string hoveredText_;
@@ -46,7 +46,7 @@ class MenuButtonElement : public MenuElement {
 };
 
 class MenuSliderElement : public MenuElement {
-  public:
+public:
     struct Props {
         std::function<void(int)> onDecrement;
         std::function<void(int)> onIncrement;
@@ -98,7 +98,7 @@ class MenuSliderElement : public MenuElement {
         return text_;
     }
 
-  private:
+private:
     Props props_;
     int value_;
     bool isHovered_;
@@ -107,7 +107,7 @@ class MenuSliderElement : public MenuElement {
 };
 
 class MenuEntity : public entity_v3::Entity {
-  public:
+public:
     MenuEntity(std::vector<std::unique_ptr<MenuElement>> elementList)
         : elementList_(std::move(elementList)) {}
 
@@ -163,13 +163,13 @@ class MenuEntity : public entity_v3::Entity {
         return entity_v3::NO_COMPONENTS;
     }
 
-  private:
+private:
     std::vector<std::unique_ptr<MenuElement>> elementList_;
     int cursor_ = 0;
 };
 
 class TitlePressStartEntity : public entity_v3::Entity {
-  public:
+public:
     entity_v3::EntityID type() override { return 2; }
 
     void onUpdate(const entity_v3::UpdateContext &ctx) override { tick_++; }
@@ -189,18 +189,19 @@ class TitlePressStartEntity : public entity_v3::Entity {
         return entity_v3::NO_COMPONENTS;
     }
 
-  private:
+private:
     int tick_ = 0;
 };
 
 class TitleMenuEntity : public entity_v3::Entity {
-  public:
+public:
     explicit TitleMenuEntity(TitleScreen &titleScreen)
         : titleScreen_(titleScreen), mainMenu_(mainMenuConstruct()) {}
 
     void onUpdate(const entity_v3::UpdateContext &ctx) override {
         pressStartEntity_.onUpdate(ctx);
         mainMenu_.onUpdate(ctx);
+        sceneDirector_ = &ctx.sceneDirector;
     }
 
     void onDraw(const entity_v3::DrawContext &ctx) override {
@@ -216,16 +217,17 @@ class TitleMenuEntity : public entity_v3::Entity {
         return entity_v3::NO_COMPONENTS;
     }
 
-  private:
+private:
     TitleScreen &titleScreen_;
+    ISceneDirector* sceneDirector_ = nullptr; // FIXME?
     TitlePressStartEntity pressStartEntity_;
     MenuEntity mainMenu_;
 
-  private:
+private:
     std::vector<std::unique_ptr<MenuElement>> mainMenuConstruct() {
         std::vector<std::unique_ptr<MenuElement>> res;
 
-        res.emplace_back(new MenuButtonElement("play", []() {}));
+        res.emplace_back(new MenuButtonElement("play", [this]() { sceneDirector_->go(1); })); // FIXME CRASH!
         res.emplace_back(new MenuButtonElement("options", []() {}));
         res.emplace_back(new MenuSliderElement("volume", {}));
         res.emplace_back(new MenuButtonElement("exit", [this]() {

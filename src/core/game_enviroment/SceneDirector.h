@@ -3,18 +3,19 @@
 
 #include <vector>
 
-#include "Scene.h"
 #include "core/game_enviroment/GameEnvironment.h"
+#include "ISceneDirector.h"
+#include "Scene.h"
 
-using SceneUniqueID = long;
 
-class SceneDirector final {
+
+class SceneDirector : public ISceneDirector {
 public:
     explicit SceneDirector(GameEnvironment& e) : env_(e) {}
 
     SceneUniqueID add(std::unique_ptr<Scene> scene);
 
-    void go(SceneUniqueID sceneId);
+    void go(SceneUniqueID sceneId) override;
 
     void update();
     void draw();

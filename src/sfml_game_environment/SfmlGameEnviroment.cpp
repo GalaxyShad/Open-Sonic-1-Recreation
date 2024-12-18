@@ -8,6 +8,7 @@ void SfmlGameEnvironment::init() {
 
 void SfmlGameEnvironment::beginFrame() {
     input_.reset();
+    artist_.renderClear();
 
     sf::Event event{};
     while (renderWindow_.pollEvent(event)) {

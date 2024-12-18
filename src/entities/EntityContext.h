@@ -4,6 +4,7 @@
 #include "core/Screen.h"
 #include "core/game_enviroment/InputMgr.h"
 #include "core/game_enviroment/artist/Artist.h"
+#include "core/game_enviroment/SceneDirector.h"
 
 namespace entity_v3 {
 
@@ -16,6 +17,7 @@ struct DrawContext final {
 
 struct UpdateContext final {
     IInputMgr& input;
+    ISceneDirector& sceneDirector;
 };
 
 } // namespace entity_v3

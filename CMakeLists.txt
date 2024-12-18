@@ -43,6 +43,10 @@ add_executable(os1r ${SOURCES}
         src/scenes/TitleScreenScene.cpp
         src/scenes/TitleScreenScene.h
         src/core/DeprecatedGameEnv.h
+        src/scenes/GameScene.cpp
+        src/scenes/GameScene.h
+        src/core/game_enviroment/SceneContext.h
+        src/core/game_enviroment/ISceneDirector.h
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

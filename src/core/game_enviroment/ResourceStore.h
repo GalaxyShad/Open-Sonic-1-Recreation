@@ -21,10 +21,8 @@ class ResourceStore {
     }
 
     template <class T>
-    const T& get(const ResourceID& id) {
+    T& get(const ResourceID& id) {
         auto& res = resourceList_.at(id.id);
-
-
 
         return *((T*)res.get());
     }

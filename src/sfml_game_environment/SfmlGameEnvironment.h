@@ -4,7 +4,10 @@
 #include "SFML/Graphics.hpp"
 
 #include "SfmlArtist.h"
+#include "SfmlAudioLoader.h"
+#include "SfmlDj.h"
 #include "SfmlTextureLoader.h"
+
 #include "core/game_enviroment/GameEnvironment.h"
 #include "core/game_enviroment/InputMgr.h"
 
@@ -25,16 +28,24 @@ public:
 
     inline void exitGame() override { renderWindow_.close(); }
 
-    artist_api::Artist & artist() override { return artist_; }
-    IInputMgr & input() override { return input_; }
-    resource_store::TextureLoader& textureLoader() override { return textureLoader_; }
+    artist_api::Artist &artist() override { return artist_; }
+    dj::Dj &dj() override { return dj_; }
 
-    SfmlArtist& sfmlArtist() { return artist_; }
+    IInputMgr &input() override { return input_; }
+    resource_store::TextureLoader &textureLoader() override {
+        return textureLoader_;
+    }
+    dj::AudioLoader &audioLoader() override { return audioLoader_; }
+
+    SfmlArtist &sfmlArtist() { return artist_; }
+
 private:
     sf::RenderWindow renderWindow_;
     SfmlArtist artist_;
     SfmlTextureLoader textureLoader_;
     SfmlInput input_;
+    SfmlDj dj_;
+    SfmlAudioLoader audioLoader_;
 
     enum class WindowScale { X1 = 1, X2, X3, FULL_SCREEN };
 

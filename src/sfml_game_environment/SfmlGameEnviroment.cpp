@@ -18,6 +18,7 @@ void SfmlGameEnvironment::beginFrame() {
 
 void SfmlGameEnvironment::endFrame() {
     artist_.render();
+    dj_.removeStoppedSounds();
 }
 
 void SfmlGameEnvironment::handleEvent(sf::Event event) {

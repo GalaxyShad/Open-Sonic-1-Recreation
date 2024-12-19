@@ -1,117 +1,76 @@
 #pragma once
 
-#include <SFML/Audio.hpp>
-
-#include <string>
-#include <map>
-#include <list>
 #include <iterator>
+#include <list>
+#include <map>
+#include <string>
 
 #include <cstdint>
 #include <cstring>
 
 #include "AudioMappings.h"
 
+#include "SFML/Audio/SoundBuffer.hpp"
+#include "core/game_enviroment/ResourceStore.h"
+#include "core/game_enviroment/dj/AudioLoader.h"
+#include "core/game_enviroment/dj/Dj.h"
+
 class Audio {
-    public:
-        ~Audio() { free(); }
+public:
+    explicit Audio(dj::Dj &dj, dj::AudioLoader &audioLoader,
+                   ResourceStore &store)
+        : dj_(dj), audioLoader_(audioLoader), store_(store) {}
 
-        float getVolumeSound() { return volumeSnd; }
-        void setVolumeSound(float vol) 
-            { (vol >= 0.f || vol <= 100.f) ? volumeSnd = vol : volumeSnd = 0; }
+    int loadSound(const char *file, uint8_t key) {
+        auto snd = audioLoader_.loadSound(file);
+        resMap_[key] = store_.load(std::move(snd));
 
-        float getVolumeMusic() { return volumeMus; }
-        void setVolumeMusic(float vol) 
-            { (vol >= 0.f || vol <= 100.f) ? volumeMus = vol : volumeMus = 0; }
+        return 1;
+    }
 
-        int loadSound(const char* file, uint8_t key) {
-             if (soundsBuff.count(key))
-                return 0;
+    int addMusic(uint8_t key, std::string file) {
+        auto mus = audioLoader_.loadMusic(file);
+        resMap_[128 + key] = store_.load(std::move(mus));
 
-            sf::SoundBuffer* sb = new sf::SoundBuffer();
-            if (!sb->loadFromFile(file)) {
-                printf("Audio loading error > %s\n", file);
-                return 0;
-            }
+        return 1;
+    }
 
-            soundsBuff[key] = sb;
+    void playSound(uint8_t key) {
+        auto& sndResource = store_.get<dj::Sound>(resMap_[key]);
 
-            return 1;
-        }
+        dj_.playSound(sndResource);
+    }
 
-        int addMusic(uint8_t key, std::string file) {
-             if (musics.count(key))
-                return 0;
+    void stopSound(uint8_t key) {
+        // if (!soundsBuff.count(key))
+        //     return;
 
-            musics[key] = file;
+        // sf::Sound s(*soundsBuff[key]);
+        // snd.stop();
+    }
 
-            return 1;
-        }
+    void playMusic(uint8_t key) {
+        auto& musResource = store_.get<dj::Music>(resMap_[128 + key]);
 
-        void playSound(uint8_t key) {
-            if (!soundsBuff.count(key)) {
-                return;
-            }
+        dj_.playMusic(musResource);
+    }
 
-            sf::Sound* snd = new sf::Sound(*soundsBuff[key]);
-            snd->setVolume(volumeSnd);
-            snd->play();
+    void stopMusic() {
 
-            sounds.push_back(snd);
-        }
+    }
 
-        void stopSound(uint8_t key) {
-            // if (!soundsBuff.count(key))
-            //     return;
+    void update() {
 
-            // sf::Sound s(*soundsBuff[key]);
-            // snd.stop();
-        }
+    }
 
-        void playMusic(uint8_t key) {
-            if (mus.getStatus() == sf::Music::Playing)
-                mus.stop();
+    void free() {
 
-            mus.setVolume(volumeMus); 
-            mus.openFromFile(musics[key]);
-            mus.play();
-        }
+    }
 
-        void stopMusic() {
-            mus.stop();
-        }
-
-        void update() {
-            std::list<sf::Sound*>::iterator it;
-            for (it = sounds.begin(); it != sounds.end();) {
-                sf::Sound* snd = *it;
-                if (snd->getStatus() == sf::Sound::Playing)
-                    it++;
-                else {
-                    it = sounds.erase(it);
-                    delete snd;
-                }
-            }
-        }
-
-        void free() {
-            std::list<sf::Sound*>::iterator it;
-            for (it = sounds.begin(); it != sounds.end();) {
-                it = sounds.erase(it);
-                delete &it;
-            }
-
-            std::map<uint8_t, sf::SoundBuffer*>::iterator itb;
-            for (itb = soundsBuff.begin(); itb != soundsBuff.end();) {
-                itb = soundsBuff.erase(itb);
-                delete &itb;
-            }
-        }
-    private:
-        std::map<uint8_t, sf::SoundBuffer*> soundsBuff;
-        std::map<uint8_t, std::string> musics;
-        std::list<sf::Sound*> sounds;
-        sf::Music mus;
-        float volumeSnd = 05.f, volumeMus = 05.f;
+private:
+    dj::Dj& dj_;
+    dj::AudioLoader& audioLoader_;
+    ResourceStore& store_;
+    std::map<uint8_t, ResourceID> resMap_;
 
 };

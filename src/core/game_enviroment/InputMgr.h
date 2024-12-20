@@ -11,6 +11,9 @@ enum class InputKey : int {
     SPINDASH,
     SELECT,
     DEBUG_MENU,
+    START,
+    SCENE_RESTART,
+    GAME_RESTART,
     LENGTH_,
 };
 
@@ -31,7 +34,7 @@ struct IInputMgr {
 };
 
 class SfmlInput : public IInputMgr {
-  public:
+public:
     bool isKeyLeft() override {
         return sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
     }
@@ -73,6 +76,44 @@ class SfmlInput : public IInputMgr {
             return sf::Keyboard::isKeyPressed(sf::Keyboard::Z);
         case InputKey::DEBUG_MENU:
             return sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+        case InputKey::START:
+            return sf::Keyboard::isKeyPressed(sf::Keyboard::Enter);
+        case InputKey::SCENE_RESTART:
+            return sf::Keyboard::isKeyPressed(sf::Keyboard::R);
+        case InputKey::GAME_RESTART:
+            return sf::Keyboard::isKeyPressed(sf::Keyboard::F2);
+        }
+    }
+
+    void press(sf::Event::KeyEvent e) {
+        switch (e.code) {
+        case sf::Keyboard::Left:
+            setPressed(InputKey::LEFT);
+            break;
+        case sf::Keyboard::Right:
+            setPressed(InputKey::RIGHT);
+            break;
+        case sf::Keyboard::Up:
+            setPressed(InputKey::UP);
+            break;
+        case sf::Keyboard::Down:
+            setPressed(InputKey::DOWN);
+            break;
+        case sf::Keyboard::Z:
+            setPressed(InputKey::SELECT);
+            break;
+
+        case sf::Keyboard::R:
+            setPressed(InputKey::SCENE_RESTART);
+            break;
+
+        case sf::Keyboard::F2:
+            setPressed(InputKey::GAME_RESTART);
+            break;
+
+        case sf::Keyboard::Enter:
+            setPressed(InputKey::START);
+            break;
         }
     }
 
@@ -91,15 +132,11 @@ class SfmlInput : public IInputMgr {
         }
     }
 
-    void setPressed(InputKey k) {
-        isKeyboardPressed_[(int)k] = true;
-    }
+    void setPressed(InputKey k) { isKeyboardPressed_[(int)k] = true; }
 
-    void setReleased(InputKey k) {
-        isKeyboardReleased_[(int)k] = true;
-    }
+    void setReleased(InputKey k) { isKeyboardReleased_[(int)k] = true; }
 
-  private:
+private:
     bool isKeyboardPressed_[(int)InputKey::LENGTH_] = {};
     bool isKeyboardReleased_[(int)InputKey::LENGTH_] = {};
 };

@@ -19,20 +19,14 @@ class Audio {
 public:
     explicit Audio(dj::Dj &dj, dj::AudioLoader &audioLoader,
                    ResourceStore &store)
-        : dj_(dj), audioLoader_(audioLoader), store_(store) {}
+        : dj_(dj), store_(store) {}
 
-    int loadSound(const char *file, uint8_t key) {
-        auto snd = audioLoader_.loadSound(file);
-        resMap_[key] = store_.load(std::move(snd));
-
-        return 1;
+    void bindSound(uint8_t key, ResourceID res) {
+        resMap_[key] = res;
     }
 
-    int addMusic(uint8_t key, std::string file) {
-        auto mus = audioLoader_.loadMusic(file);
-        resMap_[128 + key] = store_.load(std::move(mus));
-
-        return 1;
+    void bindMusic(uint8_t key, ResourceID mus) {
+        resMap_[key + 128] = mus;
     }
 
     void playSound(uint8_t key) {
@@ -41,22 +35,10 @@ public:
         dj_.playSound(sndResource);
     }
 
-    void stopSound(uint8_t key) {
-        // if (!soundsBuff.count(key))
-        //     return;
-
-        // sf::Sound s(*soundsBuff[key]);
-        // snd.stop();
-    }
-
     void playMusic(uint8_t key) {
         auto& musResource = store_.get<dj::Music>(resMap_[128 + key]);
 
         dj_.playMusic(musResource);
-    }
-
-    void stopMusic() {
-
     }
 
     void update() {
@@ -69,7 +51,6 @@ public:
 
 private:
     dj::Dj& dj_;
-    dj::AudioLoader& audioLoader_;
     ResourceStore& store_;
     std::map<uint8_t, ResourceID> resMap_;
 

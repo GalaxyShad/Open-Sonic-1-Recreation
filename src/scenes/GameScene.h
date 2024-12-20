@@ -24,8 +24,12 @@ public:
 
         lv->update();
 
-        if (ctx.input.isKeyPressed(InputKey::UP)) {
+        if (ctx.input.isKeyPressed(InputKey::GAME_RESTART)) {
             ctx.sceneDirector.go(0); // FIXME add proper identifier
+        }
+
+        if (ctx.input.isKeyPressed(InputKey::SCENE_RESTART)) {
+            ctx.sceneDirector.go(1); // FIXME add proper identifier
         }
     }
 

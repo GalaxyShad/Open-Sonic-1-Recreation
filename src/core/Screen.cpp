@@ -13,7 +13,7 @@ void Screen::render() { artist_.render(); }
 void Screen::drawTextureRect(uint8_t texId, irect texRect, v2f pos, v2i offset,
                              float angle, bool horFlip, bool verFlip) {
 
-    auto resourceId = sfTextures[texId];
+    auto resourceId = sfTextures_[texId];
 
     auto &tex = store_.get<artist_api::Texture>(resourceId);
 
@@ -41,30 +41,18 @@ void Screen::drawTextureRect(uint8_t texId, Frame frame, v2f pos, float angle,
 void Screen::loadTextureFromFile(const char *filename, uint8_t key,
                                  const Frame *frames, uint16_t framesLen,
                                  uint16_t width, uint16_t height) {
-    Texture *tex = new Texture;
-
-    tex->frames = nullptr;
-    tex->framesLen = 0;
-    tex->size = Size(0, 0);
-
-    if (frames) {
-        tex->frames = new Frame[framesLen];
-
-        tex->framesLen = framesLen;
-        memcpy(tex->frames, frames, tex->framesLen * sizeof(Frame));
-    }
-
-    textures[key] = tex;
 
     SfmlTextureLoader loader;
-    sfTextures[key] = store_.load(loader.loadFromFile(filename));
+
+    bindTextureFrames(key, frames, framesLen);
+    bindTexture(key, store_.load(loader.loadFromFile(filename)));
 }
 
 void Screen::addFont(uint8_t key, const char *alphabet, uint8_t interval,
                      uint8_t tex, irect startRect, uint16_t rectDivSpace,
                      const uint16_t *widths) {
 
-    auto textureResourceId = sfTextures[tex];
+    auto textureResourceId = sfTextures_[tex];
 
     auto &texture = store_.get<artist_api::Texture>(textureResourceId);
 
@@ -78,16 +66,16 @@ void Screen::addFont(uint8_t key, const char *alphabet, uint8_t interval,
 
     auto *font =
         new artist_api::SpriteFont(artist_api::SpriteFont::fromSpriteRow(
-            texture, rect, {.alphabet = alphabet, .widthList = {}}));
+            artist_api::Sprite{.texture = texture, .rect = rect}, alphabet));
 
-    fonts[key] = store_.load(std::unique_ptr<artist_api::SpriteFont>(font));
+    bindFont(key, store_.load(std::unique_ptr<artist_api::SpriteFont>(font)));
 }
 
 void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {
-    if (!fonts.count(fontKey))
+    if (!fonts_.count(fontKey))
         return;
 
-    auto fontResourceId = fonts[fontKey];
+    auto fontResourceId = fonts_[fontKey];
 
     auto &font = store_.get<artist_api::SpriteFont>(fontResourceId);
 
@@ -95,3 +83,18 @@ void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {
 }
 
 uint16_t Screen::getTextWidth(uint8_t fontKey, const char *str) {}
+
+void Screen::bindTexture(uint8_t key, ResourceID resId) {
+    sfTextures_[key] = resId;
+}
+
+void Screen::bindFont(uint8_t key, ResourceID resId) { fonts_[key] = resId; }
+
+void Screen::bindTextureFrames(uint8_t key, const Frame *frames,
+                               size_t framesLen) {
+    textureFrames_[key] = std::vector<Frame>(frames, frames + framesLen);
+    textures_[key] = {
+        .frames = textureFrames_[key].data(),
+        .framesLen = (uint16_t)framesLen,
+    };
+}

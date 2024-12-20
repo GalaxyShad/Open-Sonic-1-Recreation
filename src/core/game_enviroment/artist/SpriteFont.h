@@ -35,16 +35,15 @@ public:
 
 public:
     struct FromSpriteRowParams {
-        const std::string &alphabet;
         int pixelsBetweenRects;
-        const std::vector<int> &widthList;
     };
 
-    static SpriteFont fromSpriteRow(const Texture &tex, Rect startRect,
-                                    FromSpriteRowParams params = {
-                                        .alphabet = DEFAULT_ALPHABET,
-                                        .widthList = {}});
+    static SpriteFont fromSpriteRow(const Sprite &startSprite, const std::string& alphabet = DEFAULT_ALPHABET,
+                                    FromSpriteRowParams params = {});
 
+    static SpriteFont
+    fromSpriteRowWidths(const Sprite &spr,
+                        const std::vector<std::pair<char, int>> &alphabet, FromSpriteRowParams params = {});
 
 private:
     std::unordered_map<char, Sprite> symMap_;

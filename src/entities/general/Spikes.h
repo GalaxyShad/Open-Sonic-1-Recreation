@@ -38,5 +38,5 @@ class Spikes : public Entity
             dv_anim.create(TEX_OBJECTS); 
             dv_anim.set(138, 138, 0);
         }
-        //void update() { return; }
+        //void loop() { return; }
 };

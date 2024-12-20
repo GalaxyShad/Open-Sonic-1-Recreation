@@ -131,6 +131,7 @@ add_executable(os1r ${SOURCES}
         src/sfml_game_environment/SfmlDj.h
         src/sfml_game_environment/SfmlAudioLoader.cpp
         src/sfml_game_environment/SfmlAudioLoader.h
+        src/sonic/SonicResources.h
 )
 
 target_include_directories(os1r PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

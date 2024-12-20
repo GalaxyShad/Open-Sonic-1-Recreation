@@ -14,23 +14,36 @@
 #include "core/DeprecatedGameEnv.h"
 #include "core/game_enviroment/EntityPoolEventLoop.h"
 
-#include "scenes/TitleScreenScene.h"
 #include "scenes/GameScene.h"
+#include "scenes/TitleScreenScene.h"
+
+#include "sonic/SonicResources.h"
+
+using LoadResourcesFunction = std::function<std::unique_ptr<IStorableResource>(
+    ResourceStore &, GameEnvironment &, DeprecatedGameEnvironment &)>;
 
 class Game {
 public:
-    Game(SfmlGameEnvironment &env, DeprecatedGameEnvironment &deprEnv)
-        : sceneDirector_(env, entityPoolEventLoop_.pool()), depEnv_(deprEnv), entityPoolEventLoop_(env, deprEnv, sceneDirector_) {
-        sceneDirector_.add(std::make_unique<TitleScreenScene>(deprEnv));
-        sceneDirector_.add(std::make_unique<GameScene>(env, deprEnv));
-    }
-    void init();
-    void update();
-    void draw(artist_api::Artist &artist);
-    bool isRunning();
+    static int RunGameWithSfmlBackend(const LoadResourcesFunction &loadResFun);
 
 private:
-    DeprecatedGameEnvironment &depEnv_;
+    Game(GameEnvironment &env, SfmlArtist &sfmlArtist,
+         const LoadResourcesFunction& loadResourcesFun);
+
+    void loop();
+
+private:
+    void gameLogicLoop();
+    void drawLoop();
+
+private:
+    GameEnvironment &env_;
+
+    Audio deprAudio_;
+    Screen deprScreen_;
+    DeprecatedGameEnvironment deprEnv_;
+
     entity_v3::EntityPoolEventLoop entityPoolEventLoop_;
     SceneDirector sceneDirector_;
+    ResourceStore store_;
 };

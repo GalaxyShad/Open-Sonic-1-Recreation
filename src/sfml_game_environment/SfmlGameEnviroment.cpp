@@ -49,23 +49,7 @@ void SfmlGameEnvironment::handleKeyPressed(sf::Event::KeyEvent keyEvent) {
     }
     }
 
-    switch (keyEvent.code) {
-    case sf::Keyboard::Left:
-        input_.setPressed(InputKey::LEFT);
-        break;
-    case sf::Keyboard::Right:
-        input_.setPressed(InputKey::RIGHT);
-        break;
-    case sf::Keyboard::Up:
-        input_.setPressed(InputKey::UP);
-        break;
-    case sf::Keyboard::Down:
-        input_.setPressed(InputKey::DOWN);
-        break;
-    case sf::Keyboard::Z:
-        input_.setPressed(InputKey::SELECT);
-        break;
-    }
+    input_.press(keyEvent);
 }
 
 void SfmlGameEnvironment::scaleWindow(WindowScale scale) {

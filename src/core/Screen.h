@@ -29,18 +29,6 @@ struct Texture {
     uint16_t framesLen;
 };
 
-struct Letter {
-    uint32_t xPos;
-    uint16_t width;
-};
-
-struct Font {
-    uint8_t tex;
-    irect startRect;
-    uint16_t interval;
-    std::map<char, Letter> letters;
-};
-
 class IScreen {
 public:
     virtual void init(Size size, int frameLock) = 0;
@@ -59,9 +47,6 @@ public:
                                  float angle = 0.0, bool horFlip = false,
                                  bool verFlip = false) = 0;
 };
-
-#define PAL_MAX_ROWS 4
-#define PAL_MAX_COLUMNS 16
 
 #include "core/game_enviroment/ResourceStore.h"
 #include "sfml_game_environment/SfmlArtist.h"
@@ -86,13 +71,18 @@ public:
                          bool verFlip = false);
 
     const Texture *getTexture(uint8_t texture) {
-        return textures.count(texture) ? textures[texture] : nullptr;
+        return &textures_[texture];
     }
 
     void loadTextureFromFile(const char *filename, uint8_t key,
                              const Frame *frames = nullptr,
                              uint16_t framesLen = 0, uint16_t width = 0,
                              uint16_t height = 0);
+
+
+    void bindTexture(uint8_t key, ResourceID resId);
+    void bindTextureFrames(uint8_t key, const Frame* frames, size_t framesLen);
+    void bindFont(uint8_t key, ResourceID resId);
 
     void addFont(uint8_t key, const char *alphabet, uint8_t interval,
                  uint8_t tex, irect startRect, uint16_t rectDivSpace = 0,
@@ -115,10 +105,10 @@ public:
     }
 
 private:
-    std::map<uint8_t, ResourceID> sfTextures;
-    std::map<uint8_t, Texture *> textures;
-
-    std::map<uint8_t, ResourceID> fonts;
+    std::map<uint8_t, Texture> textures_;
+    std::map<uint8_t, std::vector<Frame>> textureFrames_;
+    std::map<uint8_t, ResourceID> sfTextures_;
+    std::map<uint8_t, ResourceID> fonts_;
 
     SfmlArtist &artist_;
     ResourceStore &store_;

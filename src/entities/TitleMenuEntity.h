@@ -125,7 +125,7 @@ public:
             elementList_[cursor_]->onLeft();
         if (ctx.input.isKeyPressed(InputKey::RIGHT))
             elementList_[cursor_]->onRight();
-        if (ctx.input.isKeyPressed(InputKey::SELECT))
+        if (ctx.input.isKeyPressed(InputKey::START))
             elementList_[cursor_]->onSelect();
 
         if (cursor_ < 0)

@@ -2,11 +2,14 @@
 
 #include "Camera.h"
 #include "core/Audio.h"
+#include "core/game_enviroment/artist/SpriteFont.h"
 #include "entities/Entity.h"
 #include "entity-pool.hpp"
+#include "sonic/SonicResources.h"
+#include <__format/format_functions.h>
 
 class TitleCardSonic1 : public Entity {
-  public:
+public:
     TitleCardSonic1(const std::string &zonename, int act, float screenWidth,
                     EntityPool &entityPool)
         : m_act(act), m_zonename(zonename), m_entityPool(entityPool) {
@@ -69,18 +72,22 @@ class TitleCardSonic1 : public Entity {
             break;
         }
 
-        scr.drawText(
-            2, m_zonename.c_str(),
-            v2f(m_textTopX - scr.getTextWidth(2, m_zonename.c_str()), 72));
-        scr.drawText(2, "ZONE",
-                     v2f(m_textBottomX - scr.getTextWidth(2, "ZONE"), 92));
+        auto &font = scr.store().get<artist_api::SpriteFont>(
+            scr.store().map<SonicResources>().fonts.s1TitleCard);
+
+        scr.artist().drawText(
+            m_zonename, {.x = m_textTopX, .y = 72}, font,
+            {.horizontalAlign = artist_api::HorizontalAlign::RIGHT});
+        scr.artist().drawText(
+            "ZONE", {.x = m_textBottomX, .y = 92}, font,
+            {.horizontalAlign = artist_api::HorizontalAlign::RIGHT});
 
         if (m_tick > 220) {
             m_entityPool.destroy(*this);
         }
     }
 
-  private:
+private:
     EntityPool &m_entityPool;
     const std::string &m_zonename;
     int m_act;
@@ -93,14 +100,16 @@ class TitleCardSonic1 : public Entity {
 };
 
 class LevelInformer : Entity {
-  public:
+public:
     enum Type { T_TITLE_CARD, T_ROUND_CLEAR };
     LevelInformer(const char *zone, int act, Screen &scr, Audio &audio,
                   Type type, int *score = nullptr, int rings = 0, int time = 0)
         : zone(zone), act(act), scr(scr), audio(audio), type(type),
 
-        sndBeep_(audio.store().get<dj::Sound>(audio.store().map<SonicResources>().sounds.beep)),
-          sndCountEnd_(audio.store().get<dj::Sound>(audio.store().map<SonicResources>().sounds.ding))
+          sndBeep_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.beep)),
+          sndCountEnd_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.ding))
 
     {
         tick = (type == T_TITLE_CARD) ? 0 : -100;
@@ -224,16 +233,15 @@ class LevelInformer : Entity {
             break;
         }
 
-        scr.drawText(2, (type == T_TITLE_CARD) ? zone : "SONIC HAS",
-                     v2f(xFontTop - scr.getTextWidth(2, (type == T_TITLE_CARD)
-                                                            ? zone
-                                                            : "SONIC HAS"),
-                         72 + yShift));
-        scr.drawText(2, (type == T_TITLE_CARD) ? "ZONE" : "PASSED",
-                     v2f(xFontBottom -
-                             scr.getTextWidth(
-                                 2, (type == T_TITLE_CARD) ? "ZONE" : "PASSED"),
-                         92 + yShift));
+        auto &font = scr.store().get<artist_api::SpriteFont>(
+            scr.store().map<SonicResources>().fonts.s1TitleCard);
+
+        scr.artist().drawText(
+            "SONIC HAS", {.x = xFontTop, .y = 72.f + yShift}, font,
+            {.horizontalAlign = artist_api::HorizontalAlign::RIGHT});
+        scr.artist().drawText(
+            "PASSED", {.x = xFontBottom, .y = 92.f + yShift}, font,
+            {.horizontalAlign = artist_api::HorizontalAlign::RIGHT});
 
         if (type != T_ROUND_CLEAR)
             return;
@@ -246,22 +254,25 @@ class LevelInformer : Entity {
         scr.drawTextureRect(2, irect(231, 60, 16, 16),
                             v2f(xRingBonus + 70, 132 + shift));
 
-        char strbuff[9];
         scr.drawTextureRect(2, irect(1, 60, 40, 16), v2f(xScore, 100 + shift));
-        snprintf(strbuff, 9, "%8d", *score);
-        scr.drawText(3, strbuff, v2f(xScore + 96, 100 + shift));
+        scr.artist().drawText(std::format("{:8d}", *score),
+                              {xScore + 96, 100 + shift}, font);
+
         scr.drawTextureRect(2, irect(42, 60, 32, 16),
                             v2f(xTimeBonus, 116 + shift));
         scr.drawTextureRect(2, irect(116, 60, 40, 16),
                             v2f(xTimeBonus + 40, 116 + shift));
-        snprintf(strbuff, 9, "%8d", timeBonus);
-        scr.drawText(3, strbuff, v2f(xTimeBonus + 96, 116 + 16));
+
+        scr.artist().drawText(std::format("{:8d}", timeBonus),
+                              {xScore + 96, 116 + 16}, font);
+
         scr.drawTextureRect(2, irect(75, 60, 32, 16),
                             v2f(xRingBonus, 132 + shift));
         scr.drawTextureRect(2, irect(116, 60, 40, 16),
                             v2f(xRingBonus + 40, 132 + shift));
-        snprintf(strbuff, 9, "%8d", ringBonus);
-        scr.drawText(3, strbuff, v2f(xRingBonus + 96, 132 + shift));
+
+        scr.artist().drawText(std::format("{:8d}", ringBonus),
+                              {xRingBonus + 96, 132 + shift}, font);
     }
 
     bool isDone() {
@@ -274,12 +285,12 @@ class LevelInformer : Entity {
     int getTick() { return tick; }
     Type getType() { return type; }
 
-  private:
+private:
     Screen &scr;
     Audio &audio;
 
-    dj::Sound& sndBeep_;
-    dj::Sound& sndCountEnd_;
+    dj::Sound &sndBeep_;
+    dj::Sound &sndCountEnd_;
 
     const char *zone;
     int act, tick;

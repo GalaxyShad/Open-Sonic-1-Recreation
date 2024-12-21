@@ -14,7 +14,7 @@ struct SonicResources : public IStorableResource {
     struct Fonts {
         ResourceID general;
         ResourceID s1Credits;
-        ResourceID s1TitleScreen;
+        ResourceID s1TitleCard;
         ResourceID s1HudDigits;
     } fonts;
 

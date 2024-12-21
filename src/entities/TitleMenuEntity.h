@@ -5,17 +5,19 @@
 
 #include "TitleScreen.h"
 #include "core/game_enviroment/GameEnvironment.h"
+#include "core/game_enviroment/artist/SpriteFont.h"
+#include "sonic/SonicResources.h"
 
 #include <format>
 #include <functional>
 #include <utility>
 
 struct MenuElement {
-    virtual void onLeft() {};
-    virtual void onRight() {};
-    virtual void onSelect() {};
-    virtual void onHover() {};
-    virtual void onUnhover() {}; // FIXME i dont know how to call this :D
+    virtual void onLeft(){};
+    virtual void onRight(){};
+    virtual void onSelect(){};
+    virtual void onHover(){};
+    virtual void onUnhover(){}; // FIXME i dont know how to call this :D
 
     virtual const std::string &displayName() = 0;
 
@@ -27,7 +29,7 @@ public:
     explicit MenuButtonElement(const std::string &text,
                                std::function<void()> onSelectFunction)
         : text_(text), onSelectFunction_(std::move(onSelectFunction)) {
-        hoveredText_ = std::format("* {}", text_);
+        hoveredText_ = std::format("* {} *", text_);
     }
 
     void onSelect() override { onSelectFunction_(); }
@@ -152,7 +154,14 @@ public:
         for (auto &el : elementList_) {
             auto &str = el->displayName();
 
-            ctx.deprecatedScreen.drawText(0, str.c_str(), pos);
+            auto &st = ctx.deprecatedScreen.store();
+
+            auto &font = st.get<artist_api::SpriteFont>(
+                st.map<SonicResources>().fonts.general);
+
+            ctx.artist.drawText(
+                str, {.x = pos.x, .y = pos.y}, font,
+                {.horizontalAlign = artist_api::HorizontalAlign::CENTER});
 
             pos.y += 14.f;
         }
@@ -219,7 +228,7 @@ public:
 
 private:
     TitleScreen &titleScreen_;
-    ISceneDirector* sceneDirector_ = nullptr; // FIXME?
+    ISceneDirector *sceneDirector_ = nullptr; // FIXME?
     TitlePressStartEntity pressStartEntity_;
     MenuEntity mainMenu_;
 
@@ -227,7 +236,8 @@ private:
     std::vector<std::unique_ptr<MenuElement>> mainMenuConstruct() {
         std::vector<std::unique_ptr<MenuElement>> res;
 
-        res.emplace_back(new MenuButtonElement("play", [this]() { sceneDirector_->go(1); })); // FIXME CRASH!
+        res.emplace_back(new MenuButtonElement(
+            "play", [this]() { sceneDirector_->go(1); })); // FIXME CRASH!
         res.emplace_back(new MenuButtonElement("options", []() {}));
         res.emplace_back(new MenuSliderElement("volume", {}));
         res.emplace_back(new MenuButtonElement("exit", [this]() {

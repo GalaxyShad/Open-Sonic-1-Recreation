@@ -2,8 +2,11 @@
 
 #include "LevelInformer.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
+#include "core/game_enviroment/artist/SpriteFont.h"
 #include "entity-creator.hpp"
 #include "game-loop-ticker.h"
+#include "sonic/SonicResources.h"
+#include <__format/format_functions.h>
 #include <cstdio>
 
 void Level::create() {
@@ -98,8 +101,8 @@ void Level::createZoneSpecific() {
     // S Tubes
     if (m_zoneNameShort == "GHZ") {
 
-
-        m_audio.dj().playMusic(m_audio.store().get<dj::Music>(m_audio.store().map<SonicResources>().music.greenHillZone));
+        m_audio.dj().playMusic(m_audio.store().get<dj::Music>(
+            m_audio.store().map<SonicResources>().music.greenHillZone));
 
         auto &layout = m_terrain.getLayout();
 
@@ -124,7 +127,8 @@ void Level::update() {
     if (lvInformer) {
         if (lvInformer->getType() == LevelInformer::T_ROUND_CLEAR &&
             lvInformer->getTick() == 0)
-            m_audio.dj().playMusic(m_audio.store().get<dj::Music>(m_audio.store().map<SonicResources>().music.stageClear));
+            m_audio.dj().playMusic(m_audio.store().get<dj::Music>(
+                m_audio.store().map<SonicResources>().music.stageClear));
 
         if (lvInformer->isDone()) {
             if (isTimeStopped)
@@ -235,21 +239,43 @@ void Level::draw() {
 }
 
 void Level::drawHud() {
-    m_screen.drawTextureRect(2, irect(1, 60, 40, 16), v2f(16, 8));
-    m_screen.drawTextureRect(2, irect(42, 60, 32, 16), v2f(16, 24));
-    m_screen.drawTextureRect(2, irect(75, 60, 40, 16), v2f(16, 40));
+    auto &st = m_screen.store();
 
-    char sScore[7];
-    char sTime[5];
-    char sRings[4];
+    auto &hudTex =
+        st.get<artist_api::Texture>(st.map<SonicResources>().textures.hud);
+    auto &artist = m_screen.artist();
 
-    snprintf(sScore, 7, "%6d", score);
-    snprintf(sTime, 5, "%d:%02d", time / 60, time % 60);
-    snprintf(sRings, 4, "%3d", rings);
+    artist.drawSprite(
+        artist_api::Sprite{
+            .texture = hudTex,
+            .rect = {.x = 1, .y = 60, .width = 40, .height = 16},
+        },
+        {.x = 16, .y = 8});
+    artist.drawSprite(
+        artist_api::Sprite{
+            .texture = hudTex,
+            .rect = {.x = 42, .y = 60, .width = 32, .height = 16},
+        },
+        {.x = 16, .y = 24});
+    artist.drawSprite(
+        artist_api::Sprite{
+            .texture = hudTex,
+            .rect = {.x = 75, .y = 60, .width = 40, .height = 16},
+        },
+        {.x = 16, .y = 40});
 
-    m_screen.drawText(3, sScore, v2f(64, 8));
-    m_screen.drawText(3, sTime, v2f(56, 24));
-    m_screen.drawText(3, sRings, v2f(64, 40));
+    auto minutes = time / 60;
+    auto seconds = time % 60;
+
+    auto &font = st.get<artist_api::SpriteFont>(
+        st.map<SonicResources>().fonts.s1HudDigits);
+
+    m_screen.artist().drawText(std::format("{:6d}", score), {.x = 64, .y = 8},
+                               font);
+    m_screen.artist().drawText(std::format("{:d}:{:02d}", minutes, seconds),
+                               {.x = 56, .y = 24}, font);
+    m_screen.artist().drawText(std::format("{:3d}", rings), {.x = 64, .y = 40},
+                               font);
 }
 
 void Level::free() { delete lvInformer; }

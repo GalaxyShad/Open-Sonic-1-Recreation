@@ -26,31 +26,10 @@ void Screen::drawTextureRect(uint8_t texId, irect texRect, v2f pos, v2i offset,
                        });
 }
 
-void Screen::drawTextureRect(uint8_t texId, Frame frame, v2f pos, float angle,
-                             bool horFlip, bool verFlip) {
-
-    drawTextureRect(texId, frame.rect, pos, frame.offset, angle, horFlip,
-                    verFlip);
-}
-
-void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {
-    if (!fonts_.count(fontKey))
-        return;
-
-    auto fontResourceId = fonts_[fontKey];
-
-    auto &font = store_.get<artist_api::SpriteFont>(fontResourceId);
-
-    artist_.drawText(str, {.x = pos.x, .y = pos.y}, font);
-}
-
-uint16_t Screen::getTextWidth(uint8_t fontKey, const char *str) {}
 
 void Screen::bindTexture(uint8_t key, ResourceID resId) {
     sfTextures_[key] = resId;
 }
-
-void Screen::bindFont(uint8_t key, ResourceID resId) { fonts_[key] = resId; }
 
 void Screen::bindTextureFrames(uint8_t key, const Frame *frames,
                                size_t framesLen) {

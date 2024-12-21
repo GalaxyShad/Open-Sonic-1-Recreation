@@ -12,6 +12,7 @@
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "core/game_enviroment/artist/TextureLoader.h"
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 struct Frame {
     Frame() {}
@@ -41,25 +42,27 @@ public:
                     resource_store::TextureLoader &loader)
         : artist_(artist), store_(store), loader_(loader) {}
 
+    /////////////////
+    /////////////////
+
     Size getSize() { return Size(427, 240); }
 
     void drawTextureRect(uint8_t texId, irect texRect, v2f pos = {0, 0},
                          v2i offset = {0, 0}, float angle = 0.0,
                          bool horFlip = false, bool verFlip = false);
-    void drawTextureRect(uint8_t texId, Frame frame, v2f pos = {0, 0},
-                         float angle = 0.0, bool horFlip = false,
-                         bool verFlip = false);
 
     const Texture *getTexture(uint8_t texture) { return &textures_[texture]; }
+
+    /////////////////
+    /////////////////
+
+    inline const std::vector<Frame> &frames(uint8_t key) { return textureFrames_[key];
+    }
 
     void bindTexture(uint8_t key, ResourceID resId);
     void bindTextureFrames(uint8_t key, const Frame *frames, size_t framesLen);
 
-
-    void bindFont(uint8_t key, ResourceID resId);
-    void drawText(uint8_t fontKey, const char *str, v2f pos = v2f(0, 0));
-    uint16_t getTextWidth(uint8_t fontKey, const char *str);
-
+    ResourceID &getTextureResource(uint8_t key) { return sfTextures_[key]; }
     ResourceStore &store() { return store_; }
     artist_api::Artist &artist() { return artist_; }
     resource_store::TextureLoader &textureLoader() { return loader_; }
@@ -68,7 +71,6 @@ private:
     std::map<uint8_t, Texture> textures_;
     std::map<uint8_t, std::vector<Frame>> textureFrames_;
     std::map<uint8_t, ResourceID> sfTextures_;
-    std::map<uint8_t, ResourceID> fonts_;
 
     SfmlArtist &artist_;
     resource_store::TextureLoader &loader_;

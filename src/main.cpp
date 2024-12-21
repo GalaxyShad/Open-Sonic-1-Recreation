@@ -76,16 +76,11 @@ SonicResources::Fonts loadFonts(ResourceStore &store,
     SonicResources::Fonts fonts = {
         .general = store.load(std::make_unique<art::SpriteFont>(general)),
         .s1Credits = store.load(std::make_unique<art::SpriteFont>(s1font)),
-        .s1TitleScreen =
+        .s1TitleCard =
             store.load(std::make_unique<art::SpriteFont>(s1titleCard)),
         .s1HudDigits =
             store.load(std::make_unique<art::SpriteFont>(s1hudDigits)),
     };
-
-    deprEnv.scr.bindFont(0, fonts.general);
-    deprEnv.scr.bindFont(1, fonts.s1Credits);
-    deprEnv.scr.bindFont(2, fonts.s1TitleScreen);
-    deprEnv.scr.bindFont(3, fonts.s1HudDigits);
 
     return fonts;
 }

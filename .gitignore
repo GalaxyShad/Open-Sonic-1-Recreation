@@ -13,3 +13,5 @@ CMakeFiles
 .vscode
 CMakeCache.txt
 ninja.exe
+.cache/
+.DS_Store

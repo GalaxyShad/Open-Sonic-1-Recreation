@@ -48,7 +48,7 @@ public:
         return sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
     }
     bool isKeyAction() override {
-        return sf::Keyboard::isKeyPressed(sf::Keyboard::Z);
+        // return sf::Keyboard::isKeyPressed(sf::Keyboard::Z);
     }
     bool isKeySpindash() override {
         return sf::Keyboard::isKeyPressed(sf::Keyboard::X);

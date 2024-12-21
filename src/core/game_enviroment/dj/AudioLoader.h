@@ -2,7 +2,7 @@
 #define OS1R_AUDIOLOADER_H
 
 #include <memory>
-
+#include <string>
 #include "DjResources.h"
 
 namespace dj {

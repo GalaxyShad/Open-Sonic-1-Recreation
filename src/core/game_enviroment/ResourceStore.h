@@ -2,7 +2,7 @@
 #define OS1R_RESOURCESTORE_H
 
 #include <vector>
-
+#include <memory>
 #include "IStorableResource.h"
 
 struct ResourceID {

@@ -6,7 +6,7 @@
 #include "entities/Entity.h"
 #include "entity-pool.hpp"
 #include "sonic/SonicResources.h"
-#include <__format/format_functions.h>
+#include <format>
 
 class TitleCardSonic1 : public Entity {
 public:

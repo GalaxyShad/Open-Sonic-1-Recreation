@@ -6,7 +6,7 @@
 #include "entity-creator.hpp"
 #include "game-loop-ticker.h"
 #include "sonic/SonicResources.h"
-#include <__format/format_functions.h>
+#include <format>
 #include <cstdio>
 
 void Level::create() {

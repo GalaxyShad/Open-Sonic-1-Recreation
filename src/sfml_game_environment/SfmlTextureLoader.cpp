@@ -1,8 +1,11 @@
 #include "SfmlTextureLoader.h"
 
 #include <format>
+#include <iostream>
 
 #include "SFML/Graphics.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Image.hpp"
 
 std::unique_ptr<artist_api::Texture>
 SfmlTextureLoader::loadFromFile(const std::string &path) {

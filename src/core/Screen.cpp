@@ -48,29 +48,6 @@ void Screen::loadTextureFromFile(const char *filename, uint8_t key,
     bindTexture(key, store_.load(loader.loadFromFile(filename)));
 }
 
-void Screen::addFont(uint8_t key, const char *alphabet, uint8_t interval,
-                     uint8_t tex, irect startRect, uint16_t rectDivSpace,
-                     const uint16_t *widths) {
-
-    auto textureResourceId = sfTextures_[tex];
-
-    auto &texture = store_.get<artist_api::Texture>(textureResourceId);
-
-    artist_api::Rect rect = {
-        .x = (float)startRect.left,
-        .y = (float)startRect.top,
-        .width = (float)startRect.width,
-        .height = (float)startRect.height,
-
-    };
-
-    auto *font =
-        new artist_api::SpriteFont(artist_api::SpriteFont::fromSpriteRow(
-            artist_api::Sprite{.texture = texture, .rect = rect}, alphabet));
-
-    bindFont(key, store_.load(std::unique_ptr<artist_api::SpriteFont>(font)));
-}
-
 void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {
     if (!fonts_.count(fontKey))
         return;

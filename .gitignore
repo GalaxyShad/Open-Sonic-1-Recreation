@@ -15,3 +15,5 @@ CMakeCache.txt
 ninja.exe
 .cache/
 .DS_Store
+cmake-build-debug/
+.idea/

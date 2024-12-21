@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "new-terrain.hpp"
 
 #include "core/Screen.h"
@@ -67,7 +68,7 @@ public:
         return scan().distance;
     }
 
-    void draw(Camera& cam, sf::Color color = sf::Color::White) {
+    void draw(Camera& cam, artist_api::Color color = artist_api::Color::WHITE()) {
         float poscamx = m_position.x - cam.getPos().x;
         float poscamy = m_position.y - cam.getPos().y;
 
@@ -80,16 +81,16 @@ public:
 
         switch (m_direction) {
             case SensorDirection::DOWN:
-                drawDot(poscamx, poscamy + distance, sf::Color::White, cam);
+                drawDot(poscamx, poscamy + distance, artist_api::Color::WHITE(), cam);
                 break;
             case SensorDirection::UP:
-                drawDot(poscamx, poscamy - distance, sf::Color::White, cam);
+                drawDot(poscamx, poscamy - distance, artist_api::Color::WHITE(), cam);
                 break;
             case SensorDirection::LEFT:
-                drawDot(poscamx - distance, poscamy, sf::Color::White, cam);
+                drawDot(poscamx - distance, poscamy, artist_api::Color::WHITE(), cam);
                 break;
             case SensorDirection::RIGHT:
-                drawDot(poscamx + distance, poscamy, sf::Color::White, cam);
+                drawDot(poscamx + distance, poscamy, artist_api::Color::WHITE(), cam);
                 break;
         }
     }
@@ -200,28 +201,16 @@ private:
         );
     }
 
-    void drawDot(float x, float y, sf::Color color, Camera& cam) {
-        sf::RectangleShape rect(sf::Vector2f(1, 1));
-        rect.setFillColor(color);
-        rect.setPosition(x, y);
-        cam.getScr().getSfmlWindow().draw(rect);
-
-        color.a = 100;
-
-        ////////
-        rect.setFillColor(color);
-
-        rect.setPosition(x-1, y);
-        cam.getScr().getSfmlWindow().draw(rect);
-
-        rect.setPosition(x+1, y);
-        cam.getScr().getSfmlWindow().draw(rect);
-
-        rect.setPosition(x, y-1);
-        cam.getScr().getSfmlWindow().draw(rect);
-
-        rect.setPosition(x, y+1);
-        cam.getScr().getSfmlWindow().draw(rect);
+    void drawDot(float x, float y, artist_api::Color color, Camera& cam) {
+        auto& art = cam.getScr().artist();
+        
+        art.drawRectangleRadius({.x = 0.5f, .y = 0.5f}, {
+            .x = x, .y = y
+        }, {
+            .fillColor = color,
+            .borderThickness = 0.25f,
+            .borderColor = artist_api::Color::fromARGB(0xAA'00'00'00)
+        });
     }
 };
 

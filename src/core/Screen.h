@@ -8,6 +8,8 @@
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/System/Vector2.hpp"
+#include "core/game_enviroment/artist/Artist.h"
+#include "core/game_enviroment/artist/TextureLoader.h"
 #include <SFML/Graphics.hpp>
 
 struct Frame {
@@ -29,32 +31,13 @@ struct Texture {
     uint16_t framesLen;
 };
 
-class IScreen {
-public:
-    virtual void init(Size size, int frameLock) = 0;
-    virtual void clear() = 0;
-    virtual void render() = 0;
-
-    virtual void setBgColor(uint16_t color) = 0;
-
-    virtual Size getSize() = 0;
-
-    virtual void drawTextureRect(uint8_t texId, irect texRect, v2f pos = {0, 0},
-                                 v2i offset = {0, 0}, float angle = 0.0,
-                                 bool horFlip = false,
-                                 bool verFlip = false) = 0;
-    virtual void drawTextureRect(uint8_t texId, Frame frame, v2f pos = {0, 0},
-                                 float angle = 0.0, bool horFlip = false,
-                                 bool verFlip = false) = 0;
-};
-
 #include "core/game_enviroment/ResourceStore.h"
 #include "sfml_game_environment/SfmlArtist.h"
 
-class Screen : public IScreen {
+class Screen {
 public:
-    explicit Screen(SfmlArtist &artist, ResourceStore &store)
-        : artist_(artist), store_(store) {}
+    explicit Screen(SfmlArtist &artist, ResourceStore &store, resource_store::TextureLoader& loader)
+        : artist_(artist), store_(store), loader_(loader) {}
     void init(Size size, int frameLock);
     void clear();
     void render();
@@ -84,25 +67,11 @@ public:
     void bindTextureFrames(uint8_t key, const Frame* frames, size_t framesLen);
     void bindFont(uint8_t key, ResourceID resId);
 
-    void addFont(uint8_t key, const char *alphabet, uint8_t interval,
-                 uint8_t tex, irect startRect, uint16_t rectDivSpace = 0,
-                 const uint16_t *widths = nullptr);
     void drawText(uint8_t fontKey, const char *str, v2f pos = v2f(0, 0));
     uint16_t getTextWidth(uint8_t fontKey, const char *str);
 
-    sf::RenderWindow &getSfmlWindow() { return artist_.sfmlRenderWindow(); }
-
-    void drawRadiusRectange(v2f pos, v2i radius, uint32_t color) {
-        sf::RectangleShape rs;
-
-        rs.setPosition(pos.x, pos.y);
-        rs.setOrigin(radius.x, radius.y);
-        rs.setSize(sf::Vector2f(radius.x * 2, radius.y * 2));
-        rs.setFillColor(sf::Color(color));
-
-        //        artist_.sfmlRenderWindow().draw(rs);
-        //        wnd.draw(rs);
-    }
+    artist_api::Artist& artist() { return artist_; }
+    resource_store::TextureLoader& textureLoader() { return loader_;  }
 
 private:
     std::map<uint8_t, Texture> textures_;
@@ -111,5 +80,6 @@ private:
     std::map<uint8_t, ResourceID> fonts_;
 
     SfmlArtist &artist_;
+    resource_store::TextureLoader& loader_; 
     ResourceStore &store_;
 };

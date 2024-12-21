@@ -21,13 +21,18 @@ public:
     }
 
     void clear() {
-        entityList_.clear();
+        shouldBeCleared_ = true;
     }
 
     void destroy(Entity &&ent) {}
 
+    inline bool isShouldBeCleared() {
+        return shouldBeCleared_;
+    }
+
 private:
     std::list<std::unique_ptr<Entity>> &entityList_;
+    bool shouldBeCleared_ = false;
 };
 
 } // namespace entity_v3

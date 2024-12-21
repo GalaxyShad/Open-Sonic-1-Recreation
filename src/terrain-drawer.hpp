@@ -1,10 +1,12 @@
 
 #pragma once
 
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "new-terrain.hpp"
 #include "Camera.h"
 
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 namespace terrain {
 
@@ -18,7 +20,7 @@ public:
         , m_storeTiles(storeTiles)
     {}
 
-    virtual ~TerrainDrawer();
+    virtual ~TerrainDrawer() = default;
 
     void allowDrawingCollisions(bool value) {
         initDebugCollisionView();
@@ -42,8 +44,8 @@ private:
 
     bool            m_debugCollisionView = false;
 
-    sf::Image*      m_imgTiles = nullptr;
-    sf::Texture*    m_texTiles = nullptr;
+    std::unique_ptr<artist_api::Image> m_imgTiles = nullptr;
+    std::unique_ptr<artist_api::Texture> m_texTiles = nullptr;
 
     uint8_t         m_textureId;
 

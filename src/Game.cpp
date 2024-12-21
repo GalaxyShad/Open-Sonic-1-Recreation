@@ -36,7 +36,7 @@ Game::Game(GameEnvironment &env, SfmlArtist &sfmlArtist,
            const LoadResourcesFunction &loadResourcesFun)
     : sceneDirector_(env, entityPoolEventLoop_.pool()),
       deprAudio_(env.dj(), store_),
-      deprScreen_(sfmlArtist, store_),
+      deprScreen_(sfmlArtist, store_, env.textureLoader()),
       deprEnv_(
           DeprecatedGameEnvironment{.scr = deprScreen_, .audio = deprAudio_}),
       env_(env), entityPoolEventLoop_(env, deprEnv_, sceneDirector_) {

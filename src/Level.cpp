@@ -47,6 +47,8 @@ void Level::create() {
     fade = 0;
 
     GameLoopTicker::instance().reset();
+
+    m_terrainDrawer.allowDrawingCollisions(true);
 }
 
 void Level::createZoneSpecific() {

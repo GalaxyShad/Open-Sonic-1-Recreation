@@ -1,4 +1,5 @@
 #include "SfmlArtist.h"
+#include "SFML/Graphics/Color.hpp"
 
 SfmlArtist::SfmlArtist(sf::RenderWindow &renderWindow)
     : renderWindow_(renderWindow) {
@@ -24,6 +25,10 @@ void SfmlArtist::drawSprite(const artist_api::Sprite &sprite,
                                (int)sprite.rect.width, (int)sprite.rect.height);
 
     sf::Sprite sfmlSprite(sfmlTexture, sfmlSpriteRect);
+
+    if (transform.blending.has_value()) {
+        sfmlSprite.setColor(sf::Color(transform.blending->rgba()));
+    }
 
     sfmlSprite.setPosition(pos.x, pos.y);
     sfmlSprite.setRotation(transform.angle);
@@ -88,4 +93,27 @@ void SfmlArtist::drawText(const std::string &text,
 
         charPos.x += charSprite.rect.width;
     }
+}
+
+void SfmlArtist::drawRectangleRadius(artist_api::Vector2D<float> radius,
+                                     artist_api::Vector2D<float> pos,
+                                     DrawRectangleProps props) {
+    sf::RectangleShape rs;
+
+    rs.setPosition(pos.x, pos.y);
+    rs.setOrigin(radius.x, radius.y);
+    rs.setSize(sf::Vector2f(radius.x * 2, radius.y * 2));
+
+    sf::Color color = props.fillColor.has_value()
+                          ? sf::Color(props.fillColor->rgba())
+                          : sf::Color::White;
+    sf::Color outline = props.borderColor.has_value()
+                            ? sf::Color(props.borderColor->rgba())
+                            : sf::Color::Transparent;
+
+    rs.setFillColor(color);
+    rs.setOutlineColor(outline);
+    rs.setOutlineThickness(props.borderThickness);
+
+    renderWindow_.draw(rs);
 }

@@ -70,6 +70,7 @@ Level* LevelLoader::loadFromSonic3K(ZoneSonic3K zone, int act) {
     m_layout      = terrainLoader.loadLayout(*m_storeChunks.get());
 
     m_terrain = new terrain::Terrain(*m_layout.get());
+
     m_screen.loadTextureFromFile("content/levels/sonic3/ICZ/texture.png", LEVEL_TEXTURE_ID);
 
     return new Level(

@@ -17,10 +17,12 @@ public:
         if (entityList_.empty()) return;
 
         for (auto &e : entityList_) {
-            if (entityList_.empty()) return; // FIXME
-
             e->onUpdate(
                 {.input = gameEnv_.input(), .sceneDirector = sceneDirector_});
+        }
+
+        if (pool_.isShouldBeCleared()) {
+            entityList_.clear();
         }
     }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Geometry.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
 
@@ -174,13 +175,13 @@ public:
     bool getSensorState(PlayerSensorTag tag)                    { return sensor(tag).isEnabled;  }
 
     void draw(Camera& cam) {
-        sf::Color colors[] = {
-            sf::Color(0x00FF00FF),
-            sf::Color(0x00FFFFFF),
-            sf::Color(0x0000FFFF),
-            sf::Color(0xFFFF00FF),
-            sf::Color(0xFF00FFFF),
-            sf::Color(0xFF0000FF),
+        artist_api::Color colors[] = {
+            artist_api::Color::fromRGB(0x00FF00),
+            artist_api::Color::fromRGB(0x00FFFF),
+            artist_api::Color::fromRGB(0x0000FF),
+            artist_api::Color::fromRGB(0xFFFF00),
+            artist_api::Color::fromRGB(0xFF00FF),
+            artist_api::Color::fromRGB(0xFF0000),
         };
 
         for (int i = 0; i < 6; i++) {

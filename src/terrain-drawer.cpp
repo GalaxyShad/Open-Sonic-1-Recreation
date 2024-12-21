@@ -1,22 +1,17 @@
 #include "terrain-drawer.hpp"
+#include "core/game_enviroment/artist/ArtistStructs.h"
+#include <memory>
 
 using namespace terrain;
 
-terrain::TerrainDrawer::~TerrainDrawer() {
-    delete m_imgTiles;
-    delete m_texTiles;
-}
 
 void terrain::TerrainDrawer::initDebugCollisionView() {
     if (m_imgTiles != nullptr)
         return;
 
-    m_imgTiles = new sf::Image();
-    m_texTiles = new sf::Texture();
-
-    m_imgTiles->create(TERRAIN_TILE_SIZE,
-                       TERRAIN_TILE_SIZE * m_storeTiles.count(),
-                       sf::Color::Transparent);
+    m_imgTiles = std::unique_ptr<artist_api::Image>(
+        new artist_api::Image({.x = TERRAIN_TILE_SIZE,
+                               .y = TERRAIN_TILE_SIZE * m_storeTiles.count()}));
 
     for (int i = 0; i < m_storeTiles.count(); i++) {
         Tile &tile = m_storeTiles.get(i);
@@ -30,12 +25,13 @@ void terrain::TerrainDrawer::initDebugCollisionView() {
             for (int k = 0; k < abs(height); k++) {
                 int y = (height > 0) ? (tileBot - k) : (tileTop + k);
 
-                m_imgTiles->setPixel(j, y, sf::Color(0xFFFFFFFF));
+                m_imgTiles->setPixel(j, y, artist_api::Color::WHITE());
             }
         }
     }
 
-    m_texTiles->loadFromImage(*m_imgTiles);
+    m_texTiles = m_camera.getScr().textureLoader().loadFromPixelBuffer(
+        m_imgTiles->bitmap().buffer_, m_imgTiles->bitmap().size_.x);
 }
 
 void TerrainDrawer::draw() const {
@@ -81,7 +77,8 @@ void TerrainDrawer::drawChunk(const Chunk &chunk, float x, float y) const {
                 irect(0, block.blockId * TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE,
                       TERRAIN_TILE_SIZE),
                 v2f(x + j * TERRAIN_TILE_SIZE, y + i * TERRAIN_TILE_SIZE),
-                v2i(16 * block.xFlip, 16 * block.yFlip), 0.0, block.xFlip, block.yFlip);
+                v2i(16 * block.xFlip, 16 * block.yFlip), 0.0, block.xFlip,
+                block.yFlip);
 
             if (m_debugCollisionView)
                 drawChunkBlockDebug(block, x, j, y, i);
@@ -92,31 +89,33 @@ void TerrainDrawer::drawChunk(const Chunk &chunk, float x, float y) const {
 void terrain::TerrainDrawer::drawChunkBlockDebug(terrain::ChunkBlock &block,
                                                  float x, int j, float y,
                                                  int i) const {
-    int sprLeft = block.xFlip ? TERRAIN_TILE_SIZE : 0;
-    int sprTop = (TERRAIN_TILE_SIZE * block.tile.id) +
-                 (block.yFlip ? TERRAIN_TILE_SIZE : 0);
+    float sprLeft = block.xFlip ? TERRAIN_TILE_SIZE : 0;
+    float sprTop = (TERRAIN_TILE_SIZE * block.tile.id) +
+                   (block.yFlip ? TERRAIN_TILE_SIZE : 0);
 
-    int sprWidth = block.xFlip ? -TERRAIN_TILE_SIZE : TERRAIN_TILE_SIZE;
-    int sprHeight = block.yFlip ? -TERRAIN_TILE_SIZE : TERRAIN_TILE_SIZE;
+    float sprWidth = block.xFlip ? -TERRAIN_TILE_SIZE : TERRAIN_TILE_SIZE;
+    float sprHeight = block.yFlip ? -TERRAIN_TILE_SIZE : TERRAIN_TILE_SIZE;
 
-    sf::Sprite spr(*m_texTiles,
-                   sf::IntRect(sprLeft, sprTop, sprWidth, sprHeight));
-    spr.setPosition(x + j * TERRAIN_TILE_SIZE - m_camera.getPos().x,
-                    y + i * TERRAIN_TILE_SIZE - m_camera.getPos().y);
+    artist_api::Sprite spr = {
+        .texture = *m_texTiles,
+        .rect = {
+            .x = sprLeft, .y = sprTop, .width = sprWidth, .height = sprHeight}};
 
-    sf::Color color =
+    artist_api::Vector2D<float> pos = {
+        .x = x + j * TERRAIN_TILE_SIZE - m_camera.getPos().x,
+        .y = y + i * TERRAIN_TILE_SIZE - m_camera.getPos().y};
+
+    artist_api::Color color =
         (block.solidityNormalLayer == BlockSolidity::ONLY_TOP)
-            ? sf::Color(0x055CBCFF)
+            ? artist_api::Color::fromRGB(0x055CBC)
         : (block.solidityNormalLayer == BlockSolidity::ONLY_LEFT_BOTTOM_RIGHT)
-            ? sf::Color(0x01CC86FF)
-            : sf::Color(0xD1CDCCFF);
+            ? artist_api::Color::fromRGB(0x01CC86)
+            : artist_api::Color::fromRGB(0xD1CDCC);
 
-    color.a = ((i + j) % 2) ? 0xF0 : 0xD0;
-
-    spr.setColor(color);
+    color.alpha = ((i + j) % 2) ? 0xF0 : 0xD0;
 
     if (block.solidityNormalLayer != BlockSolidity::EMPTY)
-        m_camera.getScr().getSfmlWindow().draw(spr);
+        m_camera.getScr().artist().drawSprite(spr, pos, {.blending = color});
 }
 
 void terrain::TerrainDrawer::drawChunkById(int chunkId, float x,

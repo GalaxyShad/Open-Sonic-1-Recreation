@@ -7,6 +7,9 @@
 
 namespace artist_api {
 
+enum class HorizontalAlign { LEFT, CENTER, RIGHT };
+enum class VerticalAlign { TOP, CENTER, BOTTOM };
+
 struct Artist {
     struct TransformProps {
         float angle;
@@ -25,9 +28,15 @@ struct Artist {
                                  Vector2D<float> pos,
                                  TransformProps transform = {}) = 0;
 
-    virtual void drawSprite(const Sprite& sprite, Vector2D<float> pos, TransformProps transform = {}) = 0;
+    virtual void drawSprite(const Sprite &sprite, Vector2D<float> pos,
+                            TransformProps transform = {}) = 0;
 
-    virtual void drawText(const std::string& text, Vector2D<float> pos, const SpriteFont& font) = 0;
+    struct DrawTextProps {
+        HorizontalAlign horizontalAlign;
+    };
+
+    virtual void drawText(const std::string &text, Vector2D<float> pos,
+                          const SpriteFont &font, DrawTextProps props = {}) = 0;
 
     struct DrawRectangleProps {
         std::optional<Color> fillColor;
@@ -35,7 +44,9 @@ struct Artist {
         float borderThickness;
     };
 
-    virtual void drawRectangleRadius(Vector2D<float> radius, Vector2D<float> pos, DrawRectangleProps props = {}) = 0;
+    virtual void drawRectangleRadius(Vector2D<float> radius,
+                                     Vector2D<float> pos,
+                                     DrawRectangleProps props = {}) = 0;
 
     virtual ~Artist() = default;
 };

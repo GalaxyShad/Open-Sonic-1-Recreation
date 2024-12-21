@@ -1,10 +1,9 @@
 #include "SfmlArtist.h"
 #include "SFML/Graphics/Color.hpp"
+#include <string>
 
 SfmlArtist::SfmlArtist(sf::RenderWindow &renderWindow)
-    : renderWindow_(renderWindow) {
-    
-}
+    : renderWindow_(renderWindow) {}
 
 void SfmlArtist::drawTextureRect(const artist_api::Texture &texture,
                                  artist_api::Rect rect,
@@ -19,7 +18,7 @@ void SfmlArtist::drawSprite(const artist_api::Sprite &sprite,
                             artist_api::Vector2D<float> pos,
                             artist_api::Artist::TransformProps transform) {
 
-    sf::Texture &sfmlTexture = ((SfmlTexture&)sprite.texture).internal;
+    sf::Texture &sfmlTexture = ((SfmlTexture &)sprite.texture).internal;
 
     sf::IntRect sfmlSpriteRect((int)sprite.rect.x, (int)sprite.rect.y,
                                (int)sprite.rect.width, (int)sprite.rect.height);
@@ -33,7 +32,7 @@ void SfmlArtist::drawSprite(const artist_api::Sprite &sprite,
     sfmlSprite.setPosition(pos.x, pos.y);
     sfmlSprite.setRotation(transform.angle);
 
-//    sf::Vector2f sfmlScale(transform.scale.x, transform.scale.y);
+    //    sf::Vector2f sfmlScale(transform.scale.x, transform.scale.y);
     sf::Vector2f sfmlScale(1, 1);
     sfmlScale.x *= (transform.flipHorizontal) ? -1.f : 1.f;
     sfmlScale.y *= (transform.flipVertical) ? -1.f : 1.f;
@@ -43,34 +42,77 @@ void SfmlArtist::drawSprite(const artist_api::Sprite &sprite,
     renderWindow_.draw(sfmlSprite);
 }
 
-void SfmlArtist::render() {
-    renderWindow_.display();
-}
+void SfmlArtist::render() { renderWindow_.display(); }
 
-void SfmlArtist::renderClear() {
-    renderWindow_.clear(bgColor_);
-    // renderWindow_.clear(sf::Color::Cyan);
-}
+void SfmlArtist::renderClear() { renderWindow_.clear(bgColor_); }
 
 void SfmlArtist::drawText(const std::string &text,
                           artist_api::Vector2D<float> pos,
-                          const artist_api::SpriteFont &font) {
+                          const artist_api::SpriteFont &font,
+                          DrawTextProps props) {
 
     artist_api::Vector2D<float> charPos = pos;
 
-    for (auto ch : text) {
-        if (ch == '\r') {
-            charPos.x = pos.x;
-
-            continue;
+    auto onLetter = [&](char ch, std::optional<artist_api::Sprite> spr,
+                        const artist_api::Vector2D<float> &p) {
+        if (spr.has_value()) {
+            drawSprite(spr.value(), {.x = charPos.x + p.x, .y = charPos.y});
+            return;
         }
 
-        if (ch == '\n') {
-            charPos.x = pos.x;
-            charPos.y += font.lineHeight();
+        sf::RectangleShape emptyChRect(
+            sf::Vector2f(font.spaceWidth(), font.lineHeight()));
 
-            continue;
+        emptyChRect.setFillColor(sf::Color::White);
+        emptyChRect.setPosition(charPos.x + p.x, charPos.y);
+
+        renderWindow_.draw(emptyChRect);
+    };
+
+    auto start = text.begin();
+    while (start != text.end()) {
+        auto rowStart = start;
+        auto rowWidth = 0.0f;
+
+        if (props.horizontalAlign != artist_api::HorizontalAlign::LEFT) {
+            auto calcWidth = [&rowWidth](char ch,
+                                         std::optional<artist_api::Sprite> spr,
+                                         const artist_api::Vector2D<float> &p) {
+                rowWidth = p.x + spr->rect.width;
+            };
+
+            procTextRowAndReturnWidth(start, text.end(), font, calcWidth);
+
+            if (props.horizontalAlign == artist_api::HorizontalAlign::RIGHT) {
+                charPos.x = pos.x - rowWidth;
+            } else {
+                charPos.x = pos.x - rowWidth / 2;
+            }
         }
+
+        start = procTextRowAndReturnWidth(start, text.end(), font, onLetter);
+
+        charPos.x = pos.x;
+        charPos.y += font.lineHeight();
+
+        if (start != text.end()) {
+            ++start;
+        }
+    }
+}
+
+std::string::const_iterator SfmlArtist::procTextRowAndReturnWidth(
+    std::string::const_iterator startString,
+    std::string::const_iterator endString, const artist_api::SpriteFont &font,
+    std::function<void(char letter, std::optional<artist_api::Sprite> letterSpr,
+                       const artist_api::Vector2D<float> &pos)>
+        onLetter) {
+
+    artist_api::Vector2D<float> charPos = {.x = 0, .y = 0};
+    std::string::const_iterator chPtr;
+
+    for (chPtr = startString; chPtr != endString && *chPtr != '\n'; chPtr++) {
+        char ch = *chPtr;
 
         if (ch == ' ') {
             charPos.x += font.spaceWidth();
@@ -79,21 +121,19 @@ void SfmlArtist::drawText(const std::string &text,
         }
 
         if (!font.hasChar(ch)) {
-            sf::RectangleShape emptyChRect(sf::Vector2f(font.spaceWidth(), font.lineHeight()));
-            emptyChRect.setFillColor(sf::Color::White);
-            emptyChRect.setPosition(charPos.x, charPos.y);
-
-            renderWindow_.draw(emptyChRect);
+            onLetter(ch, std::nullopt, charPos);
 
             continue;
         }
 
-        auto& charSprite = font.getCharSprite(ch);
+        auto &charSprite = font.getCharSprite(ch);
 
-        drawSprite(charSprite, charPos);
+        onLetter(ch, charSprite, charPos);
 
         charPos.x += charSprite.rect.width;
     }
+
+    return chPtr;
 }
 
 void SfmlArtist::drawRectangleRadius(artist_api::Vector2D<float> radius,

@@ -54,8 +54,9 @@ public:
 
     void bindTexture(uint8_t key, ResourceID resId);
     void bindTextureFrames(uint8_t key, const Frame *frames, size_t framesLen);
-    void bindFont(uint8_t key, ResourceID resId);
 
+
+    void bindFont(uint8_t key, ResourceID resId);
     void drawText(uint8_t fontKey, const char *str, v2f pos = v2f(0, 0));
     uint16_t getTextWidth(uint8_t fontKey, const char *str);
 

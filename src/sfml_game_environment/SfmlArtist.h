@@ -6,6 +6,8 @@
 
 #include "SFML/Graphics.hpp"
 #include "core/game_enviroment/artist/ArtistStructs.h"
+#include <functional>
+#include <optional>
 
 struct SfmlTexture : public artist_api::Texture {
     explicit SfmlTexture(const sf::Texture &tex) : internal(tex) {}
@@ -31,7 +33,7 @@ public:
                         .scale = {.x = 1.f, .y = 1.f}}) override;
 
     void drawText(const std::string &text, artist_api::Vector2D<float> pos,
-                  const artist_api::SpriteFont &font) override;
+                  const artist_api::SpriteFont &font, DrawTextProps props = {}) override;
 
     void drawRectangleRadius(artist_api::Vector2D<float> radius,
                              artist_api::Vector2D<float> pos,
@@ -45,6 +47,16 @@ public:
 private:
     sf::RenderWindow &renderWindow_;
     sf::Color bgColor_;
+
+private:
+    std::string::const_iterator procTextRowAndReturnWidth(
+        std::string::const_iterator startString,
+        std::string::const_iterator endString,
+        const artist_api::SpriteFont &font,
+        std::function<void(char letter,
+                           std::optional<artist_api::Sprite> letterSpr,
+                           const artist_api::Vector2D<float> &pos)>
+            onLetter);
 };
 
 #endif // OS1R_SFMLARTIST_H

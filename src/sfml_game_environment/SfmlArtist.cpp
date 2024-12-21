@@ -48,7 +48,8 @@ void SfmlArtist::render() {
 }
 
 void SfmlArtist::renderClear() {
-    renderWindow_.clear();
+    renderWindow_.clear(bgColor_);
+    // renderWindow_.clear(sf::Color::Cyan);
 }
 
 void SfmlArtist::drawText(const std::string &text,

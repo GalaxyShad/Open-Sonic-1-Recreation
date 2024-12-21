@@ -16,6 +16,10 @@ class SfmlArtist : public artist_api::Artist {
 public:
     explicit SfmlArtist(sf::RenderWindow &renderWindow);
 
+    void setBackgroundColor(artist_api::Color color) override {
+        bgColor_ = sf::Color(color.rgba());
+    }
+
     void drawTextureRect(const artist_api::Texture &texture,
                          artist_api::Rect rect, artist_api::Vector2D<float> pos,
                          artist_api::Artist::TransformProps transform = {
@@ -40,6 +44,7 @@ public:
 
 private:
     sf::RenderWindow &renderWindow_;
+    sf::Color bgColor_;
 };
 
 #endif // OS1R_SFMLARTIST_H

@@ -1,6 +1,7 @@
 #include "Level.h"
 
 #include "LevelInformer.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entity-creator.hpp"
 #include "game-loop-ticker.h"
 #include <cstdio>
@@ -51,9 +52,18 @@ void Level::create() {
     m_terrainDrawer.allowDrawingCollisions(true);
 }
 
+auto fromMDColor(uint16_t mdcolor) {
+    uint8_t r = (mdcolor >> 0) & 0b1110;
+    uint8_t g = (mdcolor >> 8) & 0b1110;
+    uint8_t b = (mdcolor >> 4) & 0b1110;
+
+    return artist_api::Color::fromRGB(r << 4, g << 4, b << 4);
+}
+
 void Level::createZoneSpecific() {
     if (m_zoneNameShort == "GHZ") {
-        m_screen.setBgColor(0x08E0);
+        m_screen.artist().setBackgroundColor(fromMDColor(0x08E0));
+
         bg.create(0x3C, 3);
         bg.addLayer(0, 32, 0.001, 0.5);
         bg.addLayer(32, 16, 0.002, 0.25);
@@ -64,23 +74,23 @@ void Level::createZoneSpecific() {
         for (int i = 0; i < 104 / waterDiv; i++)
             bg.addLayer(152 + i * waterDiv, waterDiv, 0.060 + (float)i / 25.0);
     } else if (m_zoneNameShort == "LZ") {
-        m_screen.setBgColor(0x0000);
+        m_screen.artist().setBackgroundColor(fromMDColor(0x0000));
         bg.create(0x32, 7);
         bg.addLayer(0, 256, 0.005);
     } else if (m_zoneNameShort == "MZ") {
-        m_screen.setBgColor(0x00a0);
+        m_screen.artist().setBackgroundColor(fromMDColor(0x00a0));
         bg.create(0x36, 2);
         bg.addLayer(0, 256, 0.005);
     } else if (m_zoneNameShort == "SBZ") {
-        m_screen.setBgColor(0x6400);
+        m_screen.artist().setBackgroundColor(fromMDColor(0x6400));
         bg.create(0x34, 4);
         bg.addLayer(0, 256, 0.005);
     } else if (m_zoneNameShort == "SLZ") {
-        m_screen.setBgColor(0x0000);
+        m_screen.artist().setBackgroundColor(fromMDColor(0x0000));
         bg.create(0x30, 1);
         bg.addLayer(0, 256, 0.005);
     } else if (m_zoneNameShort == "SYZ") {
-        m_screen.setBgColor(0x6260);
+        m_screen.artist().setBackgroundColor(fromMDColor(0x6260));
         bg.create(0x3D, 2);
         bg.addLayer(0, 256, 0.005);
     }

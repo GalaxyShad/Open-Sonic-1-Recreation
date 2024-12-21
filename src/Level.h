@@ -1,8 +1,10 @@
 #pragma once
 
 #include <list>
+#include <memory>
 #include <vector>
 
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/Entity.h"
 #include "entity-creator.hpp"
 #include "entity-placement.hpp"
@@ -41,7 +43,8 @@ public:
         std::string& zoneNameShort,
         int act,
         v2f playerStartPosition,
-        terrain::Store<terrain::Tile>& storeTile
+        terrain::Store<terrain::Tile>& storeTile,
+        std::unique_ptr<artist_api::Texture> texBlocks
     ) 
         : m_terrain(terrain)
         , cam(scr)
@@ -54,7 +57,7 @@ public:
         , m_zoneNameShort(zoneNameShort)
         , m_act(act)
         , m_playerStartPosition(playerStartPosition)
-        , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile)
+        , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile, std::move(texBlocks))
         , bg(m_terrainDrawer)
     {
         EntityCreatorSonic1 ec(m_entityPool, m_terrain);
@@ -94,7 +97,6 @@ private:
     Bg bg;
 
     Camera cam;
-
 
     std::list<Entity*>::iterator it;
     LevelInformer* lvInformer = nullptr;

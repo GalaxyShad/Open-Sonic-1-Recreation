@@ -1,5 +1,6 @@
 #include "terrain-drawer.hpp"
 #include "core/game_enviroment/artist/ArtistStructs.h"
+#include "new-terrain.hpp"
 #include <memory>
 
 using namespace terrain;
@@ -72,13 +73,34 @@ void TerrainDrawer::drawChunk(const Chunk &chunk, float x, float y) const {
         for (int j = 0; j < chunk.getRadius(); j++) {
             auto block = chunk.getBlock(j, i);
 
-            m_camera.draw(
-                m_textureId,
-                irect(0, block.blockId * TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE,
-                      TERRAIN_TILE_SIZE),
-                v2f(x + j * TERRAIN_TILE_SIZE, y + i * TERRAIN_TILE_SIZE),
-                v2i(16 * block.xFlip, 16 * block.yFlip), 0.0, block.xFlip,
-                block.yFlip);
+            auto& artist = m_camera.getScr().artist();
+
+            artist_api::Rect rect = {
+                .x = 0,
+                .y = static_cast<float>(block.blockId * TERRAIN_TILE_SIZE),
+                .width = TERRAIN_TILE_SIZE,
+                .height = TERRAIN_TILE_SIZE
+            };
+
+            artist_api::Vector2D<float> pos = {
+                .x = x + j * TERRAIN_TILE_SIZE - m_camera.getPos().x,
+                .y = y + i * TERRAIN_TILE_SIZE - m_camera.getPos().y
+            };
+
+            artist_api::Vector2D<float> offset = {
+                static_cast<float>(16 * block.xFlip), 
+                static_cast<float>(16 * block.yFlip)
+            };
+
+            artist.drawSprite(artist_api::Sprite {
+                .texture = *m_tex,
+                .rect = rect,
+                .offset = offset
+            }, pos, {
+                .flipHorizontal = block.xFlip,
+                .flipVertical = block.yFlip,
+                .scale = {1.f, 1.f}
+            });
 
             if (m_debugCollisionView)
                 drawChunkBlockDebug(block, x, j, y, i);

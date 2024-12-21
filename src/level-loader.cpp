@@ -23,11 +23,15 @@ Level* LevelLoader::loadFromSonic1(ZoneSonic1 zone, int act) {
     sonic1LoadStartPosition(sAct);
     sonic1LoadObjects(sAct);
 
+    auto sTex       = "content/levels/textures/" + sZoneShort    + ".png";
+
+    auto tex = m_screen.textureLoader().loadFromFile(sTex);
+
     return new Level(
         *m_terrain, m_entityPlacementList, GameType::SONIC_1, 
         m_screen, m_input, m_audio, 
         sZone, sZoneShort, act, 
-        m_playerStartPosition, *m_storeTiles.get());
+        m_playerStartPosition, *m_storeTiles.get(), std::move(tex));
 }
 
 
@@ -71,13 +75,13 @@ Level* LevelLoader::loadFromSonic3K(ZoneSonic3K zone, int act) {
 
     m_terrain = new terrain::Terrain(*m_layout.get());
 
-    m_screen.loadTextureFromFile("content/levels/sonic3/ICZ/texture.png", LEVEL_TEXTURE_ID);
+    auto tex = m_screen.textureLoader().loadFromFile("content/levels/sonic3/ICZ/texture.png");
 
     return new Level(
         *m_terrain, m_entityPlacementList, GameType::SONIC_3K, 
         m_screen, m_input, m_audio, 
         sZone, sZoneShort, act, 
-        m_playerStartPosition, *m_storeTiles.get());
+        m_playerStartPosition, *m_storeTiles.get(), std::move(tex));
 }
 
 void LevelLoader::reset() {
@@ -102,6 +106,7 @@ void LevelLoader::sonic1LoadTerrain(std::string& sZone, std::string& sZoneAct) {
 	auto sCollide   = "content/levels/collide/"  + sZone    + ".bin";
 	auto sMap256    = "content/levels/map256/"   + sZone    + ".bin";
     auto sLayout    = "content/levels/layout/"   + sZoneAct + ".bin";
+    
     auto sTex       = "content/levels/textures/" + sZone    + ".png";
 	
     TerrainLoaderSonic1FilePaths filepaths = {};
@@ -113,6 +118,7 @@ void LevelLoader::sonic1LoadTerrain(std::string& sZone, std::string& sZoneAct) {
     filepaths.chunks            = sMap256.c_str();
     filepaths.layout            = sLayout.c_str();
 
+
     auto terrainLoader = TerrainLoaderSonic1(filepaths);
 
     m_storeTiles  = terrainLoader.loadTiles();
@@ -121,7 +127,7 @@ void LevelLoader::sonic1LoadTerrain(std::string& sZone, std::string& sZoneAct) {
     m_layout      = terrainLoader.loadLayout(*m_storeChunks.get());
 
     m_terrain = new terrain::Terrain(*m_layout.get());
-    m_screen.loadTextureFromFile(sTex.c_str(), LEVEL_TEXTURE_ID);
+    //m_screen.loadTextureFromFile(sTex.c_str(), LEVEL_TEXTURE_ID);
 }
 
 void LevelLoader::sonic1LoadStartPosition(std::string& sZoneAct) {

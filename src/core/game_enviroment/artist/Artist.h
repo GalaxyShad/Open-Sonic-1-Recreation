@@ -19,6 +19,8 @@ struct Artist {
         std::optional<Color> blending;
     };
 
+    virtual void setBackgroundColor(Color color) = 0;
+
     virtual void drawTextureRect(const Texture &texture, Rect rect,
                                  Vector2D<float> pos,
                                  TransformProps transform = {}) = 0;

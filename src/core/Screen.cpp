@@ -4,11 +4,6 @@
 #include <iostream>
 #include <math.h>
 
-void Screen::init(Size size, int frameLock) {}
-
-void Screen::clear() { artist_.renderClear(); }
-
-void Screen::render() { artist_.render(); }
 
 void Screen::drawTextureRect(uint8_t texId, irect texRect, v2f pos, v2i offset,
                              float angle, bool horFlip, bool verFlip) {
@@ -36,16 +31,6 @@ void Screen::drawTextureRect(uint8_t texId, Frame frame, v2f pos, float angle,
 
     drawTextureRect(texId, frame.rect, pos, frame.offset, angle, horFlip,
                     verFlip);
-}
-
-void Screen::loadTextureFromFile(const char *filename, uint8_t key,
-                                 const Frame *frames, uint16_t framesLen,
-                                 uint16_t width, uint16_t height) {
-
-    SfmlTextureLoader loader;
-
-    bindTextureFrames(key, frames, framesLen);
-    bindTexture(key, store_.load(loader.loadFromFile(filename)));
 }
 
 void Screen::drawText(uint8_t fontKey, const char *str, v2f pos) {

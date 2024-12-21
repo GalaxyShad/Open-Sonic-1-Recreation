@@ -120,22 +120,6 @@ SonicResources::Sounds loadSounds(ResourceStore &store,
         .endSignSpin = loadSound(SND_END_TABLE_FILE),
     };
 
-    deprEnv.audio.bindSound(SND_JUMP, sounds.player.jump);
-    deprEnv.audio.bindSound(SND_HURT, sounds.player.hurt);
-    deprEnv.audio.bindSound(SND_SKID, sounds.player.skid);
-    deprEnv.audio.bindSound(SND_SPIKES, sounds.player.spikes);
-    deprEnv.audio.bindSound(SND_SHIELD, sounds.player.shield);
-    deprEnv.audio.bindSound(SND_RING, sounds.ring);
-    deprEnv.audio.bindSound(SND_DASH, sounds.player.dash);
-    deprEnv.audio.bindSound(SND_ROLL, sounds.player.roll);
-    deprEnv.audio.bindSound(SND_DESTROY, sounds.breaking);
-    deprEnv.audio.bindSound(SND_RING_LOSS, sounds.ringLoss);
-    deprEnv.audio.bindSound(SND_SPRING, sounds.spring);
-    deprEnv.audio.bindSound(SND_BEEP, sounds.beep);
-    deprEnv.audio.bindSound(SND_COUNT_END, sounds.ding);
-    deprEnv.audio.bindSound(SND_END_TABLE, sounds.endSignSpin);
-    deprEnv.audio.bindSound(SND_PLT_CRUSH, sounds.breaking);
-
     return sounds;
 }
 
@@ -153,10 +137,6 @@ SonicResources::Music loadMusic(ResourceStore &store,
         .stageClear = load("StageClear.ogg"),
         .greenHillZone = load("GHZ.ogg")
     };
-
-    deprEnv.audio.bindMusic(0, mus.title);
-    deprEnv.audio.bindMusic(1, mus.stageClear);
-    deprEnv.audio.bindMusic(2, mus.greenHillZone);
 
     return mus;
 }

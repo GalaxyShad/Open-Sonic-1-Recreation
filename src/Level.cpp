@@ -85,7 +85,9 @@ void Level::createZoneSpecific() {
 
     // S Tubes
     if (m_zoneNameShort == "GHZ") {
-        m_audio.playMusic(2);
+
+
+        m_audio.dj().playMusic(m_audio.store().get<dj::Music>(m_audio.store().map<SonicResources>().music.greenHillZone));
 
         auto &layout = m_terrain.getLayout();
 
@@ -110,7 +112,7 @@ void Level::update() {
     if (lvInformer) {
         if (lvInformer->getType() == LevelInformer::T_ROUND_CLEAR &&
             lvInformer->getTick() == 0)
-            m_audio.playMusic(1);
+            m_audio.dj().playMusic(m_audio.store().get<dj::Music>(m_audio.store().map<SonicResources>().music.stageClear));
 
         if (lvInformer->isDone()) {
             if (isTimeStopped)

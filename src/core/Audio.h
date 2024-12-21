@@ -15,43 +15,22 @@
 #include "core/game_enviroment/dj/AudioLoader.h"
 #include "core/game_enviroment/dj/Dj.h"
 
+#include "sonic/SonicResources.h"
+
 class Audio {
 public:
-    explicit Audio(dj::Dj &dj, dj::AudioLoader &audioLoader,
-                   ResourceStore &store)
+    explicit Audio(dj::Dj &dj, ResourceStore &store)
         : dj_(dj), store_(store) {}
 
-    void bindSound(uint8_t key, ResourceID res) {
-        resMap_[key] = res;
+    ResourceStore& store() {
+        return store_;
     }
 
-    void bindMusic(uint8_t key, ResourceID mus) {
-        resMap_[key + 128] = mus;
-    }
-
-    void playSound(uint8_t key) {
-        auto& sndResource = store_.get<dj::Sound>(resMap_[key]);
-
-        dj_.playSound(sndResource);
-    }
-
-    void playMusic(uint8_t key) {
-        auto& musResource = store_.get<dj::Music>(resMap_[128 + key]);
-
-        dj_.playMusic(musResource);
-    }
-
-    void update() {
-
-    }
-
-    void free() {
-
+    dj::Dj& dj() {
+        return dj_;
     }
 
 private:
     dj::Dj& dj_;
     ResourceStore& store_;
-    std::map<uint8_t, ResourceID> resMap_;
-
 };

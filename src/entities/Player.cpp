@@ -10,7 +10,7 @@
 void Player::onHitboxCollision(Entity &entity) {
     if (entity.type() == EntityTypeID::RING) {
         rings++;
-        audio.playSound(SND_RING);
+        audio.dj().playSound(sndRing_);
         m_entityPool.destroy(entity);
     }
 }
@@ -24,14 +24,14 @@ void Player::init()
     dv_anim.set(0, 0, 0);
     standOn = nullptr;
 
-    m_stateMachine.add(new PlayerStateNormal(m_props));
-    m_stateMachine.add(new PlayerStateJump(m_props, 6.5));
-    m_stateMachine.add(new PlayerStateRoll(m_props));
-    m_stateMachine.add(new PlayerStateSkid(m_props));
-    m_stateMachine.add(new PlayerStateSpindashCD(m_props));
+    m_stateMachine.add(new PlayerStateNormal(m_props, sndSkid_));
+    m_stateMachine.add(new PlayerStateJump(m_props, 6.5, sndJump_));
+    m_stateMachine.add(new PlayerStateRoll(m_props, sndRoll_));
+    m_stateMachine.add(new PlayerStateSkid(m_props, sndSkid_));
+    m_stateMachine.add(new PlayerStateSpindashCD(m_props, sndRoll_));
     m_stateMachine.add(new PlayerStateSpring(m_props));
-    m_stateMachine.add(new PlayerStateHurt(m_props));
-    m_stateMachine.add(new PlayerStateDie(m_props));
+    m_stateMachine.add(new PlayerStateHurt(m_props, sndRingLoss_));
+    m_stateMachine.add(new PlayerStateDie(m_props, sndRingLoss_));
 
     m_collider.onLanding([this](HexAngle hexAngle){
         m_stateMachine.pushLanding();
@@ -233,8 +233,6 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                 cam.setRightBorder(ent.d_getPos().x + (float)cam.getSize().width / 2);
                 cam.setBottomBorder(ent.d_getPos().y + (float)cam.getSize().height / 2);
 
-                audio.playSound(SND_END_TABLE);
-
                 endLv = true;
             } else if (endLv) {
                 SignPost* sp = (SignPost*)it;
@@ -253,7 +251,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 
                     spd.y = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
-                    audio.playSound(SND_SPRING);
+                    audio.dj().playSound(sndSpring_);
                     break;
                 case Spring::R_DOWN:
                     if (!d_collisionTop(*it, 2)) break;
@@ -262,21 +260,21 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 
                     spd.y = +(spring->isRed() ? 16 : 10);
                     spring->doAnim();
-                    audio.playSound(SND_SPRING);
+                    audio.dj().playSound(sndSpring_);
                     break;
                 case Spring::R_LEFT:
                     if (!d_collisionRight(*it) || spd.x <= 0) break;
                     spd.x = -(spring->isRed() ? 16 : 10);
                     gsp = -(spring->isRed() ? 16 : 10);
                     spring->doAnim();
-                    audio.playSound(SND_SPRING);
+                    audio.dj().playSound(sndSpring_);
                     break;
                 case Spring::R_RIGHT:
                     if (!d_collisionLeft(*it) || spd.x >= 0) break;
                     spd.x = (spring->isRed() ? 16 : 10);
                     gsp = (spring->isRed() ? 16 : 10);
                     spring->doAnim();
-                    audio.playSound(SND_SPRING);
+                    audio.dj().playSound(sndSpring_);
                     break;
 			}
 		}
@@ -315,7 +313,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                     }
                     entities.push_back(new EnemyScore(en->d_getPos(), (EnemyScore::Points)(enemyCombo-1)));
                 
-                    audio.playSound(SND_DESTROY);
+                    audio.dj().playSound(sndDestroy_);
                 } else {
                     getHit(entities);
                 }
@@ -335,11 +333,11 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 
                 switch (m->getItem()) {
                     case Monitor::M_RINGS:
-                        audio.playSound(SND_RING);
+                        audio.dj().playSound(sndRing_);
                         rings += 10;
                         break;
                     case Monitor::M_SHIELD:
-                        audio.playSound(SND_SHIELD); 
+                        audio.dj().playSound(sndShield_);
                         break;
                     case Monitor::M_INVINCIBILITY: break;
                     case Monitor::M_SPEED: break;
@@ -357,7 +355,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
 
                 m->d_destroy();
 
-                audio.playSound(SND_DESTROY);
+                audio.dj().playSound(sndDestroy_);
             } 
 		}
 
@@ -398,7 +396,7 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                 }
 
                 if (m_stateMachine.currentId() != PlayerStateID::ROLL)
-                    audio.playSound(SND_ROLL);
+                    audio.dj().playSound(sndRoll_);
 			}
 		}
         // GHZ Bridge
@@ -435,8 +433,10 @@ void Player::entitiesCollision(std::list<Entity*>& entities, Camera& cam)
                         }
                     }
 
-                    if (!slope->d_isLiving())
-                        audio.playSound(SND_PLT_CRUSH);
+                    if (!slope->d_isLiving()) {
+                        audio.dj().playSound(sndDestroy_);
+                    }
+
             }
         }
         // Collision Solid
@@ -727,7 +727,7 @@ void Player::getHit(std::list<Entity*>& entities) {
         } 
         rings = 0;
 
-        audio.playSound(SND_RING_LOSS);
+        audio.dj().playSound(sndRingLoss_);
     } else {
         m_stateMachine.changeTo(PlayerStateID::DIE);
     }

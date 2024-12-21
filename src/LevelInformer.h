@@ -97,7 +97,12 @@ class LevelInformer : Entity {
     enum Type { T_TITLE_CARD, T_ROUND_CLEAR };
     LevelInformer(const char *zone, int act, Screen &scr, Audio &audio,
                   Type type, int *score = nullptr, int rings = 0, int time = 0)
-        : zone(zone), act(act), scr(scr), audio(audio), type(type) {
+        : zone(zone), act(act), scr(scr), audio(audio), type(type),
+
+        sndBeep_(audio.store().get<dj::Sound>(audio.store().map<SonicResources>().sounds.beep)),
+          sndCountEnd_(audio.store().get<dj::Sound>(audio.store().map<SonicResources>().sounds.ding))
+
+    {
         tick = (type == T_TITLE_CARD) ? 0 : -100;
         yShift = (type == T_TITLE_CARD) ? 0 : -20;
 
@@ -173,10 +178,10 @@ class LevelInformer : Entity {
             }
 
             if (timeBonus > 0 || ringBonus > 0)
-                audio.playSound(SND_BEEP);
+                audio.dj().playSound(sndBeep_);
 
             if (timeBonus == 0 && ringBonus == 0) {
-                audio.playSound(SND_COUNT_END);
+                audio.dj().playSound(sndCountEnd_);
                 tick = 0;
             }
         }
@@ -272,6 +277,10 @@ class LevelInformer : Entity {
   private:
     Screen &scr;
     Audio &audio;
+
+    dj::Sound& sndBeep_;
+    dj::Sound& sndCountEnd_;
+
     const char *zone;
     int act, tick;
     int xCenter;

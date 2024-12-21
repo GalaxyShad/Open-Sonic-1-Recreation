@@ -25,130 +25,147 @@
 
 // = physics =
 // normal
-#define PL_ACC              0.046875 
-#define PL_DEC              0.5 
-#define PL_FRC              0.046875
-#define PL_TOP              6
-#define PL_JMP              6.5
-#define PL_GRAV             0.21875
-#define PL_AIR              0.09375 
+#define PL_ACC 0.046875
+#define PL_DEC 0.5
+#define PL_FRC 0.046875
+#define PL_TOP 6
+#define PL_JMP 6.5
+#define PL_GRAV 0.21875
+#define PL_AIR 0.09375
 
-#define PL_SLP              0.125 
-#define PL_SLP_ROLL_UP      0.078125 
-#define PL_SLP_ROLL_DOWN    0.3125 
+#define PL_SLP 0.125
+#define PL_SLP_ROLL_UP 0.078125
+#define PL_SLP_ROLL_DOWN 0.3125
 
-#define PL_FRC_ROLL         0.0234375 
-#define PL_DEC_ROLL         0.125 
+#define PL_FRC_ROLL 0.0234375
+#define PL_DEC_ROLL 0.125
 
-#define PL_FOOT_LEVEL       20
+#define PL_FOOT_LEVEL 20
 
 using namespace gmath;
 
-class Player : public Entity
-{
-    public:
-		Player(v2f _pos, std::list<Entity*>& entities, EntityPool& entityPool, Camera& cam, terrain::Terrain& _trn, IInputMgr& input, Audio& audio, int& rings, int& score) 
-            : Entity(_pos)
-            , m_entityPool(entityPool)
-            , input(input)
-            , audio(audio)
-            , rings(rings)
-            , score(score) 
-            , m_collider(dv_pos, spd, gsp, _trn)
-            , m_stateMachine(m_props)
-            , cam(cam)
-            , entities(entities)
-        { };
+class Player : public Entity {
+public:
+    Player(v2f _pos, std::list<Entity *> &entities, EntityPool &entityPool,
+           Camera &cam, terrain::Terrain &_trn, IInputMgr &input, Audio &audio,
+           int &rings, int &score)
+        : Entity(_pos), m_entityPool(entityPool), input(input), audio(audio),
+          rings(rings), score(score), m_collider(dv_pos, spd, gsp, _trn),
+          m_stateMachine(m_props), cam(cam), entities(entities),
 
-        ENTITY_EXPOSE_HITBOX(m_hitbox)
+          sndSpring_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.spring)),
+          sndDestroy_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.breaking)),
+          sndRing_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.ring)),
+          sndShield_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.player.shield)),
+          sndRoll_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.player.roll)),
+          sndSkid_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.player.skid)),
+          sndJump_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.player.jump)),
 
-        EntityTypeID type() override { return EntityTypeID::PLAYER; }
+          sndRingLoss_(audio.store().get<dj::Sound>(
+              audio.store().map<SonicResources>().sounds.ringLoss))
 
-        void onHitboxCollision(Entity &entity) override;
+              {};
 
-        void tuduring() { printf("Tuduringl\n"); }
-        void init() override;
-        void d_update() override;
-        void d_draw(Camera& cam) override;
-        bool isEndLv() {return endLv;}
-        bool isDied() { return dead; }
-    private:
-        EntityHitBox m_hitbox = EntityHitBox(dv_pos, v2i(8, 16));
+    ENTITY_EXPOSE_HITBOX(m_hitbox)
 
-		void moveCam(Camera& cam);
-        void terrainCollision(Camera& cam);
-		void entitiesCollision(std::list<Entity*>& entities, Camera& cam);
+    EntityTypeID type() override { return EntityTypeID::PLAYER; }
 
-        PlayerCollider m_collider;
-        PlayerStateMachine m_stateMachine;
+    void onHitboxCollision(Entity &entity) override;
 
-        std::list<Entity*>& entities;
-        EntityPool& m_entityPool;
+    void tuduring() { printf("Tuduringl\n"); }
+    void init() override;
+    void d_update() override;
+    void d_draw(Camera &cam) override;
+    bool isEndLv() { return endLv; }
+    bool isDied() { return dead; }
 
-        Camera& cam;
-        IInputMgr& input;
-        Audio& audio;
+private:
+    dj::Sound &sndSpring_;
+    dj::Sound &sndDestroy_;
+    dj::Sound &sndRing_;
+    dj::Sound &sndShield_;
+    dj::Sound &sndRoll_;
+    dj::Sound &sndRingLoss_;
+    dj::Sound &sndSkid_;
+    dj::Sound &sndJump_;
 
-        v2f spd = v2f(0.f, 0.f);
+private:
+    EntityHitBox m_hitbox = EntityHitBox(dv_pos, v2i(8, 16));
 
-        int& rings;
-        int& score;
+    void moveCam(Camera &cam);
+    void terrainCollision(Camera &cam);
+    void entitiesCollision(std::list<Entity *> &entities, Camera &cam);
 
-        // enums
-        enum FlrMode { 
-            FLOOR, 
-            RIGHT_WALL, 
-            BOTTOM, 
-            LEFT_WALL
-        };
+    PlayerCollider m_collider;
+    PlayerStateMachine m_stateMachine;
 
-        // controlls
-        bool canHorMove = true;
+    std::list<Entity *> &entities;
+    EntityPool &m_entityPool;
 
-        bool debug = false;
+    Camera &cam;
+    IInputMgr &input;
+    Audio &audio;
 
-        // movement
-        float gsp = 0.0;
-        float angle = 0;
-        float shiftX = 0;
-        float shiftY = 0;
-        int enemyCombo = 0;
+    v2f spd = v2f(0.f, 0.f);
 
-        Entity* standOn;
+    int &rings;
+    int &score;
 
-        // gameplay
-		bool isSpindashDirRight = false;
-        bool standOnObj = false;
-        bool sTube = false;
-        bool endLv = false;
-        bool dead = false;
+    // enums
+    enum FlrMode { FLOOR, RIGHT_WALL, BOTTOM, LEFT_WALL };
 
-        // timers
-        int ringTimer = 0;
-        int horizontalLockTimer = 0;
-        int camLagTimer = 0;
-        int invicTimer = 0;
+    // controlls
+    bool canHorMove = true;
 
-        // animation
-        bool animFlip = false;
-		float anim8Angle = 0.0;
-        float animAngle = 0.0;
-        bool diaAnim = false;
+    bool debug = false;
 
-        int layer = 0;
+    // movement
+    float gsp = 0.0;
+    float angle = 0;
+    float shiftX = 0;
+    float shiftY = 0;
+    int enemyCombo = 0;
 
-		// debug
-		irect lSenRect, rSenRect;
-        bool isDebugPressed = false;
+    Entity *standOn;
 
-        PlayerStateProps m_props {
-            dv_pos, spd, gsp, input, audio, dv_anim, m_collider, m_stateMachine
-        };
+    // gameplay
+    bool isSpindashDirRight = false;
+    bool standOnObj = false;
+    bool sTube = false;
+    bool endLv = false;
+    bool dead = false;
 
-        // === functions === //
-        void gameplay();
-        void movement();
-        void animation();
-        void getHit(std::list<Entity*>& entities);
+    // timers
+    int ringTimer = 0;
+    int horizontalLockTimer = 0;
+    int camLagTimer = 0;
+    int invicTimer = 0;
 
+    // animation
+    bool animFlip = false;
+    float anim8Angle = 0.0;
+    float animAngle = 0.0;
+    bool diaAnim = false;
+
+    int layer = 0;
+
+    // debug
+    irect lSenRect, rSenRect;
+    bool isDebugPressed = false;
+
+    PlayerStateProps m_props{dv_pos, spd,     gsp,        input,
+                             audio,  dv_anim, m_collider, m_stateMachine};
+
+    // === functions === //
+    void gameplay();
+    void movement();
+    void animation();
+    void getHit(std::list<Entity *> &entities);
 };

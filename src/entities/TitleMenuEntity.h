@@ -146,7 +146,7 @@ public:
     void onDraw(const entity_v3::DrawContext &ctx) override {
         auto &scr = ctx.deprecatedScreen;
         auto scrCenterPos =
-            v2f(scr.getSize().width / 2, scr.getSize().height / 2);
+            v2f(427 / 2, 240 / 2);
         auto pos = scrCenterPos;
         pos.y += 72;
         pos.x -= 32;
@@ -187,10 +187,15 @@ public:
         if (tick_ % 40 < 20)
             return;
 
-        ctx.deprecatedScreen.drawTextureRect(
-            254, irect(56, 158, 144, 8),
-            v2f((float)ctx.deprecatedScreen.getSize().width / 2,
-                (float)ctx.deprecatedScreen.getSize().height / 2));
+        auto &texRes = ctx.deprecatedScreen.getTextureResource(254);
+        auto &t = ctx.deprecatedScreen.store().get<artist_api::Texture>(texRes);
+
+        ctx.deprecatedScreen.artist().drawSprite({.texture = t,
+            .rect = {.x = 56.0,
+                    .y = 158.0,
+                    .width = 144.0,
+                    .height = 8.0}},
+        artist_api::Vector2D<float>{.x = 427.0 / 2, .y = 240.0 / 2});
     }
 
     bool hasTag(entity_v3::TagID tag) override { return entity_v3::NO_TAGS; }

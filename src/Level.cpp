@@ -15,7 +15,7 @@ void Level::create() {
     }
 
     m_entityPool.create(new TitleCardSonic1(
-        m_zoneName, m_act, m_screen.getSize().width, m_entityPool));
+        m_zoneName, m_act, 427, m_entityPool));
 
     if (m_gameType == GameType::SONIC_1) {
         createZoneSpecific();
@@ -27,7 +27,7 @@ void Level::create() {
         m_terrain, m_input, m_audio, rings, score));
 
     // Create camera
-    auto screenSize = m_screen.getSize();
+    auto screenSize = Size(427, 240);
     auto cameraPos =
         v2f(m_playerStartPosition.x - (float)screenSize.width / 2,
             m_playerStartPosition.y - (float)screenSize.height / 2);

@@ -85,7 +85,7 @@ void Player::d_draw(Camera &cam) {
     auto fontResourceId = scr.store().map<SonicResources>().fonts.general;
     auto &font = scr.store().get<artist_api::SpriteFont>(fontResourceId);
 
-    scr.artist().drawText(dbInfo, {.x = scr.getSize().width - 256.f, .y = 8},
+    scr.artist().drawText(dbInfo, {.x = 427 - 256.f, .y = 8},
                           font);
 
     m_collider.draw(cam);

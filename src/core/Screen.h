@@ -42,20 +42,6 @@ public:
                     resource_store::TextureLoader &loader)
         : artist_(artist), store_(store), loader_(loader) {}
 
-    /////////////////
-    /////////////////
-
-    Size getSize() { return Size(427, 240); }
-
-    void drawTextureRect(uint8_t texId, irect texRect, v2f pos = {0, 0},
-                         v2i offset = {0, 0}, float angle = 0.0,
-                         bool horFlip = false, bool verFlip = false);
-
-    const Texture *getTexture(uint8_t texture) { return &textures_[texture]; }
-
-    /////////////////
-    /////////////////
-
     inline const std::vector<Frame> &frames(uint8_t key) { return textureFrames_[key];
     }
 

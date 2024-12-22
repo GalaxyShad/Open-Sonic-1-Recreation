@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "core/game_enviroment/EntityContext.h"
 
 #define TEX_OBJECTS 0
 #define TEX_GHZ_GIMM 1
@@ -34,12 +35,12 @@ int Game::RunGameWithSfmlBackend(const LoadResourcesFunction &loadResFun) {
 
 Game::Game(GameEnvironment &env, SfmlArtist &sfmlArtist,
            const LoadResourcesFunction &loadResourcesFun)
-    : sceneDirector_(env, entityPoolEventLoop_.pool()),
+    : sceneDirector_(entityPoolEventLoop_.pool(), sceneCtxs_),
       deprAudio_(env.dj(), store_),
       deprScreen_(sfmlArtist, store_, env.textureLoader()),
       deprEnv_(
           DeprecatedGameEnvironment{.scr = deprScreen_, .audio = deprAudio_}),
-      env_(env), entityPoolEventLoop_(env, deprEnv_, sceneDirector_) {
+      env_(env), entityPoolEventLoop_(entCtxs_) {
     env.init();
 
     store_.loadMapping(loadResourcesFun(store_, env, deprEnv_));

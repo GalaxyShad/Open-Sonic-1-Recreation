@@ -23,4 +23,11 @@ struct SceneExitContext {
 
 };
 
+struct SceneContexts {
+    SceneStartContext& start;
+    SceneUpdateContext& update;
+    SceneDrawContext& draw;
+    SceneExitContext& exit;
+};
+
 #endif // OS1R_SCENECONTEXT_H

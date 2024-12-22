@@ -3,16 +3,17 @@
 
 #include <vector>
 
-#include "core/game_enviroment/GameEnvironment.h"
+#include "EntityPool.h"
 #include "ISceneDirector.h"
 #include "Scene.h"
-#include "EntityPool.h"
-
-
+#include "core/game_enviroment/GameEnvironment.h"
+#include "core/game_enviroment/SceneContext.h"
 
 class SceneDirector : public ISceneDirector {
 public:
-    explicit SceneDirector(GameEnvironment& e, entity_v3::EntityPool& entityPool) : env_(e), entityPool_(entityPool) {}
+    explicit SceneDirector(entity_v3::EntityPool &entityPool,
+                           SceneContexts &sceneCtxs)
+        : sceneCtxs_(sceneCtxs), entityPool_(entityPool) {}
 
     SceneUniqueID add(std::unique_ptr<Scene> scene);
 
@@ -24,8 +25,8 @@ public:
 private:
     std::vector<std::unique_ptr<Scene>> sceneList_;
     SceneUniqueID currentSceneId_ = -1;
-    GameEnvironment& env_;
-    entity_v3::EntityPool& entityPool_;
+    SceneContexts &sceneCtxs_;
+    entity_v3::EntityPool &entityPool_;
 };
 
 #endif // OS1R_SCENEDIRECTOR_H

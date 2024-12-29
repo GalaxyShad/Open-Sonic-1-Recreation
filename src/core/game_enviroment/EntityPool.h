@@ -2,37 +2,46 @@
 #define OS1R_ENTITYPOOL_H
 
 #include <list>
+#include <memory>
+#include <stack>
 
 #include "EntityV3.h"
+#include "core/game_enviroment/EntityContext.h"
 
 namespace entity_v3 {
 
 class EntityPool {
 public:
-    EntityPool(std::list<std::unique_ptr<Entity>> &entityList)
-        : entityList_(entityList) {}
+    struct EntityPoolNode {
+        std::unique_ptr<entity_v3::Entity> ent;
+        bool shouldBeDestroyed;
+    };
+
+public:
+    EntityPool(std::list<EntityPoolNode> &entityList,
+               entity_v3::InitContext &entInitCtx)
+        : entityList_(entityList), initCtx_(entInitCtx) {}
 
     Entity &instantiate(std::unique_ptr<Entity> e) {
-        e->onInit({});
+        e->onInit(initCtx_);
 
-        entityList_.emplace_back(std::move(e));
+        entityList_.push_back(
+            EntityPoolNode{.ent = std::move(e), .shouldBeDestroyed = false});
 
-        return *entityList_.back();
+        return *entityList_.back().ent;
     }
+
+    void destroy(Entity &ent) {}
 
     void clear() {
-        shouldBeCleared_ = true;
-    }
-
-    void destroy(Entity &&ent) {}
-
-    inline bool isShouldBeCleared() {
-        return shouldBeCleared_;
+        for (auto &e : entityList_) {
+            e.shouldBeDestroyed = true;
+        }
     }
 
 private:
-    std::list<std::unique_ptr<Entity>> &entityList_;
-    bool shouldBeCleared_ = false;
+    std::list<EntityPoolNode> &entityList_;
+    entity_v3::InitContext &initCtx_;
 };
 
 } // namespace entity_v3

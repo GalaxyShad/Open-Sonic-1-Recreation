@@ -19,27 +19,20 @@ void SceneDirector::go(SceneUniqueID sceneId) {
 
 
     if (currentSceneId_ != -1) {
-        sceneList_[currentSceneId_]->onExit({});
+        sceneList_[currentSceneId_]->onExit(sceneCtxs_.exit);
     }
 
     currentSceneId_ = sceneId;
 
     entityPool_.clear();
 
-    sceneList_[currentSceneId_]->onStart({
-        .entityPool = entityPool_
-    });
+    sceneList_[currentSceneId_]->onStart(sceneCtxs_.start);
 }
 
 void SceneDirector::update() {
-    sceneList_[currentSceneId_]->onUpdate({
-        .input = env_.input(),
-        .sceneDirector = *this
-    });
+    sceneList_[currentSceneId_]->onUpdate(sceneCtxs_.update);
 }
 
 void SceneDirector::draw() {
-    sceneList_[currentSceneId_]->onDraw({
-        .artist = env_.artist()
-    });
+    sceneList_[currentSceneId_]->onDraw(sceneCtxs_.draw);
 }

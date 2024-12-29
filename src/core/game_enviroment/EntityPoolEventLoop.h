@@ -1,51 +1,53 @@
 #ifndef OS1R_ENTITYPOOLEVENTLOOP_H
 #define OS1R_ENTITYPOOLEVENTLOOP_H
 
-#include "GameEnvironment.h"
-#include "../DeprecatedGameEnv.h"
-#include "SceneDirector.h"
+#include "core/game_enviroment/EntityContext.h"
+#include "core/game_enviroment/EntityPool.h"
+#include "core/game_enviroment/EntityV3.h"
+
+#include <memory>
 
 namespace entity_v3 {
 class EntityPoolEventLoop {
 public:
-    EntityPoolEventLoop(GameEnvironment &env, DeprecatedGameEnvironment &denv,
-                        SceneDirector &sceneDirector)
-        : gameEnv_(env), deprGameEnv(denv), pool_(entityList_),
-          sceneDirector_(sceneDirector) {}
+public:
+    EntityPoolEventLoop(entity_v3::Contexts &entCtxs)
+        : pool_(entityList_, entCtxs.init), entCtxs_(entCtxs) {}
 
     void update() {
-        if (entityList_.empty()) return;
+        if (entityList_.empty())
+            return;
 
         for (auto &e : entityList_) {
-            e->onUpdate(
-                {.input = gameEnv_.input(), .sceneDirector = sceneDirector_});
+            e.ent->onUpdate(entCtxs_.update);
         }
 
-        if (pool_.isShouldBeCleared()) {
-            entityList_.clear();
+        for (auto it = entityList_.begin(); it != entityList_.end();) {
+            if (it->shouldBeDestroyed) {
+                it = entityList_.erase(it);
+            } else {
+                ++it;
+            }
         }
     }
 
     void draw() {
-        if (entityList_.empty()) return;
+        if (entityList_.empty())
+            return;
 
         for (auto &e : entityList_) {
-            e->onDraw({.artist = gameEnv_.artist(),
-                       .deprecatedScreen = deprGameEnv.scr});
+            e.ent->onDraw(entCtxs_.draw);
         }
     }
 
-    EntityPool& pool() {
-        return pool_;
-    }
+    EntityPool &pool() { return pool_; }
 
 private:
-    GameEnvironment &gameEnv_;
-    SceneDirector &sceneDirector_;
-    DeprecatedGameEnvironment &deprGameEnv;
+    entity_v3::Contexts &entCtxs_;
     EntityPool pool_;
-    std::list<std::unique_ptr<Entity>> entityList_;
+
+    std::list<EntityPool::EntityPoolNode> entityList_;
 };
-}
+} // namespace entity_v3
 
 #endif // OS1R_ENTITYPOOLEVENTLOOP_H

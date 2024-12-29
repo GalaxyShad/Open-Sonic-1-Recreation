@@ -7,6 +7,7 @@
 #include "core/game_enviroment/ISceneDirector.h"
 
 namespace entity_v3 {
+    
 
 class InitContext {};
 
@@ -18,6 +19,12 @@ struct DrawContext final {
 struct UpdateContext final {
     IInputMgr& input;
     ISceneDirector& sceneDirector;
+};
+
+struct Contexts {
+    InitContext& init;
+    DrawContext& draw;
+    UpdateContext& update;
 };
 
 } // namespace entity_v3

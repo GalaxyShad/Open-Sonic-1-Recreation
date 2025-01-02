@@ -20,8 +20,8 @@ public:
         bgTexture_ =
             scr.textureLoader().loadFromFile("content/textures/texTitle.png");
 
-        pos = v2f((float)scr.getSize().width / 2,
-                  (float)scr.getSize().height / 2);
+        pos = v2f((float)427 / 2,
+                  (float)240 / 2);
 
         yAnimShift = 8;
     }

@@ -6,7 +6,7 @@
 #include "entity-creator.hpp"
 #include "game-loop-ticker.h"
 #include "sonic/SonicResources.h"
-#include <__format/format_functions.h>
+#include <format>
 #include <cstdio>
 
 void Level::create() {
@@ -15,7 +15,7 @@ void Level::create() {
     }
 
     m_entityPool.create(new TitleCardSonic1(
-        m_zoneName, m_act, m_screen.getSize().width, m_entityPool));
+        m_zoneName, m_act, 427, m_entityPool));
 
     if (m_gameType == GameType::SONIC_1) {
         createZoneSpecific();
@@ -27,7 +27,7 @@ void Level::create() {
         m_terrain, m_input, m_audio, rings, score));
 
     // Create camera
-    auto screenSize = m_screen.getSize();
+    auto screenSize = Size(427, 240);
     auto cameraPos =
         v2f(m_playerStartPosition.x - (float)screenSize.width / 2,
             m_playerStartPosition.y - (float)screenSize.height / 2);

@@ -2,11 +2,13 @@
 
 #include "Camera.h"
 #include "core/Audio.h"
+#include "core/Geometry.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "core/game_enviroment/artist/SpriteFont.h"
 #include "entities/Entity.h"
 #include "entity-pool.hpp"
 #include "sonic/SonicResources.h"
-#include <__format/format_functions.h>
+#include <format>
 
 class TitleCardSonic1 : public Entity {
 public:
@@ -40,7 +42,7 @@ public:
             m_textActX += 16;
         }
 
-        float centerX = scr.getSize().width / 2;
+        float centerX = 427 / 2;
 
         m_tick++;
 
@@ -54,23 +56,44 @@ public:
         if (m_textBottomX > centerX + 58)
             m_textBottomX = centerX + 58;
 
-        scr.drawTextureRect(2, irect(191, 77, 56, 56), v2f(m_shapeX, 69));
-        scr.drawTextureRect(2, irect(2, 121, 24, 8), v2f(m_textActX, 110));
 
+        auto &texRes = scr.getTextureResource(2);
+        auto &t = scr.store().get<artist_api::Texture>(texRes);
+
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 191.0,
+                    .y = 77.0,
+                    .width = 56.0,
+                    .height = 56.0}},
+        artist_api::Vector2D<float>{.x = m_shapeX, .y = 69});
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 2.0,
+                    .y = 121.0,
+                    .width = 24.0,
+                    .height = 8.0}},
+        artist_api::Vector2D<float>{.x = m_textActX, .y = 110});
+
+        irect _irect;
+        v2f _v2f=v2f(m_textActX + 29, 94);
         switch (m_act) {
-        case 1:
-            scr.drawTextureRect(2, irect(34, 113, 7, 24),
-                                v2f(m_textActX + 32, 94));
-            break;
-        case 2:
-            scr.drawTextureRect(2, irect(51, 113, 14, 24),
-                                v2f(m_textActX + 29, 94));
-            break;
-        case 3:
-            scr.drawTextureRect(2, irect(75, 113, 14, 24),
-                                v2f(m_textActX + 29, 94));
-            break;
+            case 1:
+                _v2f.x+=3;
+                _irect=irect(34,113,7,24);
+                break;
+            case 2:
+                _irect=irect(51,113,14,24);
+                break;
+            case 3:
+                _irect=irect(75,113,14,24);
+                break;
         }
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = (float)_irect.left,
+                    .y = (float)_irect.top,
+                    .width = (float)_irect.width,
+                    .height = (float)_irect.height}},
+        artist_api::Vector2D<float>{.x = _v2f.x, .y = _v2f.y});
+
 
         auto &font = scr.store().get<artist_api::SpriteFont>(
             scr.store().map<SonicResources>().fonts.s1TitleCard);
@@ -115,7 +138,7 @@ public:
         tick = (type == T_TITLE_CARD) ? 0 : -100;
         yShift = (type == T_TITLE_CARD) ? 0 : -20;
 
-        int w = scr.getSize().width;
+        int w = 427;
         xAct = w;
         xShape = w;
         xFontTop = 0;
@@ -214,24 +237,44 @@ public:
         if (xFontBottom > xCenter + 58)
             xFontBottom = xCenter + 58;
 
-        scr.drawTextureRect(2, irect(191, 77, 56, 56),
-                            v2f(xShape, 69 + yShift));
-        scr.drawTextureRect(2, irect(2, 121, 24, 8), v2f(xAct, 110 + yShift));
 
+        auto &texRes = scr.getTextureResource(2);
+        auto &t = scr.store().get<artist_api::Texture>(texRes);
+
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 191.0,
+                    .y = 77.0,
+                    .width = 56.0,
+                    .height = 56.0}},
+        artist_api::Vector2D<float>{.x = xShape, .y = 69 + (float)yShift});
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 2.0,
+                    .y = 121.0,
+                    .width = 24.0,
+                    .height = 8.0}},
+        artist_api::Vector2D<float>{.x = xAct, .y = 110 + (float)yShift});
+
+        irect _irect;
+        v2f _v2f=v2f(xAct + 29, yShift);
         switch (act) {
-        case 1:
-            scr.drawTextureRect(2, irect(34, 113, 7, 24),
-                                v2f(xAct + 32, 94 + yShift));
-            break;
-        case 2:
-            scr.drawTextureRect(2, irect(51, 113, 14, 24),
-                                v2f(xAct + 29, 94 + yShift));
-            break;
-        case 3:
-            scr.drawTextureRect(2, irect(75, 113, 14, 24),
-                                v2f(xAct + 29, 94 + yShift));
-            break;
+            case 1:
+                _v2f.x+=3;
+                _irect=irect(34,113,7,24);
+                break;
+            case 2:
+                _irect=irect(51,113,14,24);
+                break;
+            case 3:
+                _irect=irect(75,113,14,24);
+                break;
         }
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = (float)_irect.left,
+                    .y = (float)_irect.top,
+                    .width = (float)_irect.width,
+                    .height = (float)_irect.height}},
+        artist_api::Vector2D<float>{.x = _v2f.x, .y = _v2f.y});
+
 
         auto &font = scr.store().get<artist_api::SpriteFont>(
             scr.store().map<SonicResources>().fonts.s1TitleCard);
@@ -246,30 +289,62 @@ public:
         if (type != T_ROUND_CLEAR)
             return;
 
-        const uint8_t shift = 16;
-        scr.drawTextureRect(2, irect(231, 60, 16, 16),
-                            v2f(xScore + 29, 100 + shift));
-        scr.drawTextureRect(2, irect(231, 60, 16, 16),
-                            v2f(xTimeBonus + 70, 116 + shift));
-        scr.drawTextureRect(2, irect(231, 60, 16, 16),
-                            v2f(xRingBonus + 70, 132 + shift));
 
-        scr.drawTextureRect(2, irect(1, 60, 40, 16), v2f(xScore, 100 + shift));
+        const uint8_t shift = 16;
+        artist_api::Sprite _sprit = {
+            .texture = t,
+            .rect = {.x = 231.0,
+                    .y = 60.0,
+                    .width = 16,
+                    .height = 16
+                    }
+        };
+        scr.artist().drawSprite(_sprit,
+        artist_api::Vector2D<float>{.x = xScore + 29, .y = 100 + shift});
+        scr.artist().drawSprite(_sprit,
+        artist_api::Vector2D<float>{.x = xTimeBonus + 70, .y = 116 + shift});
+        scr.artist().drawSprite(_sprit,
+        artist_api::Vector2D<float>{.x = xRingBonus + 70, .y = 132 + shift});
+
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 1.0,
+                    .y = 60.0,
+                    .width = 40,
+                    .height = 16}},
+        artist_api::Vector2D<float>{.x = xScore, .y = 100 + shift});
         scr.artist().drawText(std::format("{:8d}", *score),
                               {xScore + 96, 100 + shift}, font);
 
-        scr.drawTextureRect(2, irect(42, 60, 32, 16),
-                            v2f(xTimeBonus, 116 + shift));
-        scr.drawTextureRect(2, irect(116, 60, 40, 16),
-                            v2f(xTimeBonus + 40, 116 + shift));
+
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 42.0,
+                    .y = 60.0,
+                    .width = 32,
+                    .height = 16}},
+        artist_api::Vector2D<float>{.x = xTimeBonus, .y = 116 + shift});
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 116.0,
+                    .y = 60.0,
+                    .width = 40,
+                    .height = 16}},
+        artist_api::Vector2D<float>{.x = xTimeBonus + 40, .y = 116 + shift});
 
         scr.artist().drawText(std::format("{:8d}", timeBonus),
                               {xScore + 96, 116 + 16}, font);
 
-        scr.drawTextureRect(2, irect(75, 60, 32, 16),
-                            v2f(xRingBonus, 132 + shift));
-        scr.drawTextureRect(2, irect(116, 60, 40, 16),
-                            v2f(xRingBonus + 40, 132 + shift));
+
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 75.0,
+                    .y = 60.0,
+                    .width = 32,
+                    .height = 16}},
+        artist_api::Vector2D<float>{.x = xRingBonus, .y = 132 + shift});
+        scr.artist().drawSprite({.texture = t,
+            .rect = {.x = 116.0,
+                    .y = 60.0,
+                    .width = 40,
+                    .height = 16}},
+        artist_api::Vector2D<float>{.x = xRingBonus + 40, .y = 132 + shift});
 
         scr.artist().drawText(std::format("{:8d}", ringBonus),
                               {xRingBonus + 96, 132 + shift}, font);

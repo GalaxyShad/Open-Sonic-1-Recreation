@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "core/Screen.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
 
 #include <string>
@@ -8,7 +9,7 @@ void Camera::create(v2f _pos, Size _levelSize, bool free) {
     bottomBorder = levelSize.height * 256;
     rightBorder = levelSize.width * 256;
     pos = _pos;
-    size = scr.getSize();
+    size = Size(427, 240);
     m_free = free;
 }
 
@@ -33,8 +34,22 @@ void Camera::update() {
 
 void Camera::draw(uint8_t tex, irect texRect, v2f _pos, v2i offset, float angle,
                   bool horFlip, bool verFlip) {
-    scr.drawTextureRect(tex, texRect, v2f(_pos.x - pos.x, _pos.y - pos.y),
-                        offset, angle, horFlip, verFlip);
+    
+    auto &texRes = scr.getTextureResource(tex);
+    auto &t = scr.store().get<artist_api::Texture>(texRes);
+
+    scr.artist().drawSprite({.texture = t,
+                        .rect = {.x = (float)texRect.left,
+                                 .y = (float)texRect.top,
+                                 .width = (float)texRect.width,
+                                 .height = (float)texRect.height},
+                        .offset = {.x = (float)offset.x, .y = (float)offset.y}},
+                       artist_api::Vector2D<float>{.x = _pos.x - pos.x, .y = _pos.y - pos.y},
+                       artist_api::Artist::TransformProps{
+                           .angle = angle,
+                           .flipHorizontal = horFlip,
+                           .flipVertical = verFlip,
+                       });    
 }
 
 void Camera::draw(uint8_t tex, Frame frame, v2f _pos, float angle, bool horFlip,
@@ -61,13 +76,13 @@ void Camera::draw(const AnimMgr &anim, v2f _pos, float angle, bool horFlip,
     uint16_t aFrame = (uint16_t)anim.getCurFrame();
     uint8_t aTextureID = anim.getTexture();
 
-    const Texture *tex = scr.getTexture(aTextureID);
+    auto &texFrames = scr.frames(aTextureID);
 
     bool flip = horFlip;
     if (anim.getReversive())
         flip = anim.getFlip();
 
-    if (tex && aFrame < tex->framesLen) {
+    if (texFrames.size()) {
 
         auto &texRes = scr.getTextureResource(aTextureID);
         auto &tex = scr.store().get<artist_api::Texture>(texRes);

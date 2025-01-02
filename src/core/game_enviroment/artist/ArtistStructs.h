@@ -129,6 +129,17 @@ struct Sprite {
     Rect rect;
     Vector2D<float> offset;
 
+    static Sprite withCenterOffset(const Texture& tex, Rect rect) {
+        Sprite spr = {
+            .texture = tex,
+            .rect = rect
+        };
+
+        spr.setOffsetCenter();
+
+        return spr;
+    }
+
     void setOffsetCenter() {
         offset = {
             .x = rect.width / 2,
@@ -136,6 +147,16 @@ struct Sprite {
         };
     }
 };
+
+struct StorableSprite : public IStorableResource, public Sprite {
+
+};
+
+struct Animation {
+    std::vector<Sprite> frames;
+};
+
+
 } // namespace artist_api
 
 #endif // OS1R_ARTISTSTRUCTS_H

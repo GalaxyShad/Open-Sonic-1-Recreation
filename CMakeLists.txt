@@ -45,7 +45,6 @@ add_executable(os1r ${SOURCES}
         src/core/game_enviroment/SceneDirector.cpp
         src/core/game_enviroment/SceneDirector.h
         src/core/Geometry.h
-        src/core/Screen.cpp
         src/core/Screen.h
         src/core/_index.hpp
         src/entities/entity-types.hpp

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Screen.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 
 const Frame framesGhzGim[] = {
     Frame(irect(0,0,48,32)),  //Stone
@@ -94,6 +95,7 @@ const Frame framesObjects[] = {
     //Animation,MonitorIcon 58 - 64
     Frame(irect(786,70,16,14), v2i(8,7)),
     Frame(irect(802,70,16,14), v2i(8,7)),
+    
     Frame(irect(818,61,16,14), v2i(8,7)),
     Frame(irect(834,61,16,14), v2i(8,7)),
     Frame(irect(850,61,16,14), v2i(8,7)),

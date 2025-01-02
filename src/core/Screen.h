@@ -5,11 +5,7 @@
 #include <map>
 
 #include "Geometry.h"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/RectangleShape.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "core/game_enviroment/artist/Artist.h"
-#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "core/game_enviroment/artist/TextureLoader.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -27,12 +23,6 @@ struct Frame {
     v2i offset = v2i(0, 0);
 };
 
-struct Texture {
-    Size size;
-    Frame *frames;
-    uint16_t framesLen;
-};
-
 #include "core/game_enviroment/ResourceStore.h"
 #include "sfml_game_environment/SfmlArtist.h"
 
@@ -42,11 +32,14 @@ public:
                     resource_store::TextureLoader &loader)
         : artist_(artist), store_(store), loader_(loader) {}
 
-    inline const std::vector<Frame> &frames(uint8_t key) { return textureFrames_[key];
+
+    inline const std::vector<Frame> &frames(uint8_t key) { 
+        return textureFrames_[key];
     }
 
-    void bindTexture(uint8_t key, ResourceID resId);
-    void bindTextureFrames(uint8_t key, const Frame *frames, size_t framesLen);
+    void bindTextureFrames(uint8_t key, const Frame *frames, size_t framesLen) {
+        textureFrames_[key] = std::vector<Frame>(frames, frames + framesLen);
+    }
 
     ResourceID &getTextureResource(uint8_t key) { return sfTextures_[key]; }
     ResourceStore &store() { return store_; }
@@ -54,7 +47,6 @@ public:
     resource_store::TextureLoader &textureLoader() { return loader_; }
 
 private:
-    std::map<uint8_t, Texture> textures_;
     std::map<uint8_t, std::vector<Frame>> textureFrames_;
     std::map<uint8_t, ResourceID> sfTextures_;
 

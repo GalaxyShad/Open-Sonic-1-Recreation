@@ -46,6 +46,114 @@ struct SonicResources : public IStorableResource {
         ResourceID stageClear;
         ResourceID greenHillZone;
     } music;
+
+    struct Sprite {
+        struct {
+            ResourceID stone;
+            ResourceID swingPlatform;
+            ResourceID bridge;
+            ResourceID platform;
+
+            ResourceID wallLeftWithShadow;
+            ResourceID wallLeft;
+            ResourceID wallRight;
+
+            ResourceID bridgeColumn;
+        } greenHillZone;
+    } sprites;
+
+    struct Animation {
+        struct {
+            ResourceID idle;
+
+            ResourceID walk;
+            ResourceID walkDiagonal;
+
+            ResourceID run;
+            ResourceID runDiagonal;
+
+            ResourceID dash;
+            ResourceID dashDiagonal;
+
+            ResourceID sit;
+
+            ResourceID roll;
+            ResourceID skid;
+            ResourceID hurt;
+            ResourceID die;
+            ResourceID push;
+            ResourceID lookUp;
+
+            ResourceID spring;
+            ResourceID fall;
+        } sonic;
+
+        struct {
+            ResourceID main;
+            ResourceID broken;
+            ResourceID noise;
+
+            struct {
+                ResourceID ring;
+                ResourceID invinsibility;
+                ResourceID sonic;
+                ResourceID shield;
+                ResourceID speedSneakers;
+            } icon;
+        } monitor;
+
+        struct {
+            ResourceID yellow;
+            ResourceID yellowExpanded;
+
+            ResourceID red;
+            ResourceID redExpanded;
+        } spring;
+
+        struct {
+            ResourceID n10;
+            ResourceID n100;
+            ResourceID n200;
+            ResourceID n500;
+            ResourceID n1_000;
+            ResourceID n10_000;
+        } killScore;
+
+        struct {
+            ResourceID act;
+            ResourceID actBack;
+            ResourceID d1, d2, d3;
+            ResourceID ellipse;
+        } act;
+
+        ResourceID ring;
+
+        struct {
+            ResourceID dust, explosion, invinsible;
+        } sfx;
+
+        struct {
+            ResourceID bird;
+            ResourceID birdFlying;
+        } flicky;
+
+        struct {
+            ResourceID eggman;
+            ResourceID spin;
+            ResourceID sonic;
+        } signPost;
+
+        struct {
+            ResourceID chopper;
+            ResourceID crabmeat;
+            ResourceID buzzbomber;
+            ResourceID motobug;
+        } enemies;
+
+        ResourceID bullet;
+
+        ResourceID spikes;
+    } animations;
 };
 
 

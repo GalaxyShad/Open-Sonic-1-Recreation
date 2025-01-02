@@ -141,7 +141,9 @@ struct SonicResources : public IStorableResource {
             ResourceID eggman;
             ResourceID spin;
             ResourceID sonic;
+            ResourceID stick;
         } signPost;
+
 
         struct {
             ResourceID chopper;

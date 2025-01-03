@@ -129,6 +129,15 @@ struct Sprite {
     Rect rect;
     Vector2D<float> offset;
 
+    Sprite& operator=(const Sprite& other) {
+        if (this != &other) {
+            // Note: texture cannot be reassigned, so we skip it
+            rect = other.rect;
+            offset = other.offset;
+        }
+        return *this;
+    }
+
     static Sprite withCenterOffset(const Texture& tex, Rect rect) {
         Sprite spr = {
             .texture = tex,

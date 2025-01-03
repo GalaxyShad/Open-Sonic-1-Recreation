@@ -60,7 +60,7 @@ public:
         , m_terrainDrawer(cam, m_terrain.getChunkStore(), m_terrain.getLayout(), 255, storeTile, std::move(texBlocks))
         , bg(m_terrainDrawer)
     {
-        EntityCreatorSonic1 ec(m_entityPool, m_terrain);
+        EntityCreatorSonic1 ec(m_entityPool, m_terrain, scr.store());
         
         for (auto& plc : entities) {
             m_entityPool.create(ec.create(plc));

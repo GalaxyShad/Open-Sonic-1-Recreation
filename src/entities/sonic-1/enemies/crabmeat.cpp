@@ -5,13 +5,13 @@ void EnCrab::init() {
     dv_type = TYPE_ENEMY;
     // dv_anim.create(TEX_OBJECTS);
     // dv_anim.set(113, 115, 0.2, true);
-    animator_.setSpeed(1.0f);///
+    animator_.setSpeed(0.2f);///
 }
 
 void EnCrab::d_update() {
     if (moveTimer == 0) {
         // dv_anim.set(113, 115, 0.1, true);
-        animator_.setSpeed(1.0f);///
+        animator_.setSpeed(0.2f);///
         if (faceRight)
             xsp = CRAB_SPD;
         else

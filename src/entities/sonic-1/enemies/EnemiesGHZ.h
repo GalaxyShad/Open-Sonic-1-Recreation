@@ -40,9 +40,6 @@ class EnChopper : public Enemy {
 public:
     EnChopper(v2f _pos, artist_api::Animation &anim)
         : Enemy(_pos), animator_(anim) {}
-public:
-    EnChopper(v2f _pos, artist_api::Animation &anim)
-        : Enemy(_pos), animator_(anim) {}
     void init();
     void d_update();
     void draw(Camera &cam) override {
@@ -56,8 +53,6 @@ public:
 
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-private:
-    artist_api::Animator animator_;
 private:
     artist_api::Animator animator_;
     float ysp = 0;

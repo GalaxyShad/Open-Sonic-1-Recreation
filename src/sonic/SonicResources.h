@@ -47,22 +47,24 @@ struct SonicResources : public IStorableResource {
         ResourceID greenHillZone;
     } music;
 
-    struct Sprite {
-        struct {
-            ResourceID stone;
-            ResourceID swingPlatform;
-            ResourceID bridge;
-            ResourceID platform;
-
-            ResourceID wallLeftWithShadow;
-            ResourceID wallLeft;
-            ResourceID wallRight;
-
-            ResourceID bridgeColumn;
-        } greenHillZone;
-    } sprites;
+    
 
     struct Animation {
+        struct Sprite {
+            struct {
+                ResourceID stone;
+                ResourceID swingPlatform;
+                ResourceID bridge;
+                ResourceID platform;
+
+                ResourceID wallLeftWithShadow;
+                ResourceID wallLeft;
+                ResourceID wallRight;
+
+                ResourceID bridgeColumn;
+            } greenHillZone;
+        } sprites;
+
         struct {
             ResourceID idle;
 

@@ -16,6 +16,7 @@
 
 #include "AudioMappings.h"
 #include <memory>
+#include <utility>
 
 SonicResources::Textures loadTextures(ResourceStore &store,
                                       GameEnvironment &env,
@@ -137,15 +138,13 @@ SonicResources::Music loadMusic(ResourceStore &store,
     return mus;
 }
 
-std::unique_ptr<IStorableResource> makeSprites(ResourceStore& store, SonicResources::Textures& textures) {
-    using namespace artist_api;
-    
-    SonicResources::Sprite sprites;
+SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicResources::Textures& textures) {
+    using namespace artist_api; 
 
     auto& ghzTex = store.get<Texture>(textures.objectsGhz);
 
     auto t = [&store](Texture& tex, Rect r, bool centered = true, Vector2D<float> offset = {}){
-        auto spr = centered 
+        auto* spr = centered 
             ? new Sprite(Sprite::withCenterOffset(tex, r))
             : new Sprite {
                 .texture = tex,
@@ -153,23 +152,10 @@ std::unique_ptr<IStorableResource> makeSprites(ResourceStore& store, SonicResour
                 .offset = offset
             };
 
-        return store.load(std::unique_ptr<IStorableResource>((StorableSprite*)spr));
+        return store.load(std::unique_ptr<IStorableResource>((IStorableResource*)spr));
     };
 
     // clang-format off
-
-    sprites.greenHillZone = {
-        .stone               = t(ghzTex, {0,   0,  48, 32}),
-        .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {0, 56}),
-        .bridge              = t(ghzTex, {0,   32, 16, 16}),
-        .platform            = t(ghzTex, {0,   90, 64, 30}),
-
-        .wallLeftWithShadow  = t(ghzTex, {144, 0,  16, 64}),
-        .wallLeft            = t(ghzTex, {160, 0,  16, 64}),
-        .wallRight           = t(ghzTex, {144, 64, 16, 64}),
-
-        .bridgeColumn        = t(ghzTex, {64,  88, 32, 16}),
-    };
 
     SonicResources::Animation anims;
 
@@ -182,6 +168,19 @@ std::unique_ptr<IStorableResource> makeSprites(ResourceStore& store, SonicResour
     };
 
     auto& objTex = store.get<Texture>(textures.objects);
+
+    anims.sprites.greenHillZone = {
+        .stone               = t(ghzTex, {0,   0,  48, 32}),
+        .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {0, 56}),
+        .bridge              = t(ghzTex, {0,   32, 16, 16}),
+        .platform            = t(ghzTex, {0,   90, 64, 30}),
+
+        .wallLeftWithShadow  = t(ghzTex, {144, 0,  16, 64}),
+        .wallLeft            = t(ghzTex, {160, 0,  16, 64}),
+        .wallRight           = t(ghzTex, {144, 64, 16, 64}),
+
+        .bridgeColumn        = t(ghzTex, {64,  88, 32, 16}),
+    };
 
     anims.sonic = {
         .idle = an(Animation {
@@ -224,7 +223,7 @@ std::unique_ptr<IStorableResource> makeSprites(ResourceStore& store, SonicResour
             .frames = {
                 Sprite { objTex, {919,1,37,39}, {19,17}},
                 Sprite { objTex, {959,0,36,40}, {18,18}},
-                Sprite { objTex, {2,40,36,39}, {19,17}},
+                Sprite { objTex, {2,40,36,39},  {19,17}},
                 Sprite { objTex, {43,39,36,40}, {18,18}},
             }
         }),
@@ -525,19 +524,9 @@ std::unique_ptr<IStorableResource> makeSprites(ResourceStore& store, SonicResour
                 }
         })
     };
-        
-    // .debug = an(Animation{
-    //     .frames = {
-    //             Sprite { objTex, {0,84,16,16}, {8,8}},
-    //             Sprite { objTex, {16,84,16,16}, {8,8}},
-    //             Sprite { objTex, {32,84,16,16}, {8,8}},
-    //             Sprite { objTex, {48,84,16,16}, {8,8}},
-    //             Sprite { objTex, {64,84,16,16}, {8,8}},
-    //             Sprite { objTex, {80,84,16,16}, {8,8}},
-    //         }
-    //     }),
-
     // clang-format on
+
+    return anims;
 }
 
 std::unique_ptr<IStorableResource> loadResources(ResourceStore& store, GameEnvironment& env, DeprecatedGameEnvironment& deprEnv) {
@@ -547,6 +536,7 @@ std::unique_ptr<IStorableResource> loadResources(ResourceStore& store, GameEnvir
     res->fonts = loadFonts(store, res->textures.hud, deprEnv);
     res->sounds = loadSounds(store, env, deprEnv);
     res->music = loadMusic(store, env, deprEnv);
+    res->animations = makeSpritesAndAnimations(store, res->textures);
 
     return std::unique_ptr<IStorableResource>(res);
 }

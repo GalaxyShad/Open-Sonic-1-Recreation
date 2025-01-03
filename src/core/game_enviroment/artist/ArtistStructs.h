@@ -157,10 +157,6 @@ struct Sprite {
     }
 };
 
-struct StorableSprite : public IStorableResource, public Sprite {
-
-};
-
 struct Animation {
     std::vector<Sprite> frames;
 };

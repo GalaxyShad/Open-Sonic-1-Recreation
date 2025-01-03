@@ -174,15 +174,18 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
         .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {0, 56}),
         .bridge              = t(ghzTex, {0,   32, 16, 16}),
         .platform            = t(ghzTex, {0,   90, 64, 30}),
+
         .wallLeftWithShadow  = t(ghzTex, {144, 0,  16, 64}),
         .wallLeft            = t(ghzTex, {160, 0,  16, 64}),
         .wallRight           = t(ghzTex, {144, 64, 16, 64}),
+
         .bridgeColumn        = t(ghzTex, {64,  88, 32, 16}),
     };
-    
+
     anims.sonic = {
         .idle = an(Animation {
             .frames = {
+               Sprite { objTex, {0, 0, 29, 39},  {14, 19} },
                Sprite { objTex, {0, 0, 29, 39},  {14, 19} },
                Sprite { objTex, {29, 1, 30, 38}, {12, 18} },
                Sprite { objTex, {59, 1, 30, 38}, {12, 18} },
@@ -557,6 +560,8 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
 
     return anims;
     // clang-format on
+
+    return anims;
 }
 
 std::unique_ptr<IStorableResource> loadResources(ResourceStore& store, GameEnvironment& env, DeprecatedGameEnvironment& deprEnv) {

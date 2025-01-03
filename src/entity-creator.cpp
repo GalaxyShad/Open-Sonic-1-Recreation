@@ -88,6 +88,8 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     v2f position = v2f(eplc.x, eplc.y);
 
     
+
+    
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): {
@@ -97,8 +99,10 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
         }
 
         case (ObjectID_S1::S1_CHOPPER): {
+
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.chopper);
-            return new EnChopper(position, anim);///
+
+            return new EnChopper(position, anim);
         }
 
         case (ObjectID_S1::S1_CRABMEAT): {

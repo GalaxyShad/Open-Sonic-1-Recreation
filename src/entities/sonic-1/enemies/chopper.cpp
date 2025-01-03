@@ -4,8 +4,8 @@
 void EnChopper::init() {
     dv_hitBoxSize = v2f(26, 34);
     dv_type = TYPE_ENEMY;
-    dv_anim.create(TEX_OBJECTS);
-    dv_anim.set(111, 112, 0.2f);
+
+    animator_.setSpeed(0.2f);
 }
 
 void EnChopper::d_update() {
@@ -15,5 +15,5 @@ void EnChopper::d_update() {
         ysp = -7;
     ysp += 0.09375;
 
-    dv_anim.tick();
+    animator_.tick();
 }

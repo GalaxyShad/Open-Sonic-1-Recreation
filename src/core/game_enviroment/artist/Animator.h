@@ -42,6 +42,6 @@ public:
     }
 };
 
-} // namespace artist_api
+}; // namespace artist_api
 
 #endif // __CLIONPROJECTS_OPEN_SONIC_1_RECREATION_SRC_CORE_GAME_ENVIROMENT_ARTIST_ANIMATOR_H_

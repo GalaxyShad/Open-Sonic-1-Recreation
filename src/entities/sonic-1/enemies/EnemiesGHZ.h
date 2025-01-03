@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../general/Enemy.h"
+#include "core/game_enviroment/artist/Animator.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "new-terrain.hpp"
 #include "terrain-sensor.hpp"
 
@@ -11,7 +13,7 @@
 #define CRAB_SPD 0.5
 
 class EnMotobug : public Enemy {
-  public:
+public:
     EnMotobug(v2f pos, terrain::Terrain &terrain)
         : m_sensor(pos, terrain::SensorDirection::DOWN, terrain), Enemy(pos) {}
     void init();
@@ -19,7 +21,7 @@ class EnMotobug : public Enemy {
     void d_draw(Camera &cam);
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-  private:
+private:
     terrain::Sensor m_sensor;
 
     void trnCollision();
@@ -27,18 +29,32 @@ class EnMotobug : public Enemy {
 };
 
 class EnChopper : public Enemy {
-  public:
-    EnChopper(v2f _pos) : Enemy(_pos) {}
+public:
+    EnChopper(v2f _pos, artist_api::Animation &anim)
+        : Enemy(_pos), animator_(anim) {}
     void init();
     void d_update();
+    void draw(Camera &cam) override {
+
+        auto &spr = animator_.getCurrentFrame();
+
+        cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
+                                               .y = dv_pos.y - cam.getPos().y});
+    }
+
+    void d_draw(Camera &cam) override {
+        // nothing
+    }
+
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-  private:
+private:
+    artist_api::Animator animator_;
     float ysp = 0;
 };
 
 class EnCrab : public Enemy {
-  public:
+public:
     EnCrab(v2f pos, std::list<Entity *> &_entities, terrain::Terrain &terrain)
         : Enemy(pos), m_sensor(pos, terrain::SensorDirection::DOWN, terrain) {
         entities = &_entities;
@@ -47,7 +63,7 @@ class EnCrab : public Enemy {
     void d_update();
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-  private:
+private:
     void trnCollision();
     float xsp = CRAB_SPD;
     int moveTimer = 0;
@@ -60,7 +76,7 @@ class EnCrab : public Enemy {
 };
 
 class EnBuzz : public Enemy {
-  public:
+public:
     EnBuzz(v2f _pos) : Enemy(_pos) {}
     void init();
     void d_update();
@@ -68,7 +84,7 @@ class EnBuzz : public Enemy {
     void d_reactingToOthers(std::list<Entity *> &entities);
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-  private:
+private:
     float xsp = BUZZ_SPD;
     int moveTimer = 0;
     int idleTimer = 8;
@@ -79,7 +95,7 @@ class EnBuzz : public Enemy {
 };
 
 class Bullet : public Entity {
-  public:
+public:
     Bullet(v2f _pos, uint8_t _mode, int _dir = -1) : Entity(_pos) {
         mode = _mode;
         dir = _dir;
@@ -90,7 +106,7 @@ class Bullet : public Entity {
     void d_draw(Camera &cam);
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-  private:
+private:
     float ysp = 0;
     float xsp = 0;
     uint8_t mode = 0; // 0 - Buzz 1 - Crab

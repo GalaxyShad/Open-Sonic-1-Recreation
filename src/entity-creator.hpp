@@ -1,11 +1,10 @@
 #pragma once
 
+#include "core/game_enviroment/ResourceStore.h"
 #include "entities/Entity.h"
 #include "entity-placement.hpp"
 #include "entity-pool.hpp"
 #include "new-terrain.hpp"
-
-#include <list>
 
 class IEntityCreator {
 public:
@@ -14,9 +13,10 @@ public:
 
 class EntityCreatorSonic1 : public IEntityCreator {
 public:
-    EntityCreatorSonic1(EntityPool& entityPool, terrain::Terrain& terrain) 
+    EntityCreatorSonic1(EntityPool& entityPool, terrain::Terrain& terrain, ResourceStore& store) 
         : m_entityList(entityPool)
         , m_terrain(terrain)
+        , store_(store)
     {} 
 
     Entity* create(EntityPlacement entPlacement);
@@ -24,6 +24,8 @@ public:
 private:
     EntityPool& m_entityList;
     terrain::Terrain& m_terrain;
+
+    ResourceStore& store_;
 
     Entity* createEnemies(EntityPlacement eplc);
     Entity* createGeneral(EntityPlacement eplc);

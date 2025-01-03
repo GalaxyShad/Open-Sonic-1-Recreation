@@ -1,6 +1,8 @@
 #include "entity-creator.hpp"
 
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/_index.hpp"
+#include "sonic/SonicResources.h"
 
 
 Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
@@ -83,13 +85,19 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
 
 Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     v2f position = v2f(eplc.x, eplc.y);
+
+    
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): 
             return new EnMotobug(position, m_terrain);
 
-        case (ObjectID_S1::S1_CHOPPER): 
-            return new EnChopper(position);
+        case (ObjectID_S1::S1_CHOPPER): {
+
+            auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.chopper);
+
+            return new EnChopper(position, anim);
+        }
 
         case (ObjectID_S1::S1_CRABMEAT): 
             return new EnCrab(position, m_entityList.legacy_rawPool(), m_terrain);

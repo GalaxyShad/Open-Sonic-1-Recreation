@@ -148,11 +148,17 @@ struct SonicResources : public IStorableResource {
         struct {
             ResourceID chopper;
             ResourceID crabmeat;
-            ResourceID buzzbomber;
+            struct {
+                ResourceID body;
+                ResourceID wings;
+                ResourceID turbo;
+                ResourceID fire;
+            } buzzbomber;
             ResourceID motobug;
         } enemies;
 
-        ResourceID bullet;
+        ResourceID bulletYellow;
+        ResourceID bulletRed;
 
         ResourceID spikes;
     } animations;

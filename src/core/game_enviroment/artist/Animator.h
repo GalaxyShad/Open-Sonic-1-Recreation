@@ -40,6 +40,10 @@ public:
     const Sprite &getCurrentFrame() {
         return anim_.frames[static_cast<int>(currentFrame_)];
     }
+
+    const int getCurrentFrameIndex() {
+        return static_cast<int>(currentFrame_);
+    }
 };
 
 }; // namespace artist_api

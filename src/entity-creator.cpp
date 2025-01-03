@@ -2,6 +2,7 @@
 
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/_index.hpp"
+#include "entities/sonic-1/enemies/EnemiesGHZ.h"
 #include "sonic/SonicResources.h"
 
 
@@ -89,22 +90,33 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     
     
     switch ((ObjectID_S1)eplc.objectId) {
-        case (ObjectID_S1::S1_MOTOBUG_ENEMY): 
-            return new EnMotobug(position, m_terrain);
-
-        case (ObjectID_S1::S1_CHOPPER): {
-
-            auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.chopper);
-
-            return new EnChopper(position, anim);
+        case (ObjectID_S1::S1_MOTOBUG_ENEMY): {
+            auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.motobug);
+            return new EnMotobug(position, anim, m_terrain);///
+            // return new EnMotobug(position, m_terrain);
         }
 
-        case (ObjectID_S1::S1_CRABMEAT): 
-            return new EnCrab(position, m_entityList.legacy_rawPool(), m_terrain);
-        
-        case (ObjectID_S1::S1_BUZZ_BOMBER): 
-            return new EnBuzz(position);
+        case (ObjectID_S1::S1_CHOPPER): {
+            auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.chopper);
+            return new EnChopper(position, anim);///
+        }
 
+        case (ObjectID_S1::S1_CRABMEAT): {
+            auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.crabmeat);
+            auto& animBullet = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.bulletRed);
+            return new EnCrab(position, anim, m_entityList.legacy_rawPool(), m_terrain, animBullet);///
+            // return new EnCrab(position, m_entityList.legacy_rawPool(), m_terrain);
+        }
+        
+        case (ObjectID_S1::S1_BUZZ_BOMBER):  {
+            auto& animBody = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.buzzbomber.body);
+            auto& animWings = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.buzzbomber.wings);
+            auto& animTurbo = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.buzzbomber.turbo);
+            auto& animFire = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.buzzbomber.fire);
+            auto& animBullet = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.bulletYellow);
+            EnBuzzAnimations anims = {animBody,animWings,animTurbo,animFire};
+            return new EnBuzz(position, anims, animBullet);
+        }
         default: 
             return nullptr;
     }

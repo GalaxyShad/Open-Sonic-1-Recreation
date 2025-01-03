@@ -11,7 +11,7 @@ void EnCrab::init() {
 void EnCrab::d_update() {
     if (moveTimer == 0) {
         // dv_anim.set(113, 115, 0.1, true);
-        animator_.setSpeed(0.2f);///
+        animator_.setSpeed(0.1f);///
         if (faceRight)
             xsp = CRAB_SPD;
         else

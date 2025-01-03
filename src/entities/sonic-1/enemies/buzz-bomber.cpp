@@ -14,22 +14,26 @@ void EnBuzz::init() {
 
     animator_.setSpeed(0.0f);///
     animatorWings_.setSpeed(0.75f);///
+    animatorTurbo_.setSpeed(0.25f);///
+    animatorFire_.setSpeed(0.0f);///
 }
 
 void EnBuzz::d_update() {
     if (moveTimer <= 0) {
         if (idleTimer > 0) {
+            animator_.setCurrentFrame(1.0f);
+            if(1);
             idleTimer--;
             xsp = 0.0;
             if (idleTimer <= 34 && fired) {
-                // dv_anim.set(118, 118, 0);
-                animator_.setSpeed(0.0f);///
+                animator_.setSpeed(0.0f);
             }
         } else {
-            // dv_anim.set(117, 117, 0);
-            animator_.setSpeed(0.0f);///
-            if (moveTimer == 0)
+            animator_.setCurrentFrame(0.0f);
+            animator_.setSpeed(0.0f);
+            if (moveTimer == 0){
                 fired = false;
+            }
             if (!fired) {
                 if (faceRight)
                     faceRight = false;
@@ -50,6 +54,7 @@ void EnBuzz::d_update() {
     dv_pos.x += xsp;
     animator_.tick();
     animatorWings_.tick();
+    animatorTurbo_.tick();
 }
 
 void EnBuzz::d_reactingToOthers(std::list<Entity *> &entities) {
@@ -77,29 +82,28 @@ void EnBuzz::d_reactingToOthers(std::list<Entity *> &entities) {
 }
 
 void EnBuzz::d_draw(Camera &cam) {
+    v2f tPos = v2f(dv_pos.x + 16 * (1-2*faceRight), dv_pos.y+6);
+    v2f fPos = v2f(dv_pos.x - 17 * (1-2*faceRight),  dv_pos.y+22);
     v2f wPos;
+    if (int(animator_.getCurrentFrameIndex()) == 118)
+        wPos = v2f(dv_pos.x + 2 * (1-2*faceRight), dv_pos.y - 12);
+    else
+        wPos = v2f(dv_pos.x - 4 * (1-2*faceRight), dv_pos.y - 9);
 
-    if (faceRight) {
-        // if (int(dv_anim.getCurFrame()) == 118)
-        if (int(animator_.getCurrentFrameIndex()) == 118)///
-            wPos = v2f(dv_pos.x - 2, dv_pos.y - 12);
-        else
-            wPos = v2f(dv_pos.x + 4, dv_pos.y - 9);
-    } else {
-        // if (int(dv_anim.getCurFrame()) == 118)
-        if (int(animator_.getCurrentFrameIndex()) == 118)///
-            wPos = v2f(dv_pos.x + 2, dv_pos.y - 12);
-        else
-            wPos = v2f(dv_pos.x - 4, dv_pos.y - 9);
-    }
+    
 
     auto &spr = animator_.getCurrentFrame();
     auto &sprWings = animatorWings_.getCurrentFrame();
+    auto &sprTurbo = animatorTurbo_.getCurrentFrame();
+    auto &sprFire = animatorFire_.getCurrentFrame();
     cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
-                                           .y = dv_pos.y - cam.getPos().y});///
+                                           .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=faceRight});
     cam.getScr().artist().drawSprite(sprWings, {.x = wPos.x - cam.getPos().x,
-                                                .y = wPos.y - cam.getPos().y});///
-    // cam.draw(dv_anim, dv_pos, 0.0, faceRight);
-    // cam.draw(animWings, wPos, 0.0, faceRight);
+                                                .y = wPos.y - cam.getPos().y}, {.flipHorizontal=faceRight});
+    if(xsp!=0)
+        cam.getScr().artist().drawSprite(sprTurbo, {.x = tPos.x - cam.getPos().x,
+                                                    .y = tPos.y - cam.getPos().y}, {.flipHorizontal=faceRight});
+    cam.getScr().artist().drawSprite(sprFire, {.x = fPos.x - cam.getPos().x,
+                                               .y = fPos.y - cam.getPos().y}, {.flipHorizontal=faceRight});
 }
 

@@ -21,9 +21,9 @@ public:
     void init();
     void d_update();
     void draw(Camera &cam) override {
-        auto &spr = animator_.getCurrentFrame();
-        cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
-                                               .y = dv_pos.y - cam.getPos().y});
+        // auto &spr = animator_.getCurrentFrame();
+        // cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
+        //                                        .y = dv_pos.y - cam.getPos().y});
     }///
     void d_draw(Camera &cam);
     EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
@@ -43,9 +43,7 @@ public:
     void init();
     void d_update();
     void draw(Camera &cam) override {
-
         auto &spr = animator_.getCurrentFrame();
-
         cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
                                                .y = dv_pos.y - cam.getPos().y});
     }
@@ -76,7 +74,7 @@ public:
 
 private:
     artist_api::Animator animator_;///
-    artist_api::Animation animatorBullet_;///
+    artist_api::Animation &animatorBullet_;///
 
     void trnCollision();
     float xsp = CRAB_SPD;
@@ -99,13 +97,13 @@ struct EnBuzzAnimations {
 class EnBuzz : public Enemy {
 public:
     EnBuzz(v2f _pos, EnBuzzAnimations &anims, artist_api::Animation &animBullet)
-        : Enemy(_pos), animator_(anims.animBody), animatorWings_(anims.animWings), animatorBullet_(animBullet) {}///
+        : Enemy(_pos), animator_(anims.animBody), animatorWings_(anims.animWings), animatorTurbo_(anims.animTurbo), animatorFire_(anims.animFire), animatorBullet_(animBullet) {}///
     void init();
     void d_update();
     void draw(Camera &cam) override {///
-        auto &spr = animator_.getCurrentFrame();
-        cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
-                                               .y = dv_pos.y - cam.getPos().y});
+        // auto &spr = animator_.getCurrentFrame();
+        // cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
+        //                                        .y = dv_pos.y - cam.getPos().y});
     }
     void d_draw(Camera &cam);
     void d_reactingToOthers(std::list<Entity *> &entities);
@@ -114,7 +112,9 @@ public:
 private:
     artist_api::Animator animator_;///
     artist_api::Animator animatorWings_;///
-    artist_api::Animation animatorBullet_;///
+    artist_api::Animator animatorTurbo_;///
+    artist_api::Animator animatorFire_;///
+    artist_api::Animation &animatorBullet_;///
 
     float xsp = BUZZ_SPD;
     int moveTimer = 0;

@@ -37,6 +37,10 @@ public:
         }
     }
 
+    void setCurrentFrame(float indexCurrentFrame){
+        currentFrame_=indexCurrentFrame;
+    }
+
     const Sprite &getCurrentFrame() {
         return anim_.frames[static_cast<int>(currentFrame_)];
     }

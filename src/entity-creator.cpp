@@ -99,9 +99,7 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
         }
 
         case (ObjectID_S1::S1_CHOPPER): {
-
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.chopper);
-
             return new EnChopper(position, anim);
         }
 

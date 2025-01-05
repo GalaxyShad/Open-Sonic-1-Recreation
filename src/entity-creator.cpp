@@ -3,6 +3,7 @@
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/_index.hpp"
 #include "entities/sonic-1/enemies/EnemiesGHZ.h"
+#include "entities/sonic-1/ghz/GimmicksGHZ.h"
 #include "sonic/SonicResources.h"
 
 
@@ -21,7 +22,7 @@ Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     if ((res = createGeneral(entPlacement))) return res;
     if ((res = createEnemies(entPlacement))) return res;
     if ((res = createOther(entPlacement)))   return res;
-
+    
     // Placeholder
     return new Ring(v2f(entPlacement.x, entPlacement.y), m_entityList, m_terrain);
 }
@@ -67,16 +68,28 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
             return new Spring(position, !flagYellow, rotation);
         }
 
-        case (ObjectID_S1::S1_SPIKES): 
+        case (ObjectID_S1::S1_SPIKES): {
             // if ((eplc.additionalArgs & 0b00010000) == 0)
             return new Spikes(position, eplc.additionalArgs, m_entityList.legacy_rawPool());
+        }
 
-        case (ObjectID_S1::S1_EGG_PRISON): 
-            return new SignPost(position);
+        case (ObjectID_S1::S1_EGG_PRISON):{
+            auto& animsEggman = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.eggman);
+            auto& animsSpin = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.spin);
+            auto& animsSonic = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.sonic);
+            auto& animsStick = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.stick);
+            SignPostAnimations anims = {animsEggman,animsSpin,animsSonic,animsStick};
+            return new SignPost(position,anims);
+        }
 
-
-        case (ObjectID_S1::S1_END_OF_LEVEL_SIGNPOST): 
-            return new SignPost(position);
+        case (ObjectID_S1::S1_END_OF_LEVEL_SIGNPOST):{
+            auto& animsEggman = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.eggman);
+            auto& animsSpin = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.spin);
+            auto& animsSonic = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.sonic);
+            auto& animsStick = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.stick);
+            SignPostAnimations anims = {animsEggman,animsSpin,animsSonic,animsStick};
+            return new SignPost(position,anims);
+        }
 
 
         default: 
@@ -86,10 +99,7 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
 
 Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     v2f position = v2f(eplc.x, eplc.y);
-
-    
-
-    
+      
     
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): {
@@ -106,7 +116,7 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
         case (ObjectID_S1::S1_CRABMEAT): {
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.crabmeat);
             auto& animBullet = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.bulletRed);
-            return new EnCrab(position, anim, m_entityList.legacy_rawPool(), m_terrain, animBullet);///
+            return new EnCrab(position, anim, m_entityList.legacy_rawPool(), m_terrain, animBullet);
             // return new EnCrab(position, m_entityList.legacy_rawPool(), m_terrain);
         }
         
@@ -128,38 +138,75 @@ Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
     v2f position = v2f(eplc.x, eplc.y);
     
     switch ((ObjectID_S1)eplc.objectId) {
-        case (ObjectID_S1::S1_GHZ_BRIDGE):  
-            return new GimGHZ_BridgeController(position, eplc.additionalArgs, m_entityList.legacy_rawPool());
-        
-        case (ObjectID_S1::S1_PLATFORMS_GHZ_SLZ_SYZ): 
+        case (ObjectID_S1::S1_GHZ_BRIDGE):{
+            auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.bridge);
+            return new GimGHZ_BridgeController(position, spr, eplc.additionalArgs, m_entityList.legacy_rawPool());
+        }
+            
+        case (ObjectID_S1::S1_PLATFORMS_GHZ_SLZ_SYZ): {
             switch (eplc.additionalArgs & 0x0F) {
-                case 0x00: return new GimGHZ_Platform(position, false, 0); break;
-                case 0x01: return new GimGHZ_Platform(position, GimGHZ_Platform::DIR_LEFT, true); break;
-                case 0x02: return new GimGHZ_Platform(position, GimGHZ_Platform::DIR_UP, true); break;
-                case 0x03: return new GimGHZ_Platform(position, false, 0, true); break; // Falls when stood on
+                case 0x00:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, false, 0);
+                }
+                case 0x01:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, GimGHZ_Platform::DIR_LEFT, true);
+                }
+                case 0x02:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, GimGHZ_Platform::DIR_UP, true);
+                }
+                case 0x03:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, false, 0, true);
+                } // Falls when stood on
                 //case 0x04: break; // Falls immediately
-                case 0x05: return new GimGHZ_Platform(position, GimGHZ_Platform::DIR_RIGHT, true); break;
-                case 0x06: return new GimGHZ_Platform(position, GimGHZ_Platform::DIR_DOWN, true); break;
+                case 0x05:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, GimGHZ_Platform::DIR_RIGHT, true);
+                }
+                case 0x06:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, GimGHZ_Platform::DIR_DOWN, true);
+                }
                 //case 0x07: break; // x7: Rises when switch in high nybble is pressed
                 //case 0x08: break; // x8: Rises immediately
-                case 0x09: return new GimGHZ_Platform(position, false, false); break; // x9: Doesn't move
+                case 0x09:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, false, false);
+                } // x9: Doesn't move
                 //case 0x0A: break; // xA: Large - moves up and down
                 //case 0x0B: break; // xB: Moves up and down slowly
                 //case 0x0C: break; // xC: Moves up and down slowly
-                default: return new GimGHZ_Platform(position, false, false); break;
+                default:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.platform);
+                    return new GimGHZ_Platform(position, spr, false, false);
+                }
             }
+        }
             
-        case (ObjectID_S1::S1_COLLAPSING_LEDGE_FROM_GHZ): 
-            return new GimGHZ_SlpPlatform(position, m_entityList.legacy_rawPool(), (bool)eplc.additionalArgs);
-        
-        case (ObjectID_S1::S1_ZONE_SCENERY_OBJECT): 
-            return new GimGhz_BridgeColumn(position, (bool)eplc.flipHorizontal);
-        
-        case (ObjectID_S1::S1_GHZ_PURPLE_ROCK):
-            return new GimGHZ_Stone(position);
+            
+        case (ObjectID_S1::S1_COLLAPSING_LEDGE_FROM_GHZ):{
+            auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.swingPlatform);
+            return new GimGHZ_SlpPlatform(position, spr, m_entityList.legacy_rawPool(), (bool)eplc.additionalArgs);
+        }
 
-        case (ObjectID_S1::S1_WALL_BARRIER_FROM_GHZ): 
-            return new GimGHZ_Wall(position, eplc.additionalArgs & 0x0F, eplc.additionalArgs & 0xF0);
+        case (ObjectID_S1::S1_ZONE_SCENERY_OBJECT):{
+            auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.bridgeColumn);
+            return new GimGhz_BridgeColumn(position, spr, (bool)eplc.flipHorizontal);
+            // return new GimGhz_BridgeColumn(position, (bool)eplc.flipHorizontal);
+        }
+
+        case (ObjectID_S1::S1_GHZ_PURPLE_ROCK):{
+            auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.stone);
+            return new GimGHZ_Stone(position,spr);
+        }
+
+        case (ObjectID_S1::S1_WALL_BARRIER_FROM_GHZ):{
+            auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.wallLeft);
+            return new GimGHZ_Wall(position, spr, eplc.additionalArgs & 0x0F, eplc.additionalArgs & 0xF0);
+        }
 
         default:
             return nullptr;

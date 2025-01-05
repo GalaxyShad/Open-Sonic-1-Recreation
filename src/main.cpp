@@ -141,32 +141,25 @@ SonicResources::Music loadMusic(ResourceStore &store,
 SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicResources::Textures& textures) {
     using namespace artist_api; 
 
-    auto& ghzTex = store.get<Texture>(textures.objectsGhz);
+    SonicResources::Animation anims;
 
     auto t = [&store](Texture& tex, Rect r, bool centered = true, Vector2D<float> offset = {}){
-        auto* spr = centered 
-            ? new Sprite(Sprite::withCenterOffset(tex, r))
-            : new Sprite {
-                .texture = tex,
-                .rect = r,
-                .offset = offset
-            };
+        auto* spr = centered ? new Sprite(Sprite::withCenterOffset(tex, r)) : new Sprite {.texture = tex,.rect = r,.offset = offset};
 
         return store.load(std::unique_ptr<IStorableResource>((IStorableResource*)spr));
     };
 
     // clang-format off
 
-    SonicResources::Animation anims;
 
     auto an = [&store](Animation a){
         auto* ptr = new Animation(std::move(a));
 
-        return store.load(
-            std::unique_ptr<IStorableResource>((IStorableResource*)ptr)
-        );
+        return store.load(std::unique_ptr<IStorableResource>((IStorableResource*)ptr));
     };
 
+    auto& ghzTex = store.get<Texture>(textures.objectsGhz);
+    // auto& ghzTex = store.get<Texture>(textures.objects);
     auto& objTex = store.get<Texture>(textures.objects);
 
     anims.sprites.greenHillZone = {

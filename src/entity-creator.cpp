@@ -185,7 +185,7 @@ Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
                 }
             }
         }
-            
+        
             
         case (ObjectID_S1::S1_COLLAPSING_LEDGE_FROM_GHZ):{
             auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.swingPlatform);

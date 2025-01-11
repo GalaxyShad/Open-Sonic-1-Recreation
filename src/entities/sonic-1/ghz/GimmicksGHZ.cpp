@@ -109,14 +109,21 @@ void GimGHZ_SlpPlatform::d_update() {
 
             if (!isLeft) {
                 _p.x -= 48; _p.y -= 56;
-                for (int i = 0; i < 36; i++) 
-                    ent.push_front(new GimGHZ_SlpPlatformPart(
-                        v2f(_p.x+(i%6)*16, _p.y+(i/6)*16),spr_, i, false));
+                for (int i = 0; i < 36; i++){
+                    v2f offset = v2f((i%6)*16, (i/6)*16);
+                    artist_api::Sprite part_spr = spr_;
+                    part_spr.rect = {48+offset.x,  0+offset.y,  16, 16};
+                    ent.push_front(new GimGHZ_SlpPlatformPart(v2f(_p.x+offset.x, _p.y+offset.y),part_spr, i, false));
+                }
+
             } else {
                 _p.x += 32; _p.y -= 56;
-                for (int i = 0; i < 36; i++) 
-                    ent.push_front(new GimGHZ_SlpPlatformPart(
-                        v2f(_p.x-(i%6)*16, _p.y+(i/6)*16),spr_, i, true));
+                for (int i = 0; i < 36; i++){
+                    v2f offset = v2f((i%6)*16, (i/6)*16);
+                    artist_api::Sprite part_spr = spr_;
+                    part_spr.rect = {48+offset.x,  0+offset.y,  16, 16};
+                    ent.push_front(new GimGHZ_SlpPlatformPart(v2f(_p.x-offset.x, _p.y+offset.y),part_spr, i, true));
+                }
             }
         }
     }

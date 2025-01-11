@@ -129,8 +129,8 @@ private:
     // movement
     float gsp = 0.0;
     float angle = 0;
-    float shiftX = 0;
-    float shiftY = 0;
+    float shiftX = 0; ////
+    float shiftY = 0; ////
     int enemyCombo = 0;
 
     Entity *standOn;

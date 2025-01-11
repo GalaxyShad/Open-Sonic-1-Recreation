@@ -136,12 +136,12 @@ class GimGHZ_SlpPlatform : public Entity {
         void d_update();
         void draw(Camera &cam) override {
             cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=!isLeft});
+                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=isLeft});
         }
         void d_draw(Camera& cam) {
             // cam.draw(dv_anim, dv_pos, 0.0, isLeft);
             // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=!isLeft});
+            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=isLeft});
         }
         void d_destroy() { if (deathTimer < 0) deathTimer = 32; } 
         
@@ -187,13 +187,14 @@ class GimGHZ_SlpPlatformPart : public Entity {
             { timer = (35 - partIndex); dv_type = TYPE_PARTICLE; }
         void d_update() { 
             if (timer > 0) timer--; 
-            else ysp += 0.2;
+            else ysp += 0.1; ///0.2
 
             dv_pos.y += ysp;
         }
         void draw(Camera &cam) override {
+            
             cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=!left});
+                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=left});
         }
         void d_draw(Camera& cam) {
             // cam.draw(
@@ -203,7 +204,7 @@ class GimGHZ_SlpPlatformPart : public Entity {
             //             16, 16), 
             //     dv_pos, v2i(0,0), 0.0, left);
             // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=!left});
+            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=left});
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
@@ -227,7 +228,7 @@ class GimGHZ_Wall : public Entity
         };
         void draw(Camera &cam) override {
             cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-                                                   .y = dv_pos.y - cam.getPos().y});
+                                                    .y = dv_pos.y - cam.getPos().y});
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 

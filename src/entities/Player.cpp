@@ -351,7 +351,7 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
                         break;
                 }
 
-                entities.push_back(new BrokenMonitor(m->d_getPos()));
+                entities.push_back(new BrokenMonitor(m->d_getPos(),m->getAnimationBroken()));
 
                 AnimMgr rSfx;
                 rSfx.create(TEX_OBJECTS);
@@ -360,7 +360,7 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
                 // rSfx));
 
                 entities.push_back(
-                    new MonitorIcon(m->d_getPos(), m->getItem()));
+                    new MonitorIcon(m->d_getPos(),m->getAnimationIcon(), m->getItem()));
 
                 m->d_destroy();
 

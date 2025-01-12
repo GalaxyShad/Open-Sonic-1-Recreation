@@ -1,5 +1,6 @@
 #include "entity-creator.hpp"
 
+#include "core/Geometry.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/_index.hpp"
 #include "entities/general/Monitor.h"
@@ -8,6 +9,7 @@
 #include "entities/sonic-1/enemies/EnemiesGHZ.h"
 #include "entities/sonic-1/ghz/GimmicksGHZ.h"
 #include "sonic/SonicResources.h"
+#include <cstdio>
 
 
 Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
@@ -55,16 +57,76 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
             );
         }
         
+        // case (ObjectID_S1::S1_MONITOR): {
+        //     Monitor::Item item;
+        //     auto& animMain = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.main);
+        //     // auto& animBroken = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.broken);
+        //     auto& animNoise = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.noise);
+        //     auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.ring);
+        //     switch (eplc.additionalArgs) {
+        //         case 0x02:
+        //             item = Monitor::M_LIVE;
+        //             animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.sonic);      
+        //             break;
+        //         case 0x03:
+        //             item = Monitor::M_SPEED;
+        //             animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.speedSneakers);
+        //             break;
+        //         case 0x04:
+        //             item = Monitor::M_SHIELD;
+        //             animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.shield);
+        //             break;
+        //         case 0x05:
+        //             item = Monitor::M_INVINCIBILITY;
+        //             animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.invinsibility);
+        //             break;
+        //         case 0x06:
+        //             item = Monitor::M_RINGS;
+        //             animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.ring);
+        //             break;
+        //         default:
+        //             item = Monitor::M_RINGS;
+        //             animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.ring);
+        //             break;
+        //     }
+        //     MonitorAnimations anims = {animMain, animNoise, animIcon};
+        //     return new Monitor(position, anims, item);
+        // }
+
         case (ObjectID_S1::S1_MONITOR): {
+            auto& animMain = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.main);
+            auto& animBroken = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.broken);
+            auto& animNoise = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.noise);
             switch (eplc.additionalArgs) {
-                case 0x02: return new Monitor(position, Monitor::M_LIVE);
-                case 0x03: return new Monitor(position, Monitor::M_SPEED);
-                case 0x04: return new Monitor(position, Monitor::M_SHIELD);
-                case 0x05: return new Monitor(position, Monitor::M_INVINCIBILITY);
-                case 0x06: return new Monitor(position, Monitor::M_RINGS);
-                default:   return new Monitor(position, Monitor::M_RINGS);
+                case 0x02:{
+                    auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.sonic);
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    return new Monitor(position, anims, Monitor::M_LIVE);
+                }
+                case 0x03:{
+                    auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.speedSneakers);
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    return new Monitor(position, anims, Monitor::M_SPEED);
+                }
+                case 0x04:{
+                    auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.shield);
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    return new Monitor(position, anims, Monitor::M_SHIELD);
+                }
+                case 0x05:{
+                    auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.invinsibility);
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    return new Monitor(position, anims, Monitor::M_INVINCIBILITY);
+                }
+                case 0x06:{
+                    auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.ring);
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    return new Monitor(position, anims, Monitor::M_RINGS);
+                }
             }
         }
+
+
 
         case (ObjectID_S1::S1_SPRINGS): {
             uint8_t flagHorizontal = (eplc.additionalArgs & 0xF0) >> 4;
@@ -125,8 +187,7 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): {
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.motobug);
-            return new EnMotobug(position, anim, m_terrain);///
-            // return new EnMotobug(position, m_terrain);
+            return new EnMotobug(position, anim, m_terrain);
         }
 
         case (ObjectID_S1::S1_CHOPPER): {
@@ -138,7 +199,6 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.crabmeat);
             auto& animBullet = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.bulletRed);
             return new EnCrab(position, anim, m_entityList.legacy_rawPool(), m_terrain, animBullet);
-            // return new EnCrab(position, m_entityList.legacy_rawPool(), m_terrain);
         }
         
         case (ObjectID_S1::S1_BUZZ_BOMBER):  {

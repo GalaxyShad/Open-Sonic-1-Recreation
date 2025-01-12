@@ -286,7 +286,7 @@ class SignPost : public Entity
                     animator_.changeTo(animSpin_);
                     animator_.setSpeed(0.5f);
                 }
-                if (animCount < 10*15) {
+                if (animCount < 108) {
                     // if (dv_anim.getCurFrame() >= 108)
                     animCount++;
                 }

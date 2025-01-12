@@ -90,7 +90,8 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
 
         case (ObjectID_S1::S1_SPIKES): {
             // if ((eplc.additionalArgs & 0b00010000) == 0)
-            return new Spikes(position, eplc.additionalArgs, m_entityList.legacy_rawPool());
+            auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.spikes);
+            return new Spikes(position, anim, eplc.additionalArgs, m_entityList.legacy_rawPool());
         }
 
         // case (ObjectID_S1::S1_EGG_PRISON):{

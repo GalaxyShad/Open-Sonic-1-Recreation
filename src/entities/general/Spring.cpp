@@ -16,18 +16,15 @@ void Spring::init()
 
 void Spring::doAnim()
 {
-	// animator_.changeTo(animExpand_);
 	animTimer = SPRING_ANIM_TIMER;
 }
 
 void Spring::d_update()
 {
-	if (animTimer > 0) {
-		animTimer--;
-		animator_.changeTo(animExpand_);
-	} else {
-		animator_.changeTo(anim_);
-	}
+	if (animTimer==0) animator_.changeTo(anim_);
+	if (animTimer==15) animator_.changeTo(animExpand_);
+	animTimer--;
+
 }
 
 void Spring::d_draw(Camera& cam) {

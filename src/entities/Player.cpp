@@ -336,19 +336,19 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
                 }
 
                 switch (m->getItem()) {
-                case Monitor::M_RINGS:
-                    audio.dj().playSound(sndRing_);
-                    rings += 10;
-                    break;
-                case Monitor::M_SHIELD:
-                    audio.dj().playSound(sndShield_);
-                    break;
-                case Monitor::M_INVINCIBILITY:
-                    break;
-                case Monitor::M_SPEED:
-                    break;
-                case Monitor::M_LIVE:
-                    break;
+                    case Monitor::M_RINGS:
+                        audio.dj().playSound(sndRing_);
+                        rings += 10;
+                        break;
+                    case Monitor::M_SHIELD:
+                        audio.dj().playSound(sndShield_);
+                        break;
+                    case Monitor::M_INVINCIBILITY:
+                        break;
+                    case Monitor::M_SPEED:
+                        break;
+                    case Monitor::M_LIVE:
+                        break;
                 }
 
                 entities.push_back(new BrokenMonitor(m->d_getPos()));

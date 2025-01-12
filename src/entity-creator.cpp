@@ -2,6 +2,9 @@
 
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/_index.hpp"
+#include "entities/general/Monitor.h"
+#include "entities/general/Ring.h"
+#include "entities/general/Spring.h"
 #include "entities/sonic-1/enemies/EnemiesGHZ.h"
 #include "entities/sonic-1/ghz/GimmicksGHZ.h"
 #include "sonic/SonicResources.h"
@@ -24,7 +27,10 @@ Entity* EntityCreatorSonic1::create(EntityPlacement entPlacement) {
     if ((res = createOther(entPlacement)))   return res;
     
     // Placeholder
-    return new Ring(v2f(entPlacement.x, entPlacement.y), m_entityList, m_terrain);
+    auto& animIdle = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.ring.idle);
+    auto& animStars = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.ring.stars);
+    RingAnimations anims = {animIdle,animStars};
+    return new Ring(v2f(entPlacement.x, entPlacement.y), anims, m_entityList, m_terrain);
 }
 
 Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
@@ -35,10 +41,14 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
             uint8_t count = (eplc.additionalArgs & 0x0F);
             uint8_t direction = ((eplc.additionalArgs & 0xF0) >> 4);
 
+            auto& animIdle = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.ring.idle);
+            auto& animStars = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.ring.stars);
+            RingAnimations anims = {animIdle,animStars};
             return Ring::CreateRow(
                 m_entityList, 
-                m_terrain, 
-                position, 
+                m_terrain,
+                position,
+                anims,
                 count + 1, 
                 (-direction+1) * 90.0f, 
                 8
@@ -60,12 +70,22 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
             uint8_t flagHorizontal = (eplc.additionalArgs & 0xF0) >> 4;
             uint8_t flagYellow = eplc.additionalArgs & 0x0F;
 
+            auto& anim = store_.get<artist_api::Animation>((flagYellow)
+                ? store_.map<SonicResources>().animations.spring.yellow
+                : store_.map<SonicResources>().animations.spring.red
+            );
+            
+            auto& animExpand = store_.get<artist_api::Animation>((flagYellow)
+                ? store_.map<SonicResources>().animations.spring.yellowExpanded
+                : store_.map<SonicResources>().animations.spring.redExpanded
+            );
+            SpringAnimations anims = {anim, animExpand};
             Spring::Rotation rotation = 
                 (flagHorizontal) 
                     ? (eplc.flipHorizontal) ? Spring::R_LEFT : Spring::R_RIGHT
                     : (eplc.flipVertical)   ? Spring::R_DOWN : Spring::R_UP;
 
-            return new Spring(position, !flagYellow, rotation);
+            return new Spring(position, anims, !flagYellow, rotation);
         }
 
         case (ObjectID_S1::S1_SPIKES): {
@@ -73,14 +93,14 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
             return new Spikes(position, eplc.additionalArgs, m_entityList.legacy_rawPool());
         }
 
-        case (ObjectID_S1::S1_EGG_PRISON):{
-            auto& animsEggman = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.eggman);
-            auto& animsSpin = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.spin);
-            auto& animsSonic = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.sonic);
-            auto& animsStick = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.stick);
-            SignPostAnimations anims = {animsEggman,animsSpin,animsSonic,animsStick};
-            return new SignPost(position,anims);
-        }
+        // case (ObjectID_S1::S1_EGG_PRISON):{
+        //     auto& animsEggman = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.eggman);
+        //     auto& animsSpin = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.spin);
+        //     auto& animsSonic = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.sonic);
+        //     auto& animsStick = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.stick);
+        //     SignPostAnimations anims = {animsEggman,animsSpin,animsSonic,animsStick};
+        //     return new SignPost(position,anims);
+        // }
 
         case (ObjectID_S1::S1_END_OF_LEVEL_SIGNPOST):{
             auto& animsEggman = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.signPost.eggman);
@@ -195,7 +215,6 @@ Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
         case (ObjectID_S1::S1_ZONE_SCENERY_OBJECT):{
             auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.bridgeColumn);
             return new GimGhz_BridgeColumn(position, spr, (bool)eplc.flipHorizontal);
-            // return new GimGhz_BridgeColumn(position, (bool)eplc.flipHorizontal);
         }
 
         case (ObjectID_S1::S1_GHZ_PURPLE_ROCK):{

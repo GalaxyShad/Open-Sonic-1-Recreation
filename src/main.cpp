@@ -164,7 +164,7 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
 
     anims.sprites.greenHillZone = {
         .stone               = t(ghzTex, {0,   0,  48, 32}),
-        .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {0, 56}),
+        .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {48, 56}),
         .bridge              = t(ghzTex, {0,   32, 16, 16}),
         .platform            = t(ghzTex, {0,   90, 64, 30}),
 
@@ -389,12 +389,16 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
     };
 
     anims.ring = {
-        an(Animation{
+        .idle = an(Animation{
             .frames = {
                 Sprite { objTex, {984,40,16,16}, {8,8}},
                 Sprite { objTex, {968,56,12,16}, {6,8}},
                 Sprite { objTex, {980,56,6,16},  {3,8}},
                 Sprite { objTex, {986,56,12,16}, {6,8}},
+            }
+        }),
+        .stars = an(Animation{
+            .frames = {
                 Sprite { objTex, {935,72,16,14}, {8,7}},
                 Sprite { objTex, {951,72,16,14}, {8,7}},
                 Sprite { objTex, {967,72,16,14}, {8,7}},
@@ -449,6 +453,14 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
         }),
         .spin = an(Animation{
             .frames = {
+                Sprite { objTex, {1390,0,48,32}, {24,16}},
+
+                Sprite { objTex, {1334,56,32,32}, {16,16}},
+                Sprite { objTex, {1398,64,8,32}, {4,16}},
+                Sprite { objTex, {1366,64,32,32}, {16,16}},
+                
+                Sprite { objTex, {1390,32,48,32}, {24,16}},
+                
                 Sprite { objTex, {1334,56,32,32}, {16,16}},
                 Sprite { objTex, {1398,64,8,32}, {4,16}},
                 Sprite { objTex, {1366,64,32,32}, {16,16}},

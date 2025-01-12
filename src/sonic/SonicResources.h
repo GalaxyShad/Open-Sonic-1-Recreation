@@ -128,7 +128,10 @@ struct SonicResources : public IStorableResource {
             ResourceID ellipse;
         } act;
 
-        ResourceID ring;
+        struct {
+            ResourceID idle;
+            ResourceID stars;
+        } ring;
 
         struct {
             ResourceID dust, explosion, invinsible;

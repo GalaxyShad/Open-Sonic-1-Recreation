@@ -7,15 +7,10 @@ void EnBuzz::init() {
     dv_hitBoxSize = v2f(48, 24);
     moveTimer = 192;
     dv_type = TYPE_ENEMY;
-    // dv_anim.create(TEX_OBJECTS);
-    // animWings.create(TEX_OBJECTS);
-    // animWings.set(119, 120, 0.75);
-    // dv_anim.set(117, 117, 0);
-
-    animator_.setSpeed(0.0f);///
-    animatorWings_.setSpeed(0.75f);///
-    animatorTurbo_.setSpeed(0.25f);///
-    animatorFire_.setSpeed(0.0f);///
+    animator_.setSpeed(0.0f);
+    animatorWings_.setSpeed(0.75f);
+    animatorTurbo_.setSpeed(0.25f);
+    animatorFire_.setSpeed(0.0f);
 }
 
 void EnBuzz::d_update() {

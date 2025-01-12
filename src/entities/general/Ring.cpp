@@ -1,36 +1,40 @@
 #include "Ring.h"
 #include "core/GameMath.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entities/Player.h"
 #include "entities/general/Ring.h"
 #include "entity-pool.hpp"
 
 Ring* Ring::CreateRow(EntityPool& entityPool, terrain::Terrain &_trn, 
-	v2f startPosition, int count, float direction, float spaceBetween
-) {
+	v2f startPosition, RingAnimations &anims, int count, float direction, float spaceBetween
+){
 	float sina = sin(radians(direction));
 	float cosa = cos(radians(direction));
 
     auto ringPos = startPosition;
 
     for (int i = 0; i < count - 1; i++) {
-        entityPool.create(new Ring(ringPos, entityPool, _trn));
+        entityPool.create(new Ring(ringPos, anims, entityPool, _trn));
 
         ringPos.x += (16 + spaceBetween) * cosa;
         ringPos.y += (16 + spaceBetween) * sina;
 	}
 
-    return new Ring(ringPos, entityPool, _trn);
+    return new Ring(ringPos, anims, entityPool, _trn);
 }
 
 void Ring::init() {
-    m_anim.create(TEX_OBJECTS);
-    m_anim.set(80, 80, 0.0);
+    // m_anim.create(TEX_OBJECTS);
+    // m_anim.set(80, 80, 0.0);
+    // animator_.setSpeed(0);
+    animator_.setSpeed(0.1f);
 }
 
 void Ring::update() {
-    float frame = 80 + fmod(GameLoopTicker::instance().getTickFloat() / 10, 4);
+    // float frame = 80 + fmod(GameLoopTicker::instance().getTickFloat() / 10, 4);
 
-    m_anim.set(frame, frame, (m_bouncing) ? ((256 - m_liveTimer) / 64) : 0.0);
+    // m_anim.set(frame, frame, (m_bouncing) ? ((256 - m_liveTimer) / 64) : 0.0);
+    animator_.tick();
 
     if (!m_bouncing)
         return;
@@ -49,7 +53,10 @@ void Ring::update() {
 }
 
 void Ring::draw(Camera &cam) { 
-    cam.draw(m_anim, m_pos); 
+    // cam.draw(m_anim, m_pos);
+    auto &spr = animator_.getCurrentFrame();
+    cam.getScr().artist().drawSprite(spr, {.x = m_pos.x - cam.getPos().x,
+                                        .y = m_pos.y - cam.getPos().y}); 
 }
 
 void Ring::onHitboxCollision(Entity &entity) {

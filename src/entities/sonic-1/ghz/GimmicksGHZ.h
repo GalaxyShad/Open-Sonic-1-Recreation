@@ -66,18 +66,13 @@ class GimGhz_BridgeColumn : public Entity {
     public:
         GimGhz_BridgeColumn(v2f _pos, artist_api::Sprite &spr, bool flip) : 
             Entity(_pos), spr_(spr), flip(flip) { }
-        void init() {
-            // dv_anim.create(TEX_GHZ_GIMM); 
-            // dv_anim.set(7, 7, 0);
-        }
+        void init() {}
         void draw(Camera &cam) override {
             cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
                                                    .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=flip});
         }
         void d_draw(Camera& cam) {
             // cam.draw(dv_anim, dv_pos, 0, flip);
-            // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=flip});
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
@@ -90,7 +85,6 @@ class GimGHZ_Platform : public Entity
 {
     public: 
         GimGHZ_Platform(v2f _pos, artist_api::Sprite &spr, int _dir = 0, bool _mooving = false, bool _canFall = false) : Entity(_pos), spr_(spr) 
-        // GimGHZ_Platform(v2f _pos, int _dir = 0, bool _mooving = false, bool _canFall = false) : Entity(_pos)
             { dir = _dir; mooving = _mooving; canFall = _canFall; }
         void init();
         void d_update();
@@ -187,12 +181,11 @@ class GimGHZ_SlpPlatformPart : public Entity {
             { timer = (35 - partIndex); dv_type = TYPE_PARTICLE; }
         void d_update() { 
             if (timer > 0) timer--; 
-            else ysp += 0.1; ///0.2
+            else ysp += 0.2;
 
             dv_pos.y += ysp;
         }
-        void draw(Camera &cam) override {
-            
+        void draw(Camera &cam) override {            
             cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
                                                    .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=left});
         }
@@ -203,8 +196,6 @@ class GimGHZ_SlpPlatformPart : public Entity {
             //             (partIndex / 6)*16,
             //             16, 16), 
             //     dv_pos, v2i(0,0), 0.0, left);
-            // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=left});
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
@@ -244,18 +235,16 @@ class GimGHZ_STube : public Entity
         void init() {
             dv_type = TYPE_STUBE_CNTRL;
             dv_hitBoxSize = v2f(16, 64);
-        
         }
         void d_update() {}
         void draw(Camera &cam) override {
             // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
             //                                        .y = dv_pos.y - cam.getPos().y});
         }
-        void d_draw(Camera& cam) { 
+        void d_draw(Camera& cam) {
             // cam.getScr().drawRectangle(
-            // Vector2f(pos.x - cam.getPos().x - hitBoxSize.x/2, 
-            //             pos.y - cam.getPos().y - hitBoxSize.y/2), 
-            // Size(hitBoxSize.x, hitBoxSize.y), 
+            //     Vector2f(dv_pos.x - cam.getPos().x - hitBoxSize.x/2, dv_pos.y - cam.getPos().y - hitBoxSize.y/2), 
+            //     Size(hitBoxSize.x, hitBoxSize.y), 
             // 0x4440+0x4440*mode); 
          }
         uint8_t getMode() {return mode; };
@@ -276,44 +265,50 @@ struct SignPostAnimations {
 class SignPost : public Entity
 {
    public:
-        SignPost(v2f _pos, SignPostAnimations &anims) : Entity(_pos), animator_(anims.animEggman), animatorStick_(anims.animStick) {}
+        SignPost(v2f _pos, SignPostAnimations &anims) : Entity(_pos), animator_(anims.animEggman), animEggman_(anims.animEggman), animSpin_(anims.animSpin), animSonic_(anims.animSonic), animatorStick_(anims.animStick) {}
         void init() {
             animCount = 0;
             dv_type = TYPE_SIGN_POST; 
             dv_hitBoxSize = v2f(48, 48);
-
-            // dv_anim.create(TEX_OBJECTS);
-            // animPost.create(TEX_OBJECTS);
-            // dv_anim.set(105, 105, 0); 
-            // animPost.set(104, 104, 0);
             animator_.setSpeed(0.0f);
-            }
-        void d_draw(Camera& cam) {
-            // cam.draw(animPost, v2f(dv_pos.x, dv_pos.y+24));
-            // cam.draw(dv_anim, v2f(dv_pos.x, dv_pos.y));
+        }
+        void draw(Camera& cam) {
             auto &spr = animator_.getCurrentFrame();
             cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
                                                    .y = dv_pos.y - cam.getPos().y});
-            auto &sprStick_ = animator_.getCurrentFrame();
+            auto &sprStick_ = animatorStick_.getCurrentFrame();
             cam.getScr().artist().drawSprite(sprStick_, {.x = dv_pos.x - cam.getPos().x,
-                                                   .y = dv_pos.y + 48 - cam.getPos().y});    
+                                                   .y = dv_pos.y + 24 - cam.getPos().y}); 
+        }
+        void d_update() {
+            if(spin_){
+                if(animCount==0){
+                    animator_.changeTo(animSpin_);
+                    animator_.setSpeed(0.5f);
+                }
+                if (animCount < 10*15) {
+                    // if (dv_anim.getCurFrame() >= 108)
+                    animCount++;
+                }
+                else {
+                    animator_.changeTo(animSonic_);
+                    animator_.setSpeed(0.0f);
+                    // animCount = 50;
+                }
+            }
+            animator_.tick();
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-        void setAnim(bool spin) {
-            if (animCount < 10) {
-                if (dv_anim.getCurFrame() >= 108)
-                    animCount++;
-                // dv_anim.set(105, 108, 0.5); 
-            }
-            else 
-            {
-                animCount = 50;
-                // dv_anim.set(109, 109, 0); 
-            }
-        }
+        void setAnim(bool spin) { spin_=spin; }
+
+
     private:
         artist_api::Animator animator_;
+        artist_api::Animation &animEggman_;
+        artist_api::Animation &animSpin_;
+        artist_api::Animation &animSonic_;
         artist_api::Animator animatorStick_;
+        int spin_ = false;
         int animCount = 0;
 };

@@ -1,27 +1,35 @@
 #pragma once
 #include "../Entity.h"
 #include "AnimMgr.h"
+#include "core/game_enviroment/artist/Animator.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entity-pool.hpp"
 
 class SingleAnimationEffect : public Entity {
 public:
-    SingleAnimationEffect(v2f pos, AnimMgr anim, EntityPool& pool) : m_pos(pos), m_anim(anim), m_pool(pool) {}
+    SingleAnimationEffect(v2f pos, artist_api::Animation &anim, EntityPool& pool) : m_pos(pos), animator_(anim), m_pool(pool) {}
+    void init(){
+        animator_.setSpeed(0.5f);
+    }
     void update() override {
-        m_anim.tick();
-
-        if (m_anim.getCurFrame() >= m_anim.getLastFrame()) {
+        animator_.tick();
+        liveTimer++;
+        if (liveTimer >= 8) {
             m_pool.destroy(*this);
         }
     }
 
     void draw(Camera &cam) override {
-        cam.draw(m_anim, m_pos);
+        auto &spr = animator_.getCurrentFrame();
+        cam.getScr().artist().drawSprite(spr, {.x = m_pos.x - cam.getPos().x,
+                                               .y = m_pos.y - cam.getPos().y});
     }
 
     EntityTypeID type() override { return EntityTypeID::PARTICLE; }
 
 private:
     v2f m_pos;
-    AnimMgr m_anim;
+    int liveTimer = 0;
+    artist_api::Animator animator_;
     EntityPool& m_pool;
 };

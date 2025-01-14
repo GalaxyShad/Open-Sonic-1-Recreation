@@ -72,10 +72,10 @@ void EnBuzz::d_reactingToOthers(std::list<Entity *> &entities) {
     if (fired && idleTimer == 24) {
         if (!faceRight)
             entities.push_back(
-                new Bullet(v2f(dv_pos.x - 17, dv_pos.y + 23),animationBullet_, 0, -1));
+                new Bullet(v2f(dv_pos.x - 17, dv_pos.y + 23), animationBullet_, 0, -1));
         else
             entities.push_back(
-                new Bullet(v2f(dv_pos.x + 17, dv_pos.y + 23),animationBullet_, 0, 1));
+                new Bullet(v2f(dv_pos.x + 17, dv_pos.y + 23), animationBullet_, 0, 1));
     }
 }
 

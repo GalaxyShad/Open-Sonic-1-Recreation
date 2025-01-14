@@ -1,6 +1,5 @@
 #pragma once
 #include "../Entity.h"
-#include "AnimMgr.h"
 #include "core/game_enviroment/artist/Animator.h"
 #include "core/game_enviroment/artist/Artist.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
@@ -26,7 +25,7 @@ public:
         , m_spd(xsp, ysp)
         , m_pos(pos)
         , animator_(anims.animIdle)
-        , animStars_(anims.animStars)
+        , anims_(anims)
     {
         m_bouncing  = (xsp != 0 || ysp != 0);
         m_liveTimer = 256;
@@ -47,11 +46,7 @@ public:
     bool isBounce() { return m_bouncing; }
 
     void onDestroy() override {
-        // AnimMgr rSfx;
-        // rSfx.create(TEX_OBJECTS);
-        // rSfx.set(84, 87, 0.5);
-
-        m_entities.create(new SingleAnimationEffect(m_pos, animStars_, m_entities));
+        m_entities.create(new SingleAnimationEffect(m_pos, anims_.animStars, m_entities));
     }
 
     void onOutOfView() override {
@@ -63,14 +58,13 @@ public:
 
 private:
     artist_api::Animator animator_;
-    artist_api::Animation &animStars_;
+    RingAnimations anims_;
     bool            m_bouncing = false;
     v2f             m_pos;
     v2f             m_spd = v2f(0, 0);
     EntityHitBox    m_hitbox = EntityHitBox(m_pos, v2i(6, 6));
     terrain::Sensor m_gndSensor;
     int             m_liveTimer = 0;
-    // AnimMgr         m_anim;
     EntityPool&     m_entities;
 
 };

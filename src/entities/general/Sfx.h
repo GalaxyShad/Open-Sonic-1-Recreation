@@ -1,6 +1,5 @@
 #pragma once
 #include "../Entity.h"
-#include "AnimMgr.h"
 #include "core/game_enviroment/artist/Animator.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "entity-pool.hpp"
@@ -9,8 +8,9 @@ class SingleAnimationEffect : public Entity {
 public:
     SingleAnimationEffect(v2f pos, artist_api::Animation &anim, EntityPool& pool) : m_pos(pos), animator_(anim), m_pool(pool) {}
     void init(){
-        animator_.setSpeed(0.5f);
+        animator_.setSpeed(0.01f);
     }
+
     void update() override {
         animator_.tick();
         liveTimer++;

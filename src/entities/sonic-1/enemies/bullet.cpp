@@ -15,8 +15,7 @@ void Bullet::init() {
 }
 
 void Bullet::d_update() {
-    if (dv_anim.getCurFrame() >= 127)
-        animator_.setSpeed(0.2f);
+    animator_.setSpeed(0.2f);
 
     dv_pos.x += xsp;
     dv_pos.y += ysp;

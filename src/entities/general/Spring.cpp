@@ -21,8 +21,8 @@ void Spring::doAnim()
 
 void Spring::d_update()
 {
-	if (animTimer==0) animator_.changeTo(anim_);
-	if (animTimer==15) animator_.changeTo(animExpand_);
+	if (animTimer==0) animator_.changeTo(anims_.anim);
+	if (animTimer==15) animator_.changeTo(anims_.animExpand);
 	animTimer--;
 
 }

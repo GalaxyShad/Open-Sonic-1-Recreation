@@ -1,4 +1,5 @@
 #include "entity-creator.hpp"
+#include "print"
 
 #include "core/Geometry.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
@@ -94,33 +95,34 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
         // }
 
         case (ObjectID_S1::S1_MONITOR): {
+            auto& animExplosion = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.sfx.explosion);
             auto& animMain = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.main);
             auto& animBroken = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.broken);
             auto& animNoise = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.noise);
             switch (eplc.additionalArgs) {
                 case 0x02:{
                     auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.sonic);
-                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon, animExplosion};
                     return new Monitor(position, anims, Monitor::M_LIVE);
                 }
                 case 0x03:{
                     auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.speedSneakers);
-                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon, animExplosion};
                     return new Monitor(position, anims, Monitor::M_SPEED);
                 }
                 case 0x04:{
                     auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.shield);
-                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon, animExplosion};
                     return new Monitor(position, anims, Monitor::M_SHIELD);
                 }
                 case 0x05:{
                     auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.invinsibility);
-                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon, animExplosion};
                     return new Monitor(position, anims, Monitor::M_INVINCIBILITY);
                 }
                 case 0x06:{
                     auto& animIcon = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.monitor.icon.ring);
-                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon};
+                    MonitorAnimations anims = {animMain, animBroken, animNoise, animIcon, animExplosion};
                     return new Monitor(position, anims, Monitor::M_RINGS);
                 }
             }
@@ -183,22 +185,22 @@ Entity* EntityCreatorSonic1::createGeneral(EntityPlacement eplc) {
 Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
     v2f position = v2f(eplc.x, eplc.y);
       
-    
+    auto& animExplosion = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.sfx.explosion);
     switch ((ObjectID_S1)eplc.objectId) {
         case (ObjectID_S1::S1_MOTOBUG_ENEMY): {
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.motobug);
-            return new EnMotobug(position, anim, m_terrain);
+            return new EnMotobug(position, anim, animExplosion, m_terrain);
         }
 
         case (ObjectID_S1::S1_CHOPPER): {
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.chopper);
-            return new EnChopper(position, anim);
+            return new EnChopper(position, anim, animExplosion);
         }
 
         case (ObjectID_S1::S1_CRABMEAT): {
             auto& anim = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.crabmeat);
             auto& animBullet = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.bulletRed);
-            return new EnCrab(position, anim, m_entityList.legacy_rawPool(), m_terrain, animBullet);
+            return new EnCrab(position, anim, animExplosion, animBullet, m_entityList.legacy_rawPool(), m_terrain);
         }
         
         case (ObjectID_S1::S1_BUZZ_BOMBER):  {
@@ -208,7 +210,7 @@ Entity* EntityCreatorSonic1::createEnemies(EntityPlacement eplc) {
             auto& animFire = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.enemies.buzzbomber.fire);
             auto& animBullet = store_.get<artist_api::Animation>(store_.map<SonicResources>().animations.bulletYellow);
             EnBuzzAnimations anims = {animBody,animWings,animTurbo,animFire};
-            return new EnBuzz(position, anims, animBullet);
+            return new EnBuzz(position, anims, animExplosion, animBullet);
         }
         default: 
             return nullptr;
@@ -284,8 +286,21 @@ Entity* EntityCreatorSonic1::createOther(EntityPlacement eplc) {
         }
 
         case (ObjectID_S1::S1_WALL_BARRIER_FROM_GHZ):{
-            auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.wallLeft);
-            return new GimGHZ_Wall(position, spr, eplc.additionalArgs & 0x0F, eplc.additionalArgs & 0xF0);
+            // std::print("{}   {} - {}\n",position.x, position.y,eplc.additionalArgs & 0x0F);
+            switch (eplc.additionalArgs & 0x0F) {
+                case 0x0:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.wallLeftWithShadow);
+                    return new GimGHZ_Wall(position, spr, eplc.additionalArgs & 0xF0);
+                }
+                case 0x1:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.wallLeft);
+                    return new GimGHZ_Wall(position, spr, eplc.additionalArgs & 0xF0);
+                }
+                case 0x2:{
+                    auto& spr = store_.get<artist_api::Sprite>(store_.map<SonicResources>().animations.sprites.greenHillZone.wallRight);
+                    return new GimGHZ_Wall(position, spr, eplc.additionalArgs & 0xF0);
+                }
+            }
         }
 
         default:

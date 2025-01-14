@@ -72,7 +72,6 @@ class GimGhz_BridgeColumn : public Entity {
                                                    .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=flip});
         }
         void d_draw(Camera& cam) {
-            // cam.draw(dv_anim, dv_pos, 0, flip);
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
@@ -133,9 +132,6 @@ class GimGHZ_SlpPlatform : public Entity {
                                                    .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=isLeft});
         }
         void d_draw(Camera& cam) {
-            // cam.draw(dv_anim, dv_pos, 0.0, isLeft);
-            // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-            //                                        .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=isLeft});
         }
         void d_destroy() { if (deathTimer < 0) deathTimer = 32; } 
         
@@ -210,12 +206,11 @@ class GimGHZ_SlpPlatformPart : public Entity {
 class GimGHZ_Wall : public Entity
 {
     public: 
-        GimGHZ_Wall(v2f _pos, artist_api::Sprite &spr, int _ty, bool _ghost=false) : Entity(_pos), spr_(spr) {ty = _ty; dv_solid = !_ghost; }
+        GimGHZ_Wall(v2f _pos, artist_api::Sprite &spr, bool _ghost=false) : Entity(_pos), spr_(spr) { dv_solid = !_ghost; }
         void init() {
-            dv_hitBoxSize = v2f(16, 64);
-            // dv_anim.create(TEX_GHZ_GIMM);
-            // dv_anim.set(4 + ty, 4 + ty, 0);    
-            //solid = true;
+            dv_hitBoxSize = v2f(16, 64);  
+            // solid = true;
+
         };
         void draw(Camera &cam) override {
             cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
@@ -225,7 +220,6 @@ class GimGHZ_Wall : public Entity
 
     private:
         artist_api::Sprite spr_;
-        int ty = 0;
 };
 
 class GimGHZ_STube : public Entity
@@ -238,8 +232,6 @@ class GimGHZ_STube : public Entity
         }
         void d_update() {}
         void draw(Camera &cam) override {
-            // cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
-            //                                        .y = dv_pos.y - cam.getPos().y});
         }
         void d_draw(Camera& cam) {
             // cam.getScr().drawRectangle(
@@ -251,7 +243,6 @@ class GimGHZ_STube : public Entity
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
     private:
-        // artist_api::Sprite spr_;
         uint8_t mode;
 };
 
@@ -265,7 +256,7 @@ struct SignPostAnimations {
 class SignPost : public Entity
 {
    public:
-        SignPost(v2f _pos, SignPostAnimations &anims) : Entity(_pos), animator_(anims.animEggman), animEggman_(anims.animEggman), animSpin_(anims.animSpin), animSonic_(anims.animSonic), animatorStick_(anims.animStick) {}
+        SignPost(v2f _pos, SignPostAnimations &anims) : Entity(_pos), animator_(anims.animEggman), anims_(anims), animatorStick_(anims.animStick) {}
         void init() {
             animCount = 0;
             dv_type = TYPE_SIGN_POST; 
@@ -283,17 +274,15 @@ class SignPost : public Entity
         void d_update() {
             if(spin_){
                 if(animCount==0){
-                    animator_.changeTo(animSpin_);
+                    animator_.changeTo(anims_.animSpin);
                     animator_.setSpeed(0.5f);
                 }
                 if (animCount < 108) {
-                    // if (dv_anim.getCurFrame() >= 108)
                     animCount++;
                 }
                 else {
-                    animator_.changeTo(animSonic_);
+                    animator_.changeTo(anims_.animSonic);
                     animator_.setSpeed(0.0f);
-                    // animCount = 50;
                 }
             }
             animator_.tick();
@@ -305,10 +294,8 @@ class SignPost : public Entity
 
     private:
         artist_api::Animator animator_;
-        artist_api::Animation &animEggman_;
-        artist_api::Animation &animSpin_;
-        artist_api::Animation &animSonic_;
         artist_api::Animator animatorStick_;
+        SignPostAnimations anims_;
         int spin_ = false;
         int animCount = 0;
 };

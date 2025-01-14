@@ -7,18 +7,18 @@ namespace artist_api {
 
 class Animator {
 private:
-    Animation &anim_;
+    Animation* anim_;
     float currentFrame_ = 0.f;
     float speed_ = 1.f;
 
 public:
-    explicit Animator(Animation& baseAnimation) : anim_(baseAnimation) {}
+    explicit Animator(Animation& baseAnimation) : anim_(&baseAnimation) {}
 
 public:
     void changeTo(Animation& animation) { 
-        anim_ = animation;
+        anim_ = &animation;
 
-        if (&animation != &anim_) {
+        if (&animation != anim_) {
             currentFrame_ = 0.f;
         } 
     }
@@ -29,11 +29,11 @@ public:
         currentFrame_ += speed_;
 
         while (currentFrame_ < 0) {
-            currentFrame_ += anim_.frames.size();
+            currentFrame_ += anim_->frames.size();
         }
 
-        while (currentFrame_ >= anim_.frames.size()) {
-            currentFrame_ -= anim_.frames.size();
+        while (currentFrame_ >= anim_->frames.size()) {
+            currentFrame_ -= anim_->frames.size();
         }
     }
 
@@ -42,7 +42,7 @@ public:
     }
 
     const Sprite &getCurrentFrame() {
-        return anim_.frames[static_cast<int>(currentFrame_)];
+        return anim_->frames[static_cast<int>(currentFrame_)];
     }
 
     const int getCurrentFrameIndex() {

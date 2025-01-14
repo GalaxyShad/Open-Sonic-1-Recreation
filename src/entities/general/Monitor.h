@@ -9,6 +9,7 @@ struct MonitorAnimations {
   artist_api::Animation &animBroken;
   artist_api::Animation &animNoise;
   artist_api::Animation &animIcon;
+  artist_api::Animation &animExplosion;
 };
 
 class Monitor : public Entity {
@@ -16,8 +17,7 @@ class Monitor : public Entity {
     enum Item { M_RINGS, M_INVINCIBILITY, M_LIVE, M_SHIELD, M_SPEED };
 
     Monitor(v2f _pos, MonitorAnimations &anims, Item item) : Entity(_pos), animator_(anims.animMain), animatorScreen_(anims.animIcon),
-                                                  animIcon_(anims.animIcon), animNoise_(anims.animNoise),                                         //animIcon__(anims.animIcon),
-                                                  animBroken__(anims.animBroken), item(item) {}
+                                                  anims_(anims), item(item) {}
     void init() {
         dv_solid = true;
         dv_platform = true;
@@ -25,16 +25,16 @@ class Monitor : public Entity {
         dv_hitBoxSize = v2f(32, 32);
         animator_.setSpeed(0.0f);
         animatorScreen_.setSpeed(0.1f);
-        animatorScreen_.changeTo(animNoise_);
+        animatorScreen_.changeTo(anims_.animNoise);
     }
     void d_update(){
       liveTime++;
       if(liveTime%120==60){
-        animatorScreen_.changeTo(animIcon_);
+        animatorScreen_.changeTo(anims_.animIcon);
       }
-      // if(liveTime%120==60){
-      //   animatorScreen_.changeTo(animNoise_);
-      // }
+      if(liveTime%120==0){
+        animatorScreen_.changeTo(anims_.animNoise);
+      }
       animator_.tick();
       animatorScreen_.tick();
     }
@@ -49,30 +49,28 @@ class Monitor : public Entity {
     }
 
     Item getItem() { return item; }
-    artist_api::Animation& getAnimationIcon() { return animIcon_; }
-    artist_api::Animation& getAnimationBroken() { return animBroken__; }
+    artist_api::Animation& getAnimationIcon() { return anims_.animIcon; }
+    artist_api::Animation& getAnimationBroken() { return anims_.animBroken; }
+    artist_api::Animation& getAnimationExplosion() { return anims_.animExplosion; }
 
     EntityTypeID type() override { return EntityTypeID::MONITOR; }
 
   private:
+    MonitorAnimations anims_;
     artist_api::Animator animator_;
     artist_api::Animator animatorScreen_;
-    artist_api::Animation &animIcon_;
-    artist_api::Animation &animNoise_;
-
-    // artist_api::Animation &animIcon__;
-    artist_api::Animation &animBroken__;
+    // artist_api::Animation &animIcon_;
+    // artist_api::Animation &animNoise_;
+    // artist_api::Animation &animBroken_;
+    // artist_api::Animation &animExplosion_;
     
     int liveTime=0;
-    // AnimMgr animIcon;
     Item item;
 };
 
 class BrokenMonitor : public Entity {
   public:
     BrokenMonitor(v2f _pos, artist_api::Animation &anim) : Entity(_pos), animator_(anim) {
-        // dv_anim.create(TEX_OBJECTS);
-        // dv_anim.set(57, 57, 0);
         animator_.setSpeed(0.f);
     }
     void draw(Camera &cam) {
@@ -94,8 +92,7 @@ class MonitorIcon : public Entity {
     void init() {
         dv_pos.y -= 3;
         tick = 0;
-        // dv_anim.create(TEX_OBJECTS);
-        // dv_anim.set(60 + item, 60 + item, 0);
+        animator_.setSpeed(0);
     }
     void draw(Camera &cam) {
         auto &spr = animator_.getCurrentFrame();

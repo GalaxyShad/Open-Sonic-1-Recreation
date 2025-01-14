@@ -67,6 +67,8 @@ struct SonicResources : public IStorableResource {
 
         struct {
             ResourceID idle;
+            ResourceID boredStart;
+            ResourceID bored;
 
             ResourceID walk;
             ResourceID walkDiagonal;
@@ -80,6 +82,7 @@ struct SonicResources : public IStorableResource {
             ResourceID sit;
 
             ResourceID roll;
+            ResourceID skidStart;
             ResourceID skid;
             ResourceID hurt;
             ResourceID die;

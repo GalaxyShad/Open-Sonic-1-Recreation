@@ -16,11 +16,11 @@ public:
 
 public:
     void changeTo(Animation& animation) { 
-        anim_ = &animation;
 
         if (&animation != anim_) {
             currentFrame_ = 0.f;
         } 
+        anim_ = &animation;
     }
 
     void setSpeed(float spd) { speed_ = spd; }

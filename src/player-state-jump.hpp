@@ -1,15 +1,19 @@
 #pragma once
 
 #include "AudioMappings.h"
+#include "core/game_enviroment/artist/Animator.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "player-sensor.hpp"
 #include "player-state-base.hpp"
 #include "player-state-machine.hpp"
 
+struct PlayerStateJumpAnimations {
+    artist_api::Animation &roll;
+};
 class PlayerStateJump : public PlayerStateBase {
 public:
-    PlayerStateJump(PlayerStateProps &player, float jumpHeight,
-                    dj::Sound &sndJump_)
-        : m_player(player), m_jumpHeight(jumpHeight), sndJump_(sndJump_) {}
+    PlayerStateJump(PlayerStateProps &player, PlayerStateJumpAnimations &anims, artist_api::Animator &animator, dj::Sound &sndJump_, float jumpHeight)
+        : m_player(player), anims_(anims), animator_(animator), sndJump_(sndJump_), m_jumpHeight(jumpHeight) {}
 
     void onInit() override {
         m_player.colliderTerrain.forceToAir();
@@ -26,7 +30,8 @@ public:
         if ((m_player.spd.y < -4.0) && (!m_player.input.isKeyAction()))
             m_player.spd.y = -4.0;
 
-        m_player.anim.set(15, 22, 1.0 / int(fmax(1, 4.0 - abs(m_player.gsp))));
+        animator_.changeTo(anims_.roll);
+        animator_.setSpeed(1.0 / int(fmax(1, 4.0 - abs(m_player.gsp))));
     }
 
     void onLanding() override {
@@ -34,15 +39,20 @@ public:
     }
 
 private:
-    dj::Sound &sndJump_;
     PlayerStateProps &m_player;
+    PlayerStateJumpAnimations anims_;
+    artist_api::Animator &animator_;
+    dj::Sound &sndJump_;
     float m_jumpHeight;
 };
 
+struct PlayerStateDieAnimations {
+    artist_api::Animation &die;
+};
 class PlayerStateDie : public PlayerStateBase {
 public:
-    PlayerStateDie(PlayerStateProps &player, dj::Sound &sndHurt)
-        : m_player(player), sndHurt_(sndHurt) {}
+    PlayerStateDie(PlayerStateProps &player, PlayerStateDieAnimations &anims, artist_api::Animator &animator, dj::Sound &sndHurt)
+        : m_player(player), anims_(anims), animator_(animator), sndHurt_(sndHurt) {}
 
     void onInit() override {
         m_player.spd.x = 0;
@@ -50,11 +60,11 @@ public:
 
         m_player.colliderTerrain.forceToAir();
         m_player.audio.dj().playSound(sndHurt_);
-
-        m_player.anim.set(37, 37, 0);
     }
 
     void onUpdate() override {
+        animator_.changeTo(anims_.die);
+        animator_.setSpeed(0);
         if (m_player.spd.y < 16.0)
             m_player.spd.y += 0.21875; // TODO move gravity
 
@@ -62,13 +72,19 @@ public:
     }
 
 private:
-    dj::Sound &sndHurt_;
     PlayerStateProps &m_player;
+    PlayerStateDieAnimations anims_;
+    artist_api::Animator &animator_;
+    dj::Sound &sndHurt_;
 };
 
+struct PlayerStateSkidAnimations {
+    artist_api::Animation &skidStart;
+    artist_api::Animation &skid;
+};
 class PlayerStateSkid : public PlayerStateBase {
 public:
-    PlayerStateSkid(PlayerStateProps &player, dj::Sound &sndSkid) : m_player(player), sndSkid_(sndSkid) {}
+    PlayerStateSkid(PlayerStateProps &player, PlayerStateSkidAnimations &anims, artist_api::Animator &animator, dj::Sound &sndSkid) : m_player(player), anims_(anims), animator_(animator), sndSkid_(sndSkid) {}
 
     void onInit() override {
         m_player.audio.dj().playSound(sndSkid_);
@@ -85,31 +101,37 @@ public:
                  m_player.colliderTerrain.getMode() != PlayerSensorMode::FLOOR)
             m_player.stateMachine.changeTo(PlayerStateID::NORMAL);
 
-        if (int(m_player.anim.getCurFrame()) == 25) {
-            m_player.anim.set(25, 25, 0);
-        } else {
-            m_player.anim.set(23, 25, 0.125);
+        if (int(animator_.getCurrentFrameIndex()) == 25) {
+            animator_.changeTo(anims_.skid);
+            animator_.setSpeed(0.125f);
+        }
+        else{
+            animator_.changeTo(anims_.skidStart);
         }
     }
 
 private:
     PlayerStateProps &m_player;
+    PlayerStateSkidAnimations anims_;
+    artist_api::Animator &animator_;
     dj::Sound &sndSkid_;
 };
 
+struct PlayerStateSpindashCDAnimations {
+    artist_api::Animation &dash;
+};
 class PlayerStateSpindashCD : public PlayerStateBase {
 public:
-    PlayerStateSpindashCD(PlayerStateProps &player, dj::Sound& sndRoll) : m_player(player), sndRoll_(sndRoll) {}
+    PlayerStateSpindashCD(PlayerStateProps &player, PlayerStateSpindashCDAnimations &anims, artist_api::Animator &animator, dj::Sound& sndRoll) : m_player(player), anims_(anims), animator_(animator), sndRoll_(sndRoll) {}
 
     void onInit() override {
         m_timer = 45;
-
         m_player.pos.y += 5;
-
         m_player.audio.dj().playSound(sndRoll_);
     }
 
     void onUpdate() override {
+        animator_.changeTo(anims_.dash);
         if (m_timer != 0) {
             m_player.stateMachine.changeTo(PlayerStateID::NORMAL);
             return;
@@ -128,27 +150,36 @@ public:
         if (m_timer > 0)
             m_timer--;
 
-        m_player.anim.set(15, 22, (float(45 - m_timer) / 30));
+        animator_.setSpeed((float(45 - m_timer) / 30));
     }
 
 private:
     PlayerStateProps &m_player;
+    PlayerStateSpindashCDAnimations anims_;
+    artist_api::Animator &animator_;
     dj::Sound &sndRoll_;
 
     int m_timer;
 };
 
+struct PlayerStateRollAnimations {
+    artist_api::Animation &roll;
+};
 class PlayerStateRoll : public PlayerStateBase {
 public:
-    PlayerStateRoll(PlayerStateProps &player, dj::Sound &sndRoll) : m_player(player), sndRoll_(sndRoll) {}
+    PlayerStateRoll(PlayerStateProps &player, PlayerStateRollAnimations &anims, artist_api::Animator &animator, dj::Sound &sndRoll) : m_player(player), anims_(anims), animator_(animator), sndRoll_(sndRoll) {}
 
-    void onInit() override { m_player.audio.dj().playSound(sndRoll_); }
+    void onInit() override {
+        m_player.audio.dj().playSound(sndRoll_);
+    }
 
     void onUpdate() override {
-        m_player.anim.set(15, 22, 1.0 / int(fmax(1, 4.0 - abs(m_player.gsp))));
-
+        animator_.changeTo(anims_.roll);
+        animator_.setSpeed(1.0 / int(fmax(1, 4.0 - abs(m_player.gsp))));
+        
         if (m_player.gsp == 0)
             m_player.stateMachine.changeTo(PlayerStateID::NORMAL);
+        // animator_.tick();
     }
 
     void onLanding() override {
@@ -157,22 +188,28 @@ public:
 
 private:
     PlayerStateProps &m_player;
+    PlayerStateRollAnimations anims_;
+    artist_api::Animator &animator_;
     dj::Sound &sndRoll_;
 };
 
+struct PlayerStateHurtAnimations {
+    artist_api::Animation &hurt;
+};
 class PlayerStateHurt : public PlayerStateBase {
 public:
-    PlayerStateHurt(PlayerStateProps &player, dj::Sound &sndHurt) : m_player(player), sndHurt_(sndHurt) {}
+    PlayerStateHurt(PlayerStateProps &player, PlayerStateHurtAnimations &anims, artist_api::Animator &animator, dj::Sound &sndHurt) : m_player(player), anims_(anims), animator_(animator), sndHurt_(sndHurt) {}
 
     void onInit() override {
+        animator_.changeTo(anims_.hurt);
+        animator_.setSpeed(0);
+
         m_player.audio.dj().playSound(sndHurt_);
 
         m_player.spd.y = -4;
         m_player.spd.x = 2 * -gmath::sign(m_player.spd.x);
         if (m_player.spd.x == 0)
             m_player.spd.x = -2;
-
-        m_player.anim.set(36, 36, 0);
     }
 
     void onLanding() override {
@@ -183,25 +220,39 @@ public:
 
 private:
     PlayerStateProps &m_player;
+    PlayerStateHurtAnimations anims_;
+    artist_api::Animator &animator_;
     dj::Sound &sndHurt_;
 };
 
+struct PlayerStateSpringAnimations {
+    artist_api::Animation &spring;
+    artist_api::Animation &fall;
+};
 class PlayerStateSpring : public PlayerStateBase {
 public:
-    PlayerStateSpring(PlayerStateProps &player) : m_player(player) {}
+    PlayerStateSpring(PlayerStateProps &player, PlayerStateSpringAnimations &anims, artist_api::Animator &animator) : m_player(player), anims_(anims), animator_(animator) {}
 
     void onLanding() override {
         m_player.stateMachine.changeTo(PlayerStateID::NORMAL);
     }
 
     void onUpdate() override {
-        if (m_player.spd.y < 0.0)
-            m_player.anim.set(51, 53, (0.125 + fabs(m_player.spd.y) / 25),
-                              true);
-        else
-            m_player.anim.set(54, 55, 0.25, false);
+        if (m_player.spd.y < 0.0){
+            animator_.changeTo(anims_.fall);
+            // m_player.anim.set(51, 53, (0.125 + fabs(m_player.spd.y) / 25), true);
+            animator_.setSpeed((0.125 + fabs(m_player.spd.y) / 25));
+        }
+        else{
+            animator_.changeTo(anims_.spring);
+            // m_player.anim.set(54, 55, 0.25, false);
+            animator_.setSpeed(0.25f);
+        }
+        // animator_.tick();
     }
 
 private:
     PlayerStateProps &m_player;
+    PlayerStateSpringAnimations anims_;
+    artist_api::Animator &animator_;
 };

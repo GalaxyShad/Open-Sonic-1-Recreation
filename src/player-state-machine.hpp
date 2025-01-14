@@ -26,7 +26,7 @@ struct PlayerStateProps {
     float& gsp;
     IInputMgr& input;
     Audio& audio;
-    AnimMgr& anim;
+    // AnimMgr& anim;
 
     PlayerCollider& colliderTerrain;
     class PlayerStateMachine& stateMachine;

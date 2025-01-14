@@ -179,8 +179,15 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
         .idle = an(Animation {
             .frames = {
                Sprite { objTex, {0, 0, 29, 39},  {14, 19} },
-               Sprite { objTex, {0, 0, 29, 39},  {14, 19} },
+            }
+        }),
+        .boredStart = an(Animation {
+            .frames = {
                Sprite { objTex, {29, 1, 30, 38}, {12, 18} },
+            }
+        }),
+        .bored = an(Animation {
+            .frames = {
                Sprite { objTex, {59, 1, 30, 38}, {12, 18} },
                Sprite { objTex, {89, 1, 29, 38}, {12, 18} },
             }
@@ -254,11 +261,15 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
                 Sprite { objTex, {584,2,30,29}, {16,15}},
             }
         }),
+        .skidStart = an(Animation{
+            .frames = {
+                Sprite { objTex, {681,37,33,36}, {15,16}},
+            }
+        }),
         .skid = an(Animation{
             .frames = {
                 Sprite { objTex, {615,0,30,35}, {12,15}},
                 Sprite { objTex, {645,0,31,36}, {13,16}},
-                Sprite { objTex, {681,37,33,36}, {15,16}},
             }
         }),
         .hurt = an(Animation{

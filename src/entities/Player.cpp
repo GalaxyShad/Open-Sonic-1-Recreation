@@ -1,7 +1,9 @@
 #include "Player.h"
+#include "core/Geometry.h"
 #include "core/game_enviroment/artist/SpriteFont.h"
 #include "entities/Entity.h"
 #include "entities/Player.h"
+#include "general/Sfx.h"
 #include "player-sensor.hpp"
 
 #include "player-state-jump.hpp"
@@ -21,18 +23,36 @@ void Player::onHitboxCollision(Entity &entity) {
 void Player::init() {
     dv_type = TYPE_PLAYER;
     dv_hitBoxSize = v2f(20, 40);
-    dv_anim.create(TEX_OBJECTS);
-    dv_anim.set(0, 0, 0);
+    animator_.setSpeed(0);
     standOn = nullptr;
 
-    m_stateMachine.add(new PlayerStateNormal(m_props, sndSkid_));
-    m_stateMachine.add(new PlayerStateJump(m_props, 6.5, sndJump_));
-    m_stateMachine.add(new PlayerStateRoll(m_props, sndRoll_));
-    m_stateMachine.add(new PlayerStateSkid(m_props, sndSkid_));
-    m_stateMachine.add(new PlayerStateSpindashCD(m_props, sndRoll_));
-    m_stateMachine.add(new PlayerStateSpring(m_props));
-    m_stateMachine.add(new PlayerStateHurt(m_props, sndRingLoss_));
-    m_stateMachine.add(new PlayerStateDie(m_props, sndRingLoss_));
+    PlayerStateNormalAnimations animsStateNormal = {
+        .idle = anims_.idle,
+        .boredStart = anims_.boredStart,
+        .bored = anims_.bored,
+        .walk = anims_.walk,
+        .run = anims_.run,
+        .dash = anims_.dash,
+        .sit = anims_.sit,
+        .push = anims_.push,
+        .lookUp = anims_.lookUp
+    };
+    PlayerStateJumpAnimations animsStateJump =          { anims_.roll };
+    PlayerStateRollAnimations animsStateRoll =          { anims_.roll };
+    PlayerStateSkidAnimations animsStateSkid =          { anims_.skidStart, anims_.skid };
+    PlayerStateSpindashCDAnimations animsStateDash =    { anims_.dash };
+    PlayerStateSpringAnimations animsStateSpring =      { anims_.spring, anims_.fall };
+    PlayerStateHurtAnimations animsStateHurt =          { anims_.hurt };
+    PlayerStateDieAnimations animsStateDie =            { anims_.die };
+
+    m_stateMachine.add(new PlayerStateNormal(m_props, animsStateNormal, animator_, sndSkid_));
+    m_stateMachine.add(new PlayerStateJump(m_props, animsStateJump, animator_, sndJump_, 6.5));
+    m_stateMachine.add(new PlayerStateRoll(m_props, animsStateRoll, animator_, sndRoll_));
+    m_stateMachine.add(new PlayerStateSkid(m_props, animsStateSkid, animator_, sndSkid_));
+    m_stateMachine.add(new PlayerStateSpindashCD(m_props, animsStateDash, animator_, sndRoll_));
+    m_stateMachine.add(new PlayerStateSpring(m_props, animsStateSpring, animator_));
+    m_stateMachine.add(new PlayerStateHurt(m_props, animsStateHurt, animator_, sndRingLoss_));
+    m_stateMachine.add(new PlayerStateDie(m_props, animsStateDie, animator_, sndRingLoss_));
 
     m_collider.onLanding(
         [this](HexAngle hexAngle) { m_stateMachine.pushLanding(); });
@@ -50,7 +70,7 @@ void Player::d_update() {
 
     gameplay();
     animation();
-    dv_anim.tick();
+    animator_.tick();
 
     terrainCollision(cam);
     moveCam(cam);
@@ -64,8 +84,12 @@ void Player::d_draw(Camera &cam) {
         animAngle = 0;
 
     if (invicTimer == 0 || (invicTimer > 0 && invicTimer % 8 >= 4) ||
-        m_stateMachine.currentId() == PlayerStateID::HURT)
-        cam.draw(dv_anim, dv_pos, anim8Angle, animFlip, false);
+        m_stateMachine.currentId() == PlayerStateID::HURT){
+            // cam.draw(dv_anim, dv_pos, anim8Angle, animFlip, false);
+            auto &spr = animator_.getCurrentFrame();
+            cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y}, {.angle = anim8Angle, .flipHorizontal = animFlip});
+        }
 
     char dbInfo[128];
     snprintf(dbInfo, 127,
@@ -291,12 +315,10 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
                     }
                     en->d_destroy();
 
-                    // AnimMgr rSfx;
-                    // rSfx.create(TEX_OBJECTS);
-                    // rSfx.set(95, 99, 0.125);
-                    // entities.push_back(new
-                    // SingleAnimationEffect(v2f(en->d_getPos().x,
-                    // en->d_getPos().y), rSfx));
+                    
+                    auto& animExplosion = en->getAnimationExplosion();
+                    entities.push_back(new SingleAnimationEffect(v2f(en->d_getPos().x, en->d_getPos().y), animExplosion, m_entityPool));
+
 
                     enemyCombo++;
                     switch (enemyCombo) {
@@ -313,8 +335,8 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
                         score += 1000;
                         break;
                     }
-                    entities.push_back(new EnemyScore(
-                        en->d_getPos(), (EnemyScore::Points)(enemyCombo - 1)));
+                    // entities.push_back(new EnemyScore(
+                    //     en->d_getPos(), (EnemyScore::Points)(enemyCombo - 1)));
 
                     audio.dj().playSound(sndDestroy_);
                 } else {
@@ -353,11 +375,8 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
 
                 entities.push_back(new BrokenMonitor(m->d_getPos(),m->getAnimationBroken()));
 
-                AnimMgr rSfx;
-                rSfx.create(TEX_OBJECTS);
-                rSfx.set(95, 99, 0.125);
-                // entities.push_back(new SingleAnimationEffect(m->d_getPos(),
-                // rSfx));
+                auto& animExplosion = m->getAnimationExplosion();
+                entities.push_back(new SingleAnimationEffect(m->d_getPos(), animExplosion, m_entityPool));
 
                 entities.push_back(
                     new MonitorIcon(m->d_getPos(),m->getAnimationIcon(), m->getItem()));

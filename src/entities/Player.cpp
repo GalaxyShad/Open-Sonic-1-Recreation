@@ -324,19 +324,21 @@ void Player::entitiesCollision(std::list<Entity *> &entities, Camera &cam) {
                     switch (enemyCombo) {
                     case 1:
                         score += 100;
+                        entities.push_back(new EnemyScore(en->d_getPos(), anims_.n100, (EnemyScore::Points)(enemyCombo - 1)));
                         break;
                     case 2:
                         score += 200;
+                        entities.push_back(new EnemyScore(en->d_getPos(), anims_.n200, (EnemyScore::Points)(enemyCombo - 1)));
                         break;
                     case 3:
                         score += 500;
+                        entities.push_back(new EnemyScore(en->d_getPos(), anims_.n500, (EnemyScore::Points)(enemyCombo - 1)));
                         break;
                     default:
                         score += 1000;
+                        entities.push_back(new EnemyScore(en->d_getPos(), anims_.n1_000, (EnemyScore::Points)(enemyCombo - 1)));
                         break;
                     }
-                    // entities.push_back(new EnemyScore(
-                    //     en->d_getPos(), (EnemyScore::Points)(enemyCombo - 1)));
 
                     audio.dj().playSound(sndDestroy_);
                 } else {

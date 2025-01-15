@@ -155,8 +155,11 @@ void LevelLoader::sonic1LoadStartPosition(std::string& sZoneAct) {
 
     y = (y << 8) | (y >> 8); // Swap the byte order for y
 
-    m_playerStartPosition.x = static_cast<float>(x);
-    m_playerStartPosition.y = static_cast<float>(y);
+    // 
+    // m_playerStartPosition.x = static_cast<float>(x);
+    // m_playerStartPosition.y = static_cast<float>(y);
+    m_playerStartPosition.x = static_cast<float>(4750);
+    m_playerStartPosition.y = static_cast<float>(750);
 }
 
 void LevelLoader::sonic1LoadObjects(std::string &sZoneAct) {

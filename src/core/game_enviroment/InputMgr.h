@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Window.hpp"
+#include "SFML/Window/Keyboard.hpp"
 
 enum class InputKey : int {
     LEFT,
@@ -48,13 +49,13 @@ public:
         return sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
     }
     bool isKeyAction() override {
-        return sf::Keyboard::isKeyPressed(sf::Keyboard::Z);
+        return sf::Keyboard::isKeyPressed(sf::Keyboard::Z) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad1);
     }
     bool isKeySpindash() override {
-        return sf::Keyboard::isKeyPressed(sf::Keyboard::X);
+        return sf::Keyboard::isKeyPressed(sf::Keyboard::X) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad2);
     }
     bool isKeyDebug() override {
-        return sf::Keyboard::isKeyPressed(sf::Keyboard::C);
+        return sf::Keyboard::isKeyPressed(sf::Keyboard::C) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad3);
     }
 
     bool isKey(InputKey k) override {

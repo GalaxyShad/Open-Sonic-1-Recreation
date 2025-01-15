@@ -141,37 +141,30 @@ SonicResources::Music loadMusic(ResourceStore &store,
 SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicResources::Textures& textures) {
     using namespace artist_api; 
 
-    auto& ghzTex = store.get<Texture>(textures.objectsGhz);
+    SonicResources::Animation anims;
 
     auto t = [&store](Texture& tex, Rect r, bool centered = true, Vector2D<float> offset = {}){
-        auto* spr = centered 
-            ? new Sprite(Sprite::withCenterOffset(tex, r))
-            : new Sprite {
-                .texture = tex,
-                .rect = r,
-                .offset = offset
-            };
+        auto* spr = centered ? new Sprite(Sprite::withCenterOffset(tex, r)) : new Sprite {.texture = tex,.rect = r,.offset = offset};
 
         return store.load(std::unique_ptr<IStorableResource>((IStorableResource*)spr));
     };
 
     // clang-format off
 
-    SonicResources::Animation anims;
 
     auto an = [&store](Animation a){
         auto* ptr = new Animation(std::move(a));
 
-        return store.load(
-            std::unique_ptr<IStorableResource>((IStorableResource*)ptr)
-        );
+        return store.load(std::unique_ptr<IStorableResource>((IStorableResource*)ptr));
     };
 
+    auto& ghzTex = store.get<Texture>(textures.objectsGhz);
+    // auto& ghzTex = store.get<Texture>(textures.objects);
     auto& objTex = store.get<Texture>(textures.objects);
 
     anims.sprites.greenHillZone = {
         .stone               = t(ghzTex, {0,   0,  48, 32}),
-        .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {0, 56}),
+        .swingPlatform       = t(ghzTex, {48,  0,  96, 88}, false, {48, 56}),
         .bridge              = t(ghzTex, {0,   32, 16, 16}),
         .platform            = t(ghzTex, {0,   90, 64, 30}),
 
@@ -186,7 +179,15 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
         .idle = an(Animation {
             .frames = {
                Sprite { objTex, {0, 0, 29, 39},  {14, 19} },
+            }
+        }),
+        .boredStart = an(Animation {
+            .frames = {
                Sprite { objTex, {29, 1, 30, 38}, {12, 18} },
+            }
+        }),
+        .bored = an(Animation {
+            .frames = {
                Sprite { objTex, {59, 1, 30, 38}, {12, 18} },
                Sprite { objTex, {89, 1, 29, 38}, {12, 18} },
             }
@@ -223,7 +224,7 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
             .frames = {
                 Sprite { objTex, {919,1,37,39}, {19,17}},
                 Sprite { objTex, {959,0,36,40}, {18,18}},
-                Sprite { objTex, {2,40,36,39},  {19,17}},
+                Sprite { objTex, {2,40,36,39}, {19,17}},
                 Sprite { objTex, {43,39,36,40}, {18,18}},
             }
         }),
@@ -260,11 +261,15 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
                 Sprite { objTex, {584,2,30,29}, {16,15}},
             }
         }),
+        .skidStart = an(Animation{
+            .frames = {
+                Sprite { objTex, {681,37,33,36}, {15,16}},
+            }
+        }),
         .skid = an(Animation{
             .frames = {
                 Sprite { objTex, {615,0,30,35}, {12,15}},
                 Sprite { objTex, {645,0,31,36}, {13,16}},
-                Sprite { objTex, {681,37,33,36}, {15,16}},
             }
         }),
         .hurt = an(Animation{
@@ -395,12 +400,16 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
     };
 
     anims.ring = {
-        an(Animation{
+        .idle = an(Animation{
             .frames = {
                 Sprite { objTex, {984,40,16,16}, {8,8}},
                 Sprite { objTex, {968,56,12,16}, {6,8}},
                 Sprite { objTex, {980,56,6,16},  {3,8}},
                 Sprite { objTex, {986,56,12,16}, {6,8}},
+            }
+        }),
+        .stars = an(Animation{
+            .frames = {
                 Sprite { objTex, {935,72,16,14}, {8,7}},
                 Sprite { objTex, {951,72,16,14}, {8,7}},
                 Sprite { objTex, {967,72,16,14}, {8,7}},
@@ -455,6 +464,14 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
         }),
         .spin = an(Animation{
             .frames = {
+                Sprite { objTex, {1390,0,48,32}, {24,16}},
+
+                Sprite { objTex, {1334,56,32,32}, {16,16}},
+                Sprite { objTex, {1398,64,8,32}, {4,16}},
+                Sprite { objTex, {1366,64,32,32}, {16,16}},
+                
+                Sprite { objTex, {1390,32,48,32}, {24,16}},
+                
                 Sprite { objTex, {1334,56,32,32}, {16,16}},
                 Sprite { objTex, {1398,64,8,32}, {4,16}},
                 Sprite { objTex, {1366,64,32,32}, {16,16}},
@@ -485,18 +502,32 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
                     Sprite { objTex, {1120,62,48,30}, {24,14}},
                 }
             }),
-        .buzzbomber = an(Animation{
-            .frames = {
-                    Sprite { objTex, {670,81,44,19}, {22,9}},
-                    Sprite { objTex, {1046,64,36,29}, {18,14}},
-                    Sprite { objTex, {714,91,35,8}, {17,4}},
-                    Sprite { objTex, {749,91,37,6}, {18,3}},
-                    Sprite { objTex, {681,76,6,5}, {3,2}},
-                    Sprite { objTex, {687,76,10,5}, {5,2}},
-                    Sprite { objTex, {640,82,16,16}, {8,8}},
-                    Sprite { objTex, {656,82,14,14}, {7,7}},
-                }
-            }),
+        .buzzbomber = {
+            .body = an(Animation{
+                .frames = {
+                        Sprite { objTex, {670,81,44,19}, {22,9}},
+                        Sprite { objTex, {1046,64,36,29}, {18,14}},
+                    }
+                }),
+            .wings = an(Animation{
+                .frames = {
+                        Sprite { objTex, {714,91,35,8}, {17,4}},
+                        Sprite { objTex, {749,91,37,6}, {18,3}},
+                    }
+                }),
+            .turbo = an(Animation{
+                .frames = {
+                        Sprite { objTex, {681,76,6,5}, {3,2}},
+                        Sprite { objTex, {687,76,10,5}, {5,2}},
+                    }
+                }),
+            .fire = an(Animation{
+                .frames = {
+                        Sprite { objTex, {640,82,16,16}, {8,8}},
+                        Sprite { objTex, {656,82,14,14}, {7,7}},
+                    }
+                }),
+        },
         .motobug = an(Animation{
             .frames = {
                     Sprite { objTex, {1012,0,39,29}, {19,14}},
@@ -507,10 +538,17 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
             }),
     };
 
-    anims.bullet = {
+    anims.bulletYellow = {
         an(Animation{
             .frames = {
                     Sprite { objTex, {1010,65,12,12}, {6,6}},
+                    Sprite { objTex, {1022,65,12,12}, {6,6}},
+                }
+            })
+    };
+    anims.bulletRed = {
+        an(Animation{
+            .frames = {
                     Sprite { objTex, {1022,65,12,12}, {6,6}},
                     Sprite { objTex, {1034,65,12,12}, {6,6}},
                 }
@@ -524,6 +562,19 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
                 }
         })
     };
+        
+    // .debug = an(Animation{
+    //     .frames = {
+    //             Sprite { objTex, {0,84,16,16}, {8,8}},
+    //             Sprite { objTex, {16,84,16,16}, {8,8}},
+    //             Sprite { objTex, {32,84,16,16}, {8,8}},
+    //             Sprite { objTex, {48,84,16,16}, {8,8}},
+    //             Sprite { objTex, {64,84,16,16}, {8,8}},
+    //             Sprite { objTex, {80,84,16,16}, {8,8}},
+    //         }
+    //     }),
+
+    return anims;
     // clang-format on
 
     return anims;

@@ -67,6 +67,8 @@ struct SonicResources : public IStorableResource {
 
         struct {
             ResourceID idle;
+            ResourceID boredStart;
+            ResourceID bored;
 
             ResourceID walk;
             ResourceID walkDiagonal;
@@ -80,6 +82,7 @@ struct SonicResources : public IStorableResource {
             ResourceID sit;
 
             ResourceID roll;
+            ResourceID skidStart;
             ResourceID skid;
             ResourceID hurt;
             ResourceID die;
@@ -128,7 +131,10 @@ struct SonicResources : public IStorableResource {
             ResourceID ellipse;
         } act;
 
-        ResourceID ring;
+        struct {
+            ResourceID idle;
+            ResourceID stars;
+        } ring;
 
         struct {
             ResourceID dust, explosion, invinsible;
@@ -150,11 +156,17 @@ struct SonicResources : public IStorableResource {
         struct {
             ResourceID chopper;
             ResourceID crabmeat;
-            ResourceID buzzbomber;
+            struct {
+                ResourceID body;
+                ResourceID wings;
+                ResourceID turbo;
+                ResourceID fire;
+            } buzzbomber;
             ResourceID motobug;
         } enemies;
 
-        ResourceID bullet;
+        ResourceID bulletYellow;
+        ResourceID bulletRed;
 
         ResourceID spikes;
     } animations;

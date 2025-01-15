@@ -3,6 +3,8 @@
 #include "../../Entity.h"
 
 #include "core/Geometry.h"
+#include "core/game_enviroment/artist/Animator.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 
 #define TEX_OBJECTS 0
 #define TEX_GHZ_GIMM 1
@@ -10,70 +12,92 @@
 
 class GimGHZ_Stone : public Entity
 {
-    public: GimGHZ_Stone(v2f _pos) : Entity(_pos) {}
-            void init();
-            EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+    public: GimGHZ_Stone(v2f _pos, artist_api::Sprite &spr) : Entity(_pos), spr_(spr) {}
+        void init();
+        void draw(Camera &cam) override {
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y});
+        }
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+    private:
+        artist_api::Sprite spr_;
 };
 
 class GimGHZ_Bridge : public Entity
 {   
     public: GimGHZ_Bridge();
-            GimGHZ_Bridge(v2f _pos) : Entity(_pos) {}
-            bool isActive() { return active; }
-            void setActive(bool _active) { active = _active;}
-            void init();
-            float getY();
+        GimGHZ_Bridge(v2f _pos, artist_api::Sprite &spr) : Entity(_pos), spr_(spr) {}
+        bool isActive() { return active; }
+        void setActive(bool _active) { active = _active;}
+        void init();
+        void draw(Camera &cam) override {
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y});
+        }
+        float getY();
 
-            int maxDepression = 0;
-            int number = 0;
-            int count = 0;
+        int maxDepression = 0;
+        int number = 0;
+        int count = 0;
 
-            EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
-            bool active = false;
+        artist_api::Sprite spr_;
+        bool active = false;
 };
 
 class GimGHZ_BridgeController : public Entity
 {
-    public: GimGHZ_BridgeController(v2f _pos, uint8_t count, std::list<Entity*>& ent);
-            void init();
-            void d_update();
-            void d_draw(Camera& cam) {}
-            EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
+    public: GimGHZ_BridgeController(v2f _pos, artist_api::Sprite &spr, uint8_t count, std::list<Entity*>& ent);
+        void init();
+        void d_update();
+        void d_draw(Camera& cam) {}
+        EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
-            GimGHZ_Bridge** segments;
-            int segmentsCount;
-            int curSegment = 0;
-            int angle = 0;
+        artist_api::Sprite &spr_;
+        GimGHZ_Bridge** segments;
+        int segmentsCount;
+        int curSegment = 0;
+        int angle = 0;
 };
+
 
 class GimGhz_BridgeColumn : public Entity {
     public:
-        GimGhz_BridgeColumn(v2f _pos, bool flip) : 
-            Entity(_pos), flip(flip) { }
-        void init() {
-            dv_anim.create(TEX_GHZ_GIMM); 
-            dv_anim.set(7, 7, 0);
+        GimGhz_BridgeColumn(v2f _pos, artist_api::Sprite &spr, bool flip) : 
+            Entity(_pos), spr_(spr), flip(flip) { }
+        void init() {}
+        void draw(Camera &cam) override {
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=flip});
         }
-        void d_draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0, flip); }
+        void d_draw(Camera& cam) {
+        }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
+        artist_api::Sprite spr_;
         bool flip = false;
 };
+
 
 class GimGHZ_Platform : public Entity 
 {
     public: 
-        GimGHZ_Platform(v2f _pos, int _dir = 0, bool _mooving = false, bool _canFall = false) : Entity(_pos) 
+        GimGHZ_Platform(v2f _pos, artist_api::Sprite &spr, int _dir = 0, bool _mooving = false, bool _canFall = false) : Entity(_pos), spr_(spr) 
             { dir = _dir; mooving = _mooving; canFall = _canFall; }
         void init();
         void d_update();
+        void draw(Camera &cam) override {
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y});
+        }
         int getDir() {return dir;}
         float getSpd() { return xsp; }
 
         void onOutOfView() override {
             init();            
         }
+
 
         bool isCanFall()  { return canFall; }
         bool isFalling()  { return falling; }
@@ -83,6 +107,7 @@ class GimGHZ_Platform : public Entity
 
         enum {DIR_RIGHT, DIR_LEFT, DIR_UP, DIR_DOWN};
     private:
+        artist_api::Sprite spr_;
         int dir = 0; // 0 - right 1 - left 2 - up 3 - down
         float angle;
         float xsp = 0;
@@ -98,11 +123,16 @@ class GimGHZ_Platform : public Entity
 
 class GimGHZ_SlpPlatform : public Entity {
     public: 
-        GimGHZ_SlpPlatform(v2f _pos, std::list<Entity*>& ent, 
-                           bool _left = false) : Entity(_pos), ent(ent) { isLeft = _left; }
+        GimGHZ_SlpPlatform(v2f _pos, artist_api::Sprite &spr, std::list<Entity*>& ent, 
+                           bool _left = false) : Entity(_pos), spr_(spr), ent(ent) { isLeft = _left; }
         void init();
         void d_update();
-        void d_draw(Camera& cam) { cam.draw(dv_anim, dv_pos, 0.0, isLeft); }
+        void draw(Camera &cam) override {
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=isLeft});
+        }
+        void d_draw(Camera& cam) {
+        }
         void d_destroy() { if (deathTimer < 0) deathTimer = 32; } 
         
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
@@ -126,6 +156,7 @@ class GimGHZ_SlpPlatform : public Entity {
             }
         }
     private:
+        artist_api::Sprite &spr_;
         int deathTimer;
         bool isLeft;
         int heights[96] = { 
@@ -141,8 +172,8 @@ class GimGHZ_SlpPlatform : public Entity {
 
 class GimGHZ_SlpPlatformPart : public Entity {
     public: 
-        GimGHZ_SlpPlatformPart(v2f _pos, int partIndex, bool _left = false) : 
-            Entity(_pos), partIndex(partIndex), left(_left) 
+        GimGHZ_SlpPlatformPart(v2f _pos, artist_api::Sprite &spr, int partIndex, bool _left = false) : 
+            Entity(_pos), spr_(spr), partIndex(partIndex), left(_left) 
             { timer = (35 - partIndex); dv_type = TYPE_PARTICLE; }
         void d_update() { 
             if (timer > 0) timer--; 
@@ -150,16 +181,21 @@ class GimGHZ_SlpPlatformPart : public Entity {
 
             dv_pos.y += ysp;
         }
+        void draw(Camera &cam) override {            
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y}, {.flipHorizontal=left});
+        }
         void d_draw(Camera& cam) {
-            cam.draw(
-                TEX_GHZ_GIMM, 
-                irect(48+(partIndex % 6)*16,
-                        (partIndex / 6)*16,
-                        16, 16), 
-                dv_pos, v2i(0,0), 0.0, left);
+            // cam.draw(
+            //     TEX_GHZ_GIMM, 
+            //     irect(48+(partIndex % 6)*16,
+            //             (partIndex / 6)*16,
+            //             16, 16), 
+            //     dv_pos, v2i(0,0), 0.0, left);
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
     private:
+        artist_api::Sprite spr_;
         int partIndex;
         int timer;
         float ysp = 0;
@@ -170,30 +206,37 @@ class GimGHZ_SlpPlatformPart : public Entity {
 class GimGHZ_Wall : public Entity
 {
     public: 
-        GimGHZ_Wall(v2f _pos, int _ty, bool _ghost=false) : Entity(_pos) {ty = _ty; dv_solid = !_ghost; }
+        GimGHZ_Wall(v2f _pos, artist_api::Sprite &spr, bool _ghost=false) : Entity(_pos), spr_(spr) { dv_solid = !_ghost; }
         void init() {
-            dv_hitBoxSize = v2f(16, 64);
-            dv_anim.create(TEX_GHZ_GIMM);
-            dv_anim.set(4 + ty, 4 + ty, 0);
-            //solid = true;
+            dv_hitBoxSize = v2f(16, 64);  
+            // solid = true;
+
         };
+        void draw(Camera &cam) override {
+            cam.getScr().artist().drawSprite(spr_, {.x = dv_pos.x - cam.getPos().x,
+                                                    .y = dv_pos.y - cam.getPos().y});
+        }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-    private: 
-        int ty = 0;
+    private:
+        artist_api::Sprite spr_;
 };
 
 class GimGHZ_STube : public Entity
 {
    public:
         GimGHZ_STube(v2f _pos, uint8_t _mode) : Entity(_pos) { mode = _mode;}
-        void init() {dv_type = TYPE_STUBE_CNTRL; dv_hitBoxSize = v2f(16, 64);}
+        void init() {
+            dv_type = TYPE_STUBE_CNTRL;
+            dv_hitBoxSize = v2f(16, 64);
+        }
         void d_update() {}
-        void d_draw(Camera& cam) { 
+        void draw(Camera &cam) override {
+        }
+        void d_draw(Camera& cam) {
             // cam.getScr().drawRectangle(
-            // Vector2f(pos.x - cam.getPos().x - hitBoxSize.x/2, 
-            //             pos.y - cam.getPos().y - hitBoxSize.y/2), 
-            // Size(hitBoxSize.x, hitBoxSize.y), 
+            //     Vector2f(dv_pos.x - cam.getPos().x - hitBoxSize.x/2, dv_pos.y - cam.getPos().y - hitBoxSize.y/2), 
+            //     Size(hitBoxSize.x, hitBoxSize.y), 
             // 0x4440+0x4440*mode); 
          }
         uint8_t getMode() {return mode; };
@@ -203,38 +246,56 @@ class GimGHZ_STube : public Entity
         uint8_t mode;
 };
 
+struct SignPostAnimations {
+    artist_api::Animation &animEggman;
+    artist_api::Animation &animSpin;
+    artist_api::Animation &animSonic;
+    artist_api::Animation &animStick;
+};
+
 class SignPost : public Entity
 {
    public:
-        SignPost(v2f _pos) : Entity(_pos) {}
+        SignPost(v2f _pos, SignPostAnimations &anims) : Entity(_pos), animator_(anims.animEggman), anims_(anims), animatorStick_(anims.animStick) {}
         void init() {
             animCount = 0;
             dv_type = TYPE_SIGN_POST; 
-            dv_hitBoxSize = v2f(48, 48); 
-            dv_anim.create(TEX_OBJECTS);
-            animPost.create(TEX_OBJECTS);
-            dv_anim.set(105, 105, 0); 
-            animPost.set(104, 104, 0); 
+            dv_hitBoxSize = v2f(48, 48);
+            animator_.setSpeed(0.0f);
+        }
+        void draw(Camera& cam) {
+            auto &spr = animator_.getCurrentFrame();
+            cam.getScr().artist().drawSprite(spr, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y - cam.getPos().y});
+            auto &sprStick_ = animatorStick_.getCurrentFrame();
+            cam.getScr().artist().drawSprite(sprStick_, {.x = dv_pos.x - cam.getPos().x,
+                                                   .y = dv_pos.y + 24 - cam.getPos().y}); 
+        }
+        void d_update() {
+            if(spin_){
+                if(animCount==0){
+                    animator_.changeTo(anims_.animSpin);
+                    animator_.setSpeed(0.5f);
+                }
+                if (animCount < 108) {
+                    animCount++;
+                }
+                else {
+                    animator_.changeTo(anims_.animSonic);
+                    animator_.setSpeed(0.0f);
+                }
             }
-        void d_draw(Camera& cam) {
-            cam.draw(animPost, v2f(dv_pos.x, dv_pos.y+24));
-            cam.draw(dv_anim, v2f(dv_pos.x, dv_pos.y));
+            animator_.tick();
         }
         EntityTypeID type() override { return EntityTypeID::DEPRECATED; }
 
-        void setAnim(bool spin) {
-            if (animCount < 10) {
-                if (dv_anim.getCurFrame() >= 108)
-                    animCount++;
-                dv_anim.set(105, 108, 0.5); 
-            }
-            else 
-            {
-                animCount = 50;
-                dv_anim.set(109, 109, 0); 
-            }
-        }
+        void setAnim(bool spin) { spin_=spin; }
+
+
     private:
-        AnimMgr animPost;
+        artist_api::Animator animator_;
+        artist_api::Animator animatorStick_;
+        SignPostAnimations anims_;
+        int spin_ = false;
         int animCount = 0;
 };

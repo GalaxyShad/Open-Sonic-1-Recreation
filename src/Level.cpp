@@ -1,6 +1,7 @@
 #include "Level.h"
 
 #include "LevelInformer.h"
+#include "core/game_enviroment/ResourceStore.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "core/game_enviroment/artist/SpriteFont.h"
 #include "entity-creator.hpp"
@@ -22,8 +23,44 @@ void Level::create() {
     }
 
     // Create player
+    auto &st = m_screen.store();
+    PlayerAnimations animsSonic = {
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.idle),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.boredStart),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.bored),
+
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.walk),
+
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.run),
+
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.dash),
+
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.sit),
+
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.roll),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.skidStart),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.skid),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.hurt),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.die),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.push),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.lookUp),
+
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.spring),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.sonic.fall),
+
+        
+        
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.killScore.n10),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.killScore.n100),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.killScore.n200),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.killScore.n500),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.killScore.n1_000),
+        st.get<artist_api::Animation>(st.map<SonicResources>().animations.killScore.n10_000),
+    };
+
+    // auto &animStore = st.map<SonicResources>().animations.sonic;
     m_entityPool.create(new Player(
-        m_playerStartPosition, m_entityPool.legacy_rawPool(), m_entityPool, cam,
+        m_playerStartPosition, animsSonic, m_entityPool.legacy_rawPool(), m_entityPool, cam,
         m_terrain, m_input, m_audio, rings, score));
 
     // Create camera

@@ -1,21 +1,21 @@
 #include "GimmicksGHZ.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
+#include <cstddef>
 
 void GimGHZ_Stone::init() 
 {
     dv_hitBoxSize = v2f(32.0, 32.0);
     dv_type = TYPE_UNKNOWN;
-	dv_anim.create(TEX_GHZ_GIMM);
-    dv_anim.set(0, 0, 0);
     dv_solid = true;
     dv_platform = true;
 }
 
-GimGHZ_BridgeController::GimGHZ_BridgeController(v2f _pos, uint8_t count, std::list<Entity*>& ent) : Entity(_pos)
+GimGHZ_BridgeController::GimGHZ_BridgeController(v2f _pos, artist_api::Sprite &spr, uint8_t count, std::list<Entity*>& ent) : Entity(_pos), spr_(spr)
 {
     segmentsCount = count;
     segments = new GimGHZ_Bridge*[count];
 	for(int i = -count / 2; i < count / 2; i++) {
-        GimGHZ_Bridge* segment = new GimGHZ_Bridge(v2f(_pos.x + i * 16, _pos.y));
+        GimGHZ_Bridge* segment = new GimGHZ_Bridge(v2f(_pos.x + i * 16, _pos.y),spr_);
         
         if (i < 0)
             segment->maxDepression = ((count / 2) + i + 1) * 2;
@@ -74,8 +74,6 @@ void GimGHZ_Bridge::init()
 {
     dv_hitBoxSize = v2f(16.0, 16.0);
     dv_type = TYPE_BRIDGE;
-	dv_anim.create(TEX_GHZ_GIMM);
-    dv_anim.set(2, 2, 0);
     dv_platform = true;
     dv_platPushUp = false;
 }
@@ -92,8 +90,6 @@ void GimGHZ_SlpPlatform::init()
     deathTimer = -1;
     dv_hitBoxSize = v2f(96.0, 84.0);
     dv_type = TYPE_GHZ_SLP_PLATFORM;
-	dv_anim.create(TEX_GHZ_GIMM);
-    dv_anim.set(1, 1, 0);
     dv_platPushUp = false;
 }
 
@@ -106,15 +102,22 @@ void GimGHZ_SlpPlatform::d_update() {
             v2f _p = dv_pos;
 
             if (!isLeft) {
-                _p.x -= 48; _p.y -= 56;
-                for (int i = 0; i < 36; i++) 
-                    ent.push_front(new GimGHZ_SlpPlatformPart(
-                        v2f(_p.x+(i%6)*16, _p.y+(i/6)*16), i, false));
+                // _p.x -= 48; _p.y -= 56;
+                for (int i = 0; i < 36; i++){
+                    v2f offset = v2f((i%6)*16, (i/6)*16);
+                    artist_api::Sprite part_spr = spr_;
+                    part_spr.rect = {48+offset.x,  offset.y,  16, 16};
+                    ent.push_front(new GimGHZ_SlpPlatformPart(v2f(_p.x+offset.x, _p.y+offset.y),part_spr, i, false));
+                }
+
             } else {
-                _p.x += 32; _p.y -= 56;
-                for (int i = 0; i < 36; i++) 
-                    ent.push_front(new GimGHZ_SlpPlatformPart(
-                        v2f(_p.x-(i%6)*16, _p.y+(i/6)*16), i, true));
+                // _p.x += 32; _p.y -= 56;
+                for (int i = 0; i < 36; i++){
+                    v2f offset = v2f((i%6)*16, (i/6)*16);
+                    artist_api::Sprite part_spr = spr_;
+                    part_spr.rect = {48+offset.x,  offset.y,  16, 16};
+                    ent.push_front(new GimGHZ_SlpPlatformPart(v2f(_p.x-offset.x, _p.y+offset.y),part_spr, i, true));
+                }
             }
         }
     }
@@ -124,8 +127,6 @@ void GimGHZ_Platform::init()
 {
     dv_hitBoxSize = v2f(64.0, 26.0);
     dv_type = TYPE_PLATFORM;
-	dv_anim.create(TEX_GHZ_GIMM);
-    dv_anim.set(3, 3, 0);
     dv_platform = true;
     angle = 0;
 

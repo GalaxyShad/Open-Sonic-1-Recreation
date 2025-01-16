@@ -5,6 +5,7 @@
 
 #include "TitleScreen.h"
 #include "core/game_enviroment/GameEnvironment.h"
+#include "core/game_enviroment/artist/ArtistStructs.h"
 #include "core/game_enviroment/artist/SpriteFont.h"
 #include "sonic/SonicResources.h"
 
@@ -179,7 +180,13 @@ private:
 
 class TitlePressStartEntity : public entity_v3::Entity {
 public:
+    explicit TitlePressStartEntity(artist_api::Texture& texTitle) : texTitle_(texTitle) {}
+
     entity_v3::EntityID type() override { return 2; }
+
+    void onInit(const entity_v3::InitContext &ctx) override {
+
+    }
 
     void onUpdate(const entity_v3::UpdateContext &ctx) override { tick_++; }
 
@@ -187,10 +194,8 @@ public:
         if (tick_ % 40 < 20)
             return;
 
-        auto &texRes = ctx.deprecatedScreen.getTextureResource(254);
-        auto &t = ctx.deprecatedScreen.store().get<artist_api::Texture>(texRes);
-
-        ctx.deprecatedScreen.artist().drawSprite({.texture = t,
+        ctx.deprecatedScreen.artist().drawSprite({
+            .texture = texTitle_,
             .rect = {.x = 56.0,
                     .y = 158.0,
                     .width = 144.0,
@@ -205,6 +210,7 @@ public:
 
 private:
     int tick_ = 0;
+    artist_api::Texture& texTitle_;
 };
 
 class TitleMenuEntity : public entity_v3::Entity {
@@ -213,14 +219,12 @@ public:
         : titleScreen_(titleScreen), mainMenu_(mainMenuConstruct()) {}
 
     void onUpdate(const entity_v3::UpdateContext &ctx) override {
-        pressStartEntity_.onUpdate(ctx);
         mainMenu_.onUpdate(ctx);
         sceneDirector_ = &ctx.sceneDirector;
     }
 
     void onDraw(const entity_v3::DrawContext &ctx) override {
         titleScreen_.draw();
-        pressStartEntity_.onDraw(ctx);
         mainMenu_.onDraw(ctx);
     }
 
@@ -234,7 +238,6 @@ public:
 private:
     TitleScreen &titleScreen_;
     ISceneDirector *sceneDirector_ = nullptr; // FIXME?
-    TitlePressStartEntity pressStartEntity_;
     MenuEntity mainMenu_;
 
 private:

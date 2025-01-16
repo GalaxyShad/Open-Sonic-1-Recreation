@@ -37,9 +37,6 @@ SonicResources::Textures loadTextures(ResourceStore &store,
     constexpr int GHZ_GIMM = 1;
     constexpr int HUD = 2;
 
-    deprEnv.scr.bindTextureFrames(OBJECTS, framesObjects, 139);
-    deprEnv.scr.bindTextureFrames(GHZ_GIMM, framesGhzGim, 8);
-
     return textures;
 }
 
@@ -380,22 +377,22 @@ SonicResources::Animation makeSpritesAndAnimations(ResourceStore& store, SonicRe
 
     anims.act = {
         .act = an(Animation{
-            .frames = { Sprite { objTex, {928,40,24,8}, {12,4}}, }
+            .frames = { Sprite { objTex, {928,40,24,8}, {0,0}}, }
         }),
         .actBack = an(Animation{
             .frames = { Sprite { objTex, {968,40,16,16}, {8,8}}, }
         }),
         .d1 = an(Animation{
-            .frames = { Sprite { objTex, {933,48,7,24},  {3,12}}, }
+            .frames = { Sprite { objTex, {933,48,7,24},  {0,0}}, }
         }),
         .d2 = an(Animation{
-            .frames = { Sprite { objTex, {940,48,14,24}, {7,12}}, }
+            .frames = { Sprite { objTex, {940,48,14,24}, {0,0}}, }
         }),
         .d3 = an(Animation{
-            .frames = { Sprite { objTex, {954,48,14,24}, {7,12}}, }
+            .frames = { Sprite { objTex, {954,48,14,24}, {0,0}}, }
         }),
         .ellipse = an(Animation{
-            .frames = { Sprite { objTex, {1334,0,56,56}, {28,28}}, }
+            .frames = { Sprite { objTex, {1334,0,56,56}, {0,0}}, }
         }),
     };
 

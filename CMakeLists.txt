@@ -13,8 +13,6 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 add_executable(os1r ${SOURCES}
-        src/AnimMgr.cpp
-        src/AnimMgr.h
         src/AudioMappings.h
         src/Bg.cpp
         src/Bg.h

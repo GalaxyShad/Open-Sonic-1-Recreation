@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AnimMgr.h"
 #include "core/game_enviroment/artist/Animator.h"
 #include "core/game_enviroment/artist/ArtistStructs.h"
 #include "player-state-base.hpp"

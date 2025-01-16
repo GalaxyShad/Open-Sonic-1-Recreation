@@ -167,8 +167,8 @@ public:
     template <typename T> T &castTo() { return *((T *)this); }
 
     // Deprecated
-    virtual void d_update() { dv_anim.tick(); }
-    virtual void d_draw(Camera &cam) { cam.draw(dv_anim, dv_pos); }
+    virtual void d_update() { }
+    virtual void d_draw(Camera &cam) { }
     virtual void d_reactingToOthers(std::list<Entity *> &entities) { return; }
     void d_setPos(v2f pos) { this->dv_pos = pos; }
     v2f d_getPos() { return dv_pos; }
@@ -201,6 +201,5 @@ protected:
     v2f dv_pos;
     v2f dv_startPos;
     v2f dv_hitBoxSize = v2f(16, 16);
-    AnimMgr dv_anim;
 };
 #undef NOTHING

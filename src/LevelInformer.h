@@ -46,7 +46,7 @@ public:
 
         m_tick++;
 
-        if (m_shapeX < centerX + 25)
+        if (m_shapeX < centerX + 25 )
             m_shapeX = centerX + 25;
         if (m_textActX < centerX + 32)
             m_textActX = centerX + 32;
@@ -57,42 +57,42 @@ public:
             m_textBottomX = centerX + 58;
 
 
-        auto &texRes = scr.getTextureResource(2);
-        auto &t = scr.store().get<artist_api::Texture>(texRes);
+        auto& sprAct = scr.store().get<artist_api::Animation>(
+            scr.store().map<SonicResources>().animations.act.act
+        ).frames[0];
+        auto& sprActBack = scr.store().get<artist_api::Animation>(
+            scr.store().map<SonicResources>().animations.act.ellipse
+        ).frames[0];
 
-        scr.artist().drawSprite({.texture = t,
-            .rect = {.x = 191.0,
-                    .y = 77.0,
-                    .width = 56.0,
-                    .height = 56.0}},
-        artist_api::Vector2D<float>{.x = m_shapeX, .y = 69});
-        scr.artist().drawSprite({.texture = t,
-            .rect = {.x = 2.0,
-                    .y = 121.0,
-                    .width = 24.0,
-                    .height = 8.0}},
-        artist_api::Vector2D<float>{.x = m_textActX, .y = 110});
+        scr.artist().drawSprite(
+            sprActBack,
+            artist_api::Vector2D<float>{.x = m_shapeX, .y = 69});
+        scr.artist().drawSprite(
+            sprAct,
+            artist_api::Vector2D<float>{.x = m_textActX, .y = 110});
 
-        irect _irect;
         v2f _v2f=v2f(m_textActX + 29, 94);
+
+        auto& actResources = scr.store().map<SonicResources>().animations.act;
+        auto actDigitResource = actResources.d1;
         switch (m_act) {
             case 1:
                 _v2f.x+=3;
-                _irect=irect(34,113,7,24);
+                actDigitResource = actResources.d1;
                 break;
             case 2:
-                _irect=irect(51,113,14,24);
+                actDigitResource = actResources.d2;
                 break;
             case 3:
-                _irect=irect(75,113,14,24);
+                actDigitResource = actResources.d3;
                 break;
         }
-        scr.artist().drawSprite({.texture = t,
-            .rect = {.x = (float)_irect.left,
-                    .y = (float)_irect.top,
-                    .width = (float)_irect.width,
-                    .height = (float)_irect.height}},
-        artist_api::Vector2D<float>{.x = _v2f.x, .y = _v2f.y});
+
+        auto& sprActDigit = scr.store().get<artist_api::Animation>(actDigitResource).frames[0];
+
+        scr.artist().drawSprite(
+            sprActDigit,
+            artist_api::Vector2D<float>{.x = _v2f.x, .y = _v2f.y});
 
 
         auto &font = scr.store().get<artist_api::SpriteFont>(
@@ -238,8 +238,9 @@ public:
             xFontBottom = xCenter + 58;
 
 
-        auto &texRes = scr.getTextureResource(2);
-        auto &t = scr.store().get<artist_api::Texture>(texRes);
+        auto &t = scr.store().get<artist_api::Texture>(
+            scr.store().map<SonicResources>().textures.objects
+        );
 
         scr.artist().drawSprite({.texture = t,
             .rect = {.x = 191.0,

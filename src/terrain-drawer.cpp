@@ -170,11 +170,9 @@ void TerrainDrawer::drawChunkPart(const Chunk &chunk, v2f pos,
                 br.height = (rect.top + rect.height) - yend * 16;
             }
 
-            m_camera.draw(m_textureId, br,
-                          v2f(pos.x + j * TERRAIN_TILE_SIZE,
-                              (pos.y + (i - ystart) * TERRAIN_TILE_SIZE) -
-                                  ((i == ystart) ? 0 : rect.top % 16)),
-                          v2i(0, 0), 0.0, block.xFlip, block.yFlip);
+
+
+            // TODO
         }
     }
 }
